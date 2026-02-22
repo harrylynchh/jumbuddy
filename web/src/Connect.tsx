@@ -20,7 +20,7 @@ interface Assignment {
 
 export default function Connect() {
   const [session, setSession] = useState<Session | null>(null);
-  const [email, setEmail] = useState("student1@jumbuddy.test");
+  const [loginUtln, setLoginUtln] = useState("slupo01");
   const [password, setPassword] = useState("testpass123");
   const [error, setError] = useState("");
 
@@ -69,11 +69,19 @@ export default function Connect() {
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) setError(error.message);
+    try {
+      const res = await fetch(`${API}/api/profiles/resolve-utln`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ utln: loginUtln.trim().toLowerCase() }),
+      });
+      if (!res.ok) { setError("UTLN not found"); return; }
+      const { email } = await res.json();
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) setError(error.message);
+    } catch {
+      setError("Could not reach server");
+    }
   }
 
   async function handleConnect(assignmentId: string) {
@@ -149,12 +157,13 @@ export default function Connect() {
           </p>
           <form onSubmit={handleLogin}>
             <label style={{ display: "block", marginBottom: "0.35rem", fontWeight: 600 }}>
-              Email
+              UTLN
             </label>
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              value={loginUtln}
+              onChange={(e) => setLoginUtln(e.target.value)}
+              placeholder="e.g. slupo01"
               style={{
                 width: "100%",
                 padding: "0.7rem",

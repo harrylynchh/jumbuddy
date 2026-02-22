@@ -8,8 +8,8 @@ import { pushFlushes } from "../sync/flusher";
 import { JumbuddyConfig } from "../utils/types";
 import { createStatusBar, setTracking, setIdle, setUninitialized, dispose as disposeStatusBar } from "../ui/statusbar";
 
-const DEFAULT_SERVER_URL = "http://localhost:10000";
-const WEB_URL = "http://localhost:10001";
+const DEFAULT_SERVER_URL = "https://10000.sethlupo.com";
+const WEB_URL = "https://10001.sethlupo.com";
 
 export async function activate(context: vscode.ExtensionContext) {
   console.log("[JumBuddy] Activating extension...");

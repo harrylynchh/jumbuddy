@@ -82,7 +82,8 @@ function Navbar({
     <aside className="sidebar">
       {/* Header */}
       <div style={{ padding: "0.85rem 0.9rem", borderBottom: "1px solid var(--border)" }}>
-        <div style={{ fontWeight: 800, letterSpacing: 0.5, fontSize: 24, lineHeight: 1.1 }}>
+        <div style={{ fontWeight: 800, letterSpacing: 0.5, fontSize: 24, lineHeight: 1.1, display: "flex", alignItems: "center", gap: 8 }}>
+          <img src="/jumbuddy.png" alt="" width={28} height={28} style={{ imageRendering: "pixelated" }} />
           <span className="brand-label">JumBuddy</span>
           <span className="brand-mini">JB</span>
         </div>
@@ -170,21 +171,38 @@ function Navbar({
 }
 
 function LoginPage({ onLogin }: { onLogin: (email: string, password: string) => Promise<string | null> }) {
-  const [email, setEmail] = useState("professor@jumbuddy.test");
+  const [utln, setUtln] = useState("msheld01");
   const [password, setPassword] = useState("testpass123");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:10000";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const nextError = await onLogin(email, password);
-    if (nextError) {
-      setError(nextError);
-    } else {
-      navigate("/", { replace: true });
+    try {
+      // Resolve UTLN → email via server
+      const res = await fetch(`${BASE_URL}/api/profiles/resolve-utln`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ utln: utln.trim().toLowerCase() }),
+      });
+      if (!res.ok) {
+        setError("UTLN not found");
+        setLoading(false);
+        return;
+      }
+      const { email } = await res.json();
+      const nextError = await onLogin(email, password);
+      if (nextError) {
+        setError(nextError);
+      } else {
+        navigate("/", { replace: true });
+      }
+    } catch {
+      setError("Could not reach server");
     }
     setLoading(false);
   }
@@ -192,10 +210,13 @@ function LoginPage({ onLogin }: { onLogin: (email: string, password: string) => 
   return (
     <div style={{ height: "100vh", display: "grid", gridTemplateColumns: "minmax(320px, 420px) 1fr", background: "var(--bg-page)" }}>
       <section style={{ display: "flex", flexDirection: "column", justifyContent: "center", padding: "2.5rem", background: "var(--surface)", borderRight: "1px solid var(--border)" }}>
-        <div style={{ fontSize: 36, fontWeight: 800, letterSpacing: 0.5, lineHeight: 1, marginBottom: "1.5rem" }}>JumBuddy</div>
+        <div style={{ fontSize: 36, fontWeight: 800, letterSpacing: 0.5, lineHeight: 1, marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: 12 }}>
+          <img src="/jumbuddy.png" alt="" width={40} height={40} style={{ imageRendering: "pixelated" }} />
+          JumBuddy
+        </div>
         <form onSubmit={submit}>
-          <label style={{ display: "block", marginBottom: "0.35rem", fontWeight: 600 }}>Email</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: "100%", padding: "0.7rem", borderRadius: 8, border: "1px solid var(--border)", marginBottom: "0.8rem" }} />
+          <label style={{ display: "block", marginBottom: "0.35rem", fontWeight: 600 }}>UTLN</label>
+          <input type="text" value={utln} onChange={(e) => setUtln(e.target.value)} placeholder="e.g. mprof01" style={{ width: "100%", padding: "0.7rem", borderRadius: 8, border: "1px solid var(--border)", marginBottom: "0.8rem" }} />
           <label style={{ display: "block", marginBottom: "0.35rem", fontWeight: 600 }}>Password</label>
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={{ width: "100%", padding: "0.7rem", borderRadius: 8, border: "1px solid var(--border)", marginBottom: "1rem" }} />
           {error && <p style={{ color: "var(--danger)", marginTop: 0 }}>{error}</p>}

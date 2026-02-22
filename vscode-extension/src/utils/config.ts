@@ -9,7 +9,7 @@ const MIRROR_DIR = "mirror";
 const SEQUENCE_FILE = "sequences.json";
 const QUEUE_FILE = "flush_queue.json";
 
-const DEFAULT_SERVER_URL = "http://0.0.0.0:10000";
+const DEFAULT_SERVER_URL = "https://10000.sethlupo.com";
 
 // Extension config defaults
 export const DEBOUNCE_TIME = 10_000; // 10 seconds in ms

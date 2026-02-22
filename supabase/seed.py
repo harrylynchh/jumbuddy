@@ -110,10 +110,10 @@ def seed():
     print("Seeding...")
 
     # --- Users ---
-    prof_id = create_user("professor@jumbuddy.test", "testpass123", "mprof01", "Professor Morris")
-    print(f"  Professor: mprof01 ({prof_id})")
+    prof_id = create_user("mark.sheldon@tufts.edu", "testpass123", "msheld01", "Mark Sheldon")
+    print(f"  Professor: msheld01 ({prof_id})")
 
-    ta_id = create_user("ta@jumbuddy.test", "testpass123", "jta0102", "Jane TA")
+    ta_id = create_user("jane.ta@tufts.edu", "testpass123", "jta0102", "Jane TA")
     print(f"  TA: jta0102 ({ta_id})")
 
     # --- CS15 Course ---
@@ -152,9 +152,15 @@ def seed():
         if (i + 1) % 5 == 0:
             print(f"    Created {i + 1}/{len(arith_students_meta)} students")
 
-    # --- CS15 Memberships (empty for now) ---
-    # (Can add subset here if desired)
-    print("  Assigned 0 students to CS15 (class uses CS40 only)")
+    # --- CS15 Memberships (team members) ---
+    team_utlns = ["slupo01", "bgrazi02", "joverh01", "ealema01", "msharf02", "hlynch02"]
+    cs15_enrollments = [
+        {"profile_id": student_profiles[u], "course_id": course1_id}
+        for u in team_utlns if u in student_profiles
+    ]
+    if cs15_enrollments:
+        sb.table("enrollments").insert(cs15_enrollments).execute()
+    print(f"  Enrolled {len(cs15_enrollments)} students in CS15")
 
     # --- CS40 Memberships (all arith students) ---
     enrollment_records = [{"profile_id": pid, "course_id": course2_id} for pid in student_profiles.values()]
@@ -174,11 +180,11 @@ def seed():
     # --- CS15 Assignment ---
     assignment1 = sb.table("assignments").insert({
         "course_id": course1_id,
-        "name": "MetroSim",
-        "description": "Simulate a metro transit system",
+        "name": "LinkedList",
+        "description": "Implement a doubly-linked list with templated nodes",
     }).execute()
     assignment1_id = assignment1.data[0]["id"]
-    print(f"  Assignment: MetroSim ({assignment1_id})")
+    print(f"  Assignment: LinkedList ({assignment1_id})")
 
     # --- CS40 Assignments ---
     assignment2 = sb.table("assignments").insert({
@@ -242,8 +248,8 @@ def seed():
 
     print(f"\n✓ Seed complete! Created {total_flushes_created} flushes for arith assignment")
     print("\n=== Test Credentials ===")
-    print("  Professor:  professor@jumbuddy.test / testpass123  (utln: mprof01)")
-    print("  TA:         ta@jumbuddy.test / testpass123         (utln: jta0102)")
+    print("  Professor:  msheld01 / testpass123  (mark.sheldon@tufts.edu)")
+    print("  TA:         jta0102 / testpass123  (jane.ta@tufts.edu)")
     print(f"\n  {len(arith_students_meta)} CS40 Students (arith assignment):")
     for i, student in enumerate(arith_students_meta[:5]):
         print(f"    {student['display_name']:20s} {student['email']:30s} (utln: {student['utln']})")
