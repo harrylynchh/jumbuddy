@@ -136,7 +136,7 @@ def main():
     print("Supabase Studio:  http://localhost:10003")
     print("PostgreSQL:       localhost:10005")
     print("\n=== Run complete ===")
-    print("Login with: professor@jumbuddy.test / testpass123")
+    print("Login with UTLN: msheld01 / testpass123")
 
 
 if __name__ == "__main__":
