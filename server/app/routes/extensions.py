@@ -225,8 +225,8 @@ def create_flushes():
             "metrics": f.get("metrics", {}),
         })
 
-    # Use upsert to handle duplicate client_flush_id (idempotent on retry)
-    result = sb.table("flushes").upsert(rows, on_conflict="client_flush_id").execute()
+    # Plain insert — no unique constraints, dedup at read time for performance
+    result = sb.table("flushes").insert(rows).execute()
     inserted = len(result.data or [])
 
     log.info("flushes: upserted %d rows for profile_id=%s", inserted, profile_id)

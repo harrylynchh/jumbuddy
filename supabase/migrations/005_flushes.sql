@@ -8,8 +8,8 @@ create table public.flushes (
     assignment_id uuid not null references public.assignments(id) on delete cascade,
     file_path text not null,
 
-    -- Client-generated unique ID for deduplication on retry
-    client_flush_id uuid not null unique,
+    -- Client-generated unique ID for deduplication (checked at read time, not on insert)
+    client_flush_id uuid not null,
 
     -- Monotonic sequence number per (profile_id, assignment_id, file_path) chain
     -- Guarantees strict ordering for reconstruction
@@ -38,14 +38,16 @@ create table public.flushes (
         extract(epoch from end_timestamp - start_timestamp)
     ) stored,
 
-    -- Guarantee uniqueness of sequence numbers per chain
-    unique(profile_id, assignment_id, file_path, sequence_number)
+    -- No unique constraints — append-only, dedup at read time via client_flush_id
 );
 
 -- Primary query pattern: reconstruct a file by replaying flushes in strict order
 -- This composite index supports: WHERE profile_id=X AND assignment_id=Y AND file_path=Z ORDER BY sequence_number
 create index idx_flushes_diff_chain
     on public.flushes(profile_id, assignment_id, file_path, sequence_number);
+
+-- Fast dedup lookups at read time
+create index idx_flushes_client_flush_id on public.flushes(client_flush_id);
 
 -- Lookup flushes by assignment (e.g. professor viewing all student work)
 create index idx_flushes_assignment on public.flushes(assignment_id, start_timestamp);
