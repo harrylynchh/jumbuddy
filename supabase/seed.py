@@ -81,11 +81,11 @@ def seed():
     # --- Assignment ---
     assignment = sb.table("assignments").insert({
         "course_id": course_id,
-        "name": "HW1 - Hello World",
-        "description": "Write a program that prints Hello World",
+        "name": "MetroSim",
+        "description": "Simulate a metro transit system",
     }).execute()
     assignment_id = assignment.data[0]["id"]
-    print(f"  Assignment: HW1 ({assignment_id})")
+    print(f"  Assignment: MetroSim ({assignment_id})")
 
     print("\nSeed done.")
     print("\n=== Test credentials ===")

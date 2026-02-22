@@ -225,9 +225,28 @@ def create_flushes():
             "metrics": f.get("metrics", {}),
         })
 
-    # Plain insert — no unique constraints, dedup at read time for performance
-    result = sb.table("flushes").insert(rows).execute()
-    inserted = len(result.data or [])
+    # Plain insert — use raw HTTP for better PostgREST error messages
+    import requests as req
+    from flask import current_app
+    rest_url = current_app.config["SUPABASE_URL"] + "/rest/v1/flushes"
+    service_key = current_app.config["SUPABASE_SERVICE_ROLE_KEY"]
+    headers = {
+        "apikey": service_key,
+        "Authorization": f"Bearer {service_key}",
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal",
+    }
+    try:
+        resp = req.post(rest_url, headers=headers, json=rows, timeout=30)
+        if resp.status_code >= 400:
+            log.error("flushes insert failed: status=%d body=%s", resp.status_code, resp.text[:500])
+            return jsonify({"error": "Insert failed", "status": resp.status_code, "detail": resp.text[:500]}), 500
+    except Exception as e:
+        log.error("flushes insert request failed: %r", e)
+        return jsonify({"error": "Insert failed", "detail": str(e)}), 500
 
-    log.info("flushes: upserted %d rows for profile_id=%s", inserted, profile_id)
+    inserted = len(rows)
+
+    inserted = len(result.data or [])
+    log.info("flushes: inserted %d rows for profile_id=%s", inserted, profile_id)
     return jsonify({"inserted": inserted})

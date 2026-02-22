@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "./api/supabase";
+import { apiFetch } from "./api/client";
 import type { Session } from "@supabase/supabase-js";
 import {
   Link,
@@ -10,704 +11,16 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
-
-import averyStep1Diff from "./mock-diffs/avery-step1.diff?raw";
-import averyStep2Diff from "./mock-diffs/avery-step2.diff?raw";
-import averyStep3Diff from "./mock-diffs/avery-step3.diff?raw";
-import averyStep4Diff from "./mock-diffs/avery-step4.diff?raw";
-import noahStep1Diff from "./mock-diffs/noah-step1.diff?raw";
-import noahStep2Diff from "./mock-diffs/noah-step2.diff?raw";
-import noahStep3Diff from "./mock-diffs/noah-step3.diff?raw";
-import noahStep4Diff from "./mock-diffs/noah-step4.diff?raw";
-import miaStep1Diff from "./mock-diffs/mia-step1.diff?raw";
-import miaStep2Diff from "./mock-diffs/mia-step2.diff?raw";
-import miaStep3Diff from "./mock-diffs/mia-step3.diff?raw";
-import miaStep4Diff from "./mock-diffs/mia-step4.diff?raw";
-import liamStep1Diff from "./mock-diffs/liam-step1.diff?raw";
-import liamStep2Diff from "./mock-diffs/liam-step2.diff?raw";
-import liamStep3Diff from "./mock-diffs/liam-step3.diff?raw";
-import liamStep4Diff from "./mock-diffs/liam-step4.diff?raw";
-import zoeStep1Diff from "./mock-diffs/zoe-step1.diff?raw";
-import zoeStep2Diff from "./mock-diffs/zoe-step2.diff?raw";
-import zoeStep3Diff from "./mock-diffs/zoe-step3.diff?raw";
-import zoeStep4Diff from "./mock-diffs/zoe-step4.diff?raw";
-import owenStep1Diff from "./mock-diffs/owen-step1.diff?raw";
-import owenStep2Diff from "./mock-diffs/owen-step2.diff?raw";
-import owenStep3Diff from "./mock-diffs/owen-step3.diff?raw";
-import owenStep4Diff from "./mock-diffs/owen-step4.diff?raw";
-
-type Student = {
-  id: string;
-  name: string;
-  email: string;
-};
-
-type ReplayStep = {
-  id: string;
-  title: string;
-  diff: string;
-  before: string;
-  after: string;
-  durationSeconds: number;
-};
-
-type ReplayFile = {
-  filePath: string;
-  baseInsight: string;
-  steps: ReplayStep[];
-};
-
-type AssignmentStudentData = {
-  stats: Array<{ label: string; value: string }>;
-  aiOverview: string[];
-};
-
-type Assignment = {
-  id: string;
-  title: string;
-  due: string;
-  symbols: string[];
-  classStats: Array<{ label: string; value: string }>;
-  students: Record<string, AssignmentStudentData>;
-  heatmap: Record<string, Record<string, number>>;
-  narratives: Record<string, Record<string, string>>;
-  replay: Record<string, ReplayFile[]>;
-};
-
-type Course = {
-  id: string;
-  title: string;
-  role: string;
-  term: string;
-  assignments: Assignment[];
-};
+import type {
+  CourseWithRole,
+  Assignment,
+  StudentEntry,
+  Flush,
+} from "./types";
+import { reconstructFileAtStep, dedupFlushes } from "./lib/reconstruct";
 
 type ThemeMode = "light" | "dark";
-type NavIconName = "dashboard" | "faq" | "about" | "account";
-
-const students: Student[] = [
-  { id: "s-001", name: "Avery Johnson", email: "avery.johnson@school.edu" },
-  { id: "s-002", name: "Noah Patel", email: "noah.patel@school.edu" },
-  { id: "s-003", name: "Mia Chen", email: "mia.chen@school.edu" },
-  { id: "s-004", name: "Liam Garcia", email: "liam.garcia@school.edu" },
-  { id: "s-005", name: "Zoe Kim", email: "zoe.kim@school.edu" },
-  { id: "s-006", name: "Owen Brooks", email: "owen.brooks@school.edu" },
-];
-
-const replayTemplates: Record<string, ReplayFile[]> = {
-  "s-001": [
-    {
-      filePath: "src/loops.ts",
-      baseInsight:
-        "Avery improved loop correctness quickly after identifying an off-by-one boundary issue.",
-      steps: [
-        {
-          id: "avery-1",
-          title: "Fix loop boundary",
-          diff: averyStep1Diff,
-          before:
-            "export function countPassed(scores: number[]) {\n  let passed = 0;\n  for (let i = 0; i <= scores.length; i++) {\n    if (scores[i] >= 70) passed += 1;\n  }\n  return passed;\n}\n",
-          after:
-            "export function countPassed(scores: number[]) {\n  let passed = 0;\n  for (let i = 0; i < scores.length; i++) {\n    if (scores[i] >= 70) passed += 1;\n  }\n\n  return passed;\n}\n",
-          durationSeconds: 6,
-        },
-        {
-          id: "avery-2",
-          title: "Introduce local score variable",
-          diff: averyStep2Diff,
-          before:
-            "export function countPassed(scores: number[]) {\n  let passed = 0;\n  for (let i = 0; i < scores.length; i++) {\n    if (scores[i] >= 70) passed += 1;\n  }\n\n  return passed;\n}\n",
-          after:
-            "export function countPassed(scores: number[]) {\n  let passed = 0;\n  for (let i = 0; i < scores.length; i++) {\n    const score = scores[i];\n    if (score >= 70) passed += 1;\n  }\n\n  return passed;\n}\n",
-          durationSeconds: 4,
-        },
-        {
-          id: "avery-3",
-          title: "Extract passing score constant",
-          diff: averyStep3Diff,
-          before:
-            "export function countPassed(scores: number[]) {\n  let passed = 0;\n  for (let i = 0; i < scores.length; i++) {\n    const score = scores[i];\n    if (score >= 70) passed += 1;\n  }\n\n  return passed;\n}\n",
-          after:
-            "export function countPassed(scores: number[]) {\n  let passed = 0;\n  const PASSING_SCORE = 70;\n\n  for (let i = 0; i < scores.length; i++) {\n    const score = scores[i];\n    if (score >= PASSING_SCORE) passed += 1;\n  }\n\n  return passed;\n}\n",
-          durationSeconds: 5,
-        },
-        {
-          id: "avery-4",
-          title: "Use for-of and add empty guard",
-          diff: averyStep4Diff,
-          before:
-            "export function countPassed(scores: number[]) {\n  let passed = 0;\n  const PASSING_SCORE = 70;\n\n  for (let i = 0; i < scores.length; i++) {\n    const score = scores[i];\n    if (score >= PASSING_SCORE) passed += 1;\n  }\n\n  return passed;\n}\n",
-          after:
-            "export function countPassed(scores: number[]) {\n  let passed = 0;\n  const PASSING_SCORE = 70;\n\n  for (const score of scores) {\n    if (score >= PASSING_SCORE) passed += 1;\n  }\n\n  return scores.length === 0 ? 0 : passed;\n}\n",
-          durationSeconds: 4,
-        },
-      ],
-    },
-  ],
-  "s-002": [
-    {
-      filePath: "src/tree.ts",
-      baseInsight:
-        "Noah spent less time fixing logic and more time clarifying algorithm communication.",
-      steps: [
-        {
-          id: "noah-1",
-          title: "Add traversal explanation",
-          diff: noahStep1Diff,
-          before:
-            "export function dfs(node: Node | null) {\n  if (!node) return [];\n  const left = dfs(node.left);\n  const right = dfs(node.right);\n  return [...left, node.value, ...right];\n}\n",
-          after:
-            "export function dfs(node: Node | null) {\n  if (!node) return [];\n  const left = dfs(node.left);\n  const right = dfs(node.right);\n\n  // keep root in between left and right traversal\n  return [...left, node.value, ...right];\n}\n",
-          durationSeconds: 4,
-        },
-        {
-          id: "noah-2",
-          title: "Refine terminology",
-          diff: noahStep2Diff,
-          before:
-            "export function dfs(node: Node | null) {\n  if (!node) return [];\n  const left = dfs(node.left);\n  const right = dfs(node.right);\n\n  // keep root in between left and right traversal\n  return [...left, node.value, ...right];\n}\n",
-          after:
-            "export function dfs(node: Node | null) {\n  if (!node) return [];\n  const left = dfs(node.left);\n  const right = dfs(node.right);\n\n  // in-order traversal: left, root, right\n  return [...left, node.value, ...right];\n}\n",
-          durationSeconds: 3,
-        },
-        {
-          id: "noah-3",
-          title: "Clarify traversal wording",
-          diff: noahStep3Diff,
-          before:
-            "export function dfs(node: Node | null) {\n  if (!node) return [];\n  const left = dfs(node.left);\n  const right = dfs(node.right);\n\n  // in-order traversal: left, root, right\n  return [...left, node.value, ...right];\n}\n",
-          after:
-            "export function dfs(node: Node | null) {\n  if (!node) return [];\n  const left = dfs(node.left);\n  const right = dfs(node.right);\n\n  // in-order traversal: left subtree, root, right subtree\n  return [...left, node.value, ...right];\n}\n",
-          durationSeconds: 2,
-        },
-        {
-          id: "noah-4",
-          title: "Add spacing for readability",
-          diff: noahStep4Diff,
-          before:
-            "export function dfs(node: Node | null) {\n  if (!node) return [];\n  const left = dfs(node.left);\n  const right = dfs(node.right);\n\n  // in-order traversal: left subtree, root, right subtree\n  return [...left, node.value, ...right];\n}\n",
-          after:
-            "export function dfs(node: Node | null) {\n  if (!node) return [];\n\n  const left = dfs(node.left);\n  const right = dfs(node.right);\n\n  // in-order traversal: left subtree, root, right subtree\n  return [...left, node.value, ...right];\n}\n",
-          durationSeconds: 2,
-        },
-      ],
-    },
-  ],
-  "s-003": [
-    {
-      filePath: "src/input.ts",
-      baseInsight:
-        "Mia improved robustness by tightening validation and normalizing edge-case whitespace.",
-      steps: [
-        {
-          id: "mia-1",
-          title: "Trim input first",
-          diff: miaStep1Diff,
-          before:
-            "export function isValidName(name: string) {\n  return name.length > 0;\n}\n\nexport function formatName(name: string) {\n  return name.trim();\n}\n",
-          after:
-            "export function isValidName(name: string) {\n  const trimmed = name.trim();\n  return trimmed.length > 0;\n}\n\nexport function formatName(name: string) {\n  return name.trim();\n}\n",
-          durationSeconds: 5,
-        },
-        {
-          id: "mia-2",
-          title: "Strengthen validation",
-          diff: miaStep2Diff,
-          before:
-            "export function isValidName(name: string) {\n  const trimmed = name.trim();\n  return trimmed.length > 0;\n}\n\nexport function formatName(name: string) {\n  return name.trim();\n}\n",
-          after:
-            "export function isValidName(name: string) {\n  const trimmed = name.trim();\n  return trimmed.length >= 2;\n}\n\nexport function formatName(name: string) {\n  return name.trim().replace(/\\s+/g, \" \");\n}\n",
-          durationSeconds: 5,
-        },
-        {
-          id: "mia-3",
-          title: "Add upper bound to validation",
-          diff: miaStep3Diff,
-          before:
-            "export function isValidName(name: string) {\n  const trimmed = name.trim();\n  return trimmed.length >= 2;\n}\n\nexport function formatName(name: string) {\n  return name.trim().replace(/\\s+/g, \" \");\n}\n",
-          after:
-            "export function isValidName(name: string) {\n  const trimmed = name.trim();\n  return trimmed.length >= 2 && trimmed.length <= 40;\n}\n\nexport function formatName(name: string) {\n  return name.trim().replace(/\\s+/g, \" \");\n}\n",
-          durationSeconds: 4,
-        },
-        {
-          id: "mia-4",
-          title: "Extract trimmed variable in formatter",
-          diff: miaStep4Diff,
-          before:
-            "export function isValidName(name: string) {\n  const trimmed = name.trim();\n  return trimmed.length >= 2 && trimmed.length <= 40;\n}\n\nexport function formatName(name: string) {\n  return name.trim().replace(/\\s+/g, \" \");\n}\n",
-          after:
-            "export function isValidName(name: string) {\n  const trimmed = name.trim();\n  return trimmed.length >= 2 && trimmed.length <= 40;\n}\n\nexport function formatName(name: string) {\n  const trimmed = name.trim().replace(/\\s+/g, \" \");\n  return trimmed;\n}\n",
-          durationSeconds: 4,
-        },
-      ],
-    },
-  ],
-  "s-004": [
-    {
-      filePath: "src/copy_constructor.cpp",
-      baseInsight:
-        "Liam struggled most with copy-constructor semantics and ownership safety.",
-      steps: [
-        {
-          id: "liam-1",
-          title: "Replace default copy constructor",
-          diff: liamStep1Diff,
-          before: "Widget::Widget(const Widget& other) = default;\n",
-          after:
-            "Widget::Widget(const Widget& other) {\n  size = other.size;\n  data = nullptr;\n}\n",
-          durationSeconds: 4,
-        },
-        {
-          id: "liam-2",
-          title: "Allocate and copy elements",
-          diff: liamStep2Diff,
-          before:
-            "Widget::Widget(const Widget& other) {\n  size = other.size;\n  data = nullptr;\n}\n",
-          after:
-            "Widget::Widget(const Widget& other) {\n  size = other.size;\n  data = new int[size];\n  for (int i = 0; i < size; i++) {\n    data[i] = other.data[i];\n  }\n}\n",
-          durationSeconds: 6,
-        },
-        {
-          id: "liam-3",
-          title: "Handle zero-size safely",
-          diff: liamStep3Diff,
-          before:
-            "Widget::Widget(const Widget& other) {\n  size = other.size;\n  data = new int[size];\n  for (int i = 0; i < size; i++) {\n    data[i] = other.data[i];\n  }\n}\n",
-          after:
-            "Widget::Widget(const Widget& other) {\n  size = other.size;\n  if (size == 0) {\n    data = nullptr;\n  } else {\n    data = new int[size];\n    for (int i = 0; i < size; i++) data[i] = other.data[i];\n  }\n}\n",
-          durationSeconds: 6,
-        },
-        {
-          id: "liam-4",
-          title: "Improve constructor readability",
-          diff: liamStep4Diff,
-          before:
-            "Widget::Widget(const Widget& other) {\n  size = other.size;\n  if (size == 0) {\n    data = nullptr;\n  } else {\n    data = new int[size];\n    for (int i = 0; i < size; i++) data[i] = other.data[i];\n  }\n}\n",
-          after:
-            "Widget::Widget(const Widget& other) {\n  size = other.size;\n\n  if (size == 0) {\n    data = nullptr;\n  } else {\n    data = new int[size];\n    for (int i = 0; i < size; i++) data[i] = other.data[i];\n  }\n}\n",
-          durationSeconds: 3,
-        },
-      ],
-    },
-  ],
-  "s-005": [
-    {
-      filePath: "src/schedule.ts",
-      baseInsight:
-        "Zoe iterated quickly on schedule filtering and ordering, with most effort spent on sorting behavior.",
-      steps: [
-        {
-          id: "zoe-1",
-          title: "Add spacing and setup",
-          diff: zoeStep1Diff,
-          before:
-            "export function buildSchedule(events: Event[]) {\n  const out: Event[] = [];\n  for (const e of events) {\n    out.push(e);\n  }\n  return out;\n}\n",
-          after:
-            "export function buildSchedule(events: Event[]) {\n  const out: Event[] = [];\n\n  for (const e of events) {\n    out.push(e);\n  }\n  return out;\n}\n",
-          durationSeconds: 2,
-        },
-        {
-          id: "zoe-2",
-          title: "Filter disabled events",
-          diff: zoeStep2Diff,
-          before:
-            "export function buildSchedule(events: Event[]) {\n  const out: Event[] = [];\n\n  for (const e of events) {\n    out.push(e);\n  }\n  return out;\n}\n",
-          after:
-            "export function buildSchedule(events: Event[]) {\n  const out: Event[] = [];\n\n  for (const e of events) {\n    if (e.enabled) out.push(e);\n  }\n\n  return out;\n}\n",
-          durationSeconds: 5,
-        },
-        {
-          id: "zoe-3",
-          title: "Sort by start time",
-          diff: zoeStep3Diff,
-          before:
-            "export function buildSchedule(events: Event[]) {\n  const out: Event[] = [];\n\n  for (const e of events) {\n    if (e.enabled) out.push(e);\n  }\n\n  return out;\n}\n",
-          after:
-            "export function buildSchedule(events: Event[]) {\n  const out: Event[] = [];\n\n  for (const e of events) {\n    if (e.enabled) out.push(e);\n  }\n  out.sort((a, b) => a.start - b.start);\n  return out;\n}\n",
-          durationSeconds: 6,
-        },
-        {
-          id: "zoe-4",
-          title: "Polish formatting",
-          diff: zoeStep4Diff,
-          before:
-            "export function buildSchedule(events: Event[]) {\n  const out: Event[] = [];\n\n  for (const e of events) {\n    if (e.enabled) out.push(e);\n  }\n  out.sort((a, b) => a.start - b.start);\n  return out;\n}\n",
-          after:
-            "export function buildSchedule(events: Event[]) {\n  const out: Event[] = [];\n\n  for (const e of events) {\n    if (e.enabled) out.push(e);\n  }\n\n  out.sort((a, b) => a.start - b.start);\n  return out;\n}\n",
-          durationSeconds: 2,
-        },
-      ],
-    },
-  ],
-  "s-006": [
-    {
-      filePath: "src/hints.ts",
-      baseInsight:
-        "Owen showed steady progress in output formatting, especially around list rendering and clipping.",
-      steps: [
-        {
-          id: "owen-1",
-          title: "Handle empty hints",
-          diff: owenStep1Diff,
-          before:
-            "export function renderHints(hints: string[]) {\n  return hints.join(\"\\n\");\n}\n",
-          after:
-            "export function renderHints(hints: string[]) {\n  if (hints.length === 0) return \"\";\n  return hints.join(\"\\n\");\n}\n",
-          durationSeconds: 3,
-        },
-        {
-          id: "owen-2",
-          title: "Filter blank hints",
-          diff: owenStep2Diff,
-          before:
-            "export function renderHints(hints: string[]) {\n  if (hints.length === 0) return \"\";\n  return hints.join(\"\\n\");\n}\n",
-          after:
-            "export function renderHints(hints: string[]) {\n  if (hints.length === 0) return \"\";\n  const cleaned = hints.filter(Boolean);\n  return cleaned.join(\"\\n\");\n}\n",
-          durationSeconds: 4,
-        },
-        {
-          id: "owen-3",
-          title: "Add numbering",
-          diff: owenStep3Diff,
-          before:
-            "export function renderHints(hints: string[]) {\n  if (hints.length === 0) return \"\";\n  const cleaned = hints.filter(Boolean);\n  return cleaned.join(\"\\n\");\n}\n",
-          after:
-            "export function renderHints(hints: string[]) {\n  if (hints.length === 0) return \"\";\n  const cleaned = hints.filter(Boolean);\n  const numbered = cleaned.map((hint, idx) => `${idx + 1}. ${hint}`);\n  return numbered.join(\"\\n\");\n}\n",
-          durationSeconds: 5,
-        },
-        {
-          id: "owen-4",
-          title: "Limit preview length",
-          diff: owenStep4Diff,
-          before:
-            "export function renderHints(hints: string[]) {\n  if (hints.length === 0) return \"\";\n  const cleaned = hints.filter(Boolean);\n  const numbered = cleaned.map((hint, idx) => `${idx + 1}. ${hint}`);\n  return numbered.join(\"\\n\");\n}\n",
-          after:
-            "export function renderHints(hints: string[]) {\n  if (hints.length === 0) return \"\";\n  const cleaned = hints.filter(Boolean);\n  const numbered = cleaned.map((hint, idx) => `${idx + 1}. ${hint}`);\n  const preview = numbered.slice(0, 20);\n  return preview.join(\"\\n\");\n}\n",
-          durationSeconds: 5,
-        },
-      ],
-    },
-  ],
-};
-
-const baseAssignments: Assignment[] = [
-  {
-    id: "a1-debugging-foundations",
-    title: "Debugging Foundations",
-    due: "Feb 28, 2026",
-    symbols: ["countPassed", "parseEvents", "scoreSubmission", "copy constructor"],
-    classStats: [
-      { label: "Class Average Score", value: "76%" },
-      { label: "Average Completion Rate", value: "84%" },
-      { label: "Avg Time on Assignment", value: "3.8 hrs" },
-      { label: "Students Needing Support", value: "7/42" },
-    ],
-    students: {
-      "s-001": {
-        stats: [
-          { label: "Assignment Score", value: "81%" },
-          { label: "Time on Assignment", value: "4.2 hrs" },
-          { label: "Compile Errors Resolved", value: "9" },
-          { label: "Late Submissions", value: "0" },
-        ],
-        aiOverview: [
-          "Avery improved quickly after identifying loop boundary issues.",
-          "Main struggle area was maintaining confidence when first fix did not pass all tests.",
-        ],
-      },
-      "s-002": {
-        stats: [
-          { label: "Assignment Score", value: "88%" },
-          { label: "Time on Assignment", value: "3.6 hrs" },
-          { label: "Compile Errors Resolved", value: "4" },
-          { label: "Late Submissions", value: "0" },
-        ],
-        aiOverview: [
-          "Noah was consistent and mostly focused on explanatory clarity.",
-          "Could improve by planning rationale comments before implementation.",
-        ],
-      },
-      "s-003": {
-        stats: [
-          { label: "Assignment Score", value: "73%" },
-          { label: "Time on Assignment", value: "5.0 hrs" },
-          { label: "Compile Errors Resolved", value: "11" },
-          { label: "Late Submissions", value: "1" },
-        ],
-        aiOverview: [
-          "Mia's strongest gains were around input-validation edge cases.",
-          "Still needs support in decomposing tasks before coding.",
-        ],
-      },
-      "s-004": {
-        stats: [
-          { label: "Assignment Score", value: "67%" },
-          { label: "Time on Assignment", value: "5.4 hrs" },
-          { label: "Compile Errors Resolved", value: "15" },
-          { label: "Late Submissions", value: "1" },
-        ],
-        aiOverview: [
-          "Liam's major blocker was copy semantics and memory ownership.",
-          "Needs targeted review on constructor/operator rules and object lifecycle.",
-        ],
-      },
-      "s-005": {
-        stats: [
-          { label: "Assignment Score", value: "86%" },
-          { label: "Time on Assignment", value: "3.9 hrs" },
-          { label: "Compile Errors Resolved", value: "5" },
-          { label: "Late Submissions", value: "0" },
-        ],
-        aiOverview: [
-          "Zoe moved quickly from basic filtering to sorted output behavior.",
-          "Main challenge was preserving stable ordering while adding constraints.",
-        ],
-      },
-      "s-006": {
-        stats: [
-          { label: "Assignment Score", value: "78%" },
-          { label: "Time on Assignment", value: "4.1 hrs" },
-          { label: "Compile Errors Resolved", value: "8" },
-          { label: "Late Submissions", value: "0" },
-        ],
-        aiOverview: [
-          "Owen improved output formatting incrementally with smaller safe edits.",
-          "Still spends extra time on deciding when and where to clip output.",
-        ],
-      },
-    },
-    heatmap: {
-      "s-001": { countPassed: 48, parseEvents: 30, scoreSubmission: 35, "copy constructor": 65 },
-      "s-002": { countPassed: 25, parseEvents: 20, scoreSubmission: 31, "copy constructor": 58 },
-      "s-003": { countPassed: 57, parseEvents: 61, scoreSubmission: 55, "copy constructor": 72 },
-      "s-004": { countPassed: 69, parseEvents: 67, scoreSubmission: 63, "copy constructor": 91 },
-      "s-005": { countPassed: 29, parseEvents: 33, scoreSubmission: 37, "copy constructor": 52 },
-      "s-006": { countPassed: 54, parseEvents: 47, scoreSubmission: 44, "copy constructor": 69 },
-    },
-    narratives: {
-      "s-001": {
-        countPassed: "Avery initially used <= in loop termination and fixed it after failing edge tests.",
-        parseEvents: "Minimal struggle; resolved quickly after adding a null guard.",
-        scoreSubmission: "Needed one retry to align rubric scoring branch conditions.",
-        "copy constructor": "Some confusion around why shallow copy breaks mutable arrays.",
-      },
-      "s-002": {
-        countPassed: "Noah implemented correctly with minor naming cleanup.",
-        parseEvents: "Smooth completion with no major issue patterns.",
-        scoreSubmission: "Small adjustment to match expected boundary scoring.",
-        "copy constructor": "Understood conceptually but lacked confidence in ownership explanation.",
-      },
-      "s-003": {
-        countPassed: "Repeated boundary errors before stabilizing with focused tests.",
-        parseEvents: "Needed support translating prompt language into control flow.",
-        scoreSubmission: "Several branch condition reversals before final correction.",
-        "copy constructor": "Struggled with deep copy mechanics and pointer lifecycle assumptions.",
-      },
-      "s-004": {
-        countPassed: "Slow progress due to uncertainty in for-loop bounds.",
-        parseEvents: "Multiple retries around symbol parsing and default cases.",
-        scoreSubmission: "Difficulty mapping rubric states to branches.",
-        "copy constructor": "Primary blocker: attempted default copy and caused aliasing bugs.",
-      },
-      "s-005": {
-        countPassed: "Low struggle after quickly validating boundary tests.",
-        parseEvents: "Minor friction around preserving input order while filtering.",
-        scoreSubmission: "Needed one pass to align edge threshold handling.",
-        "copy constructor": "Understood deep copy concept but needed syntax reminders.",
-      },
-      "s-006": {
-        countPassed: "Moderate struggle with early-return placement.",
-        parseEvents: "Stabilized after adding small checkpoint logs.",
-        scoreSubmission: "Occasional branch order confusion resolved with test cases.",
-        "copy constructor": "Improved after mapping object ownership explicitly.",
-      },
-    },
-    replay: replayTemplates,
-  },
-  {
-    id: "a2-function-design",
-    title: "Function Design and Testing",
-    due: "Mar 10, 2026",
-    symbols: ["validateInput", "buildSchedule", "renderHints"],
-    classStats: [
-      { label: "Class Average Score", value: "79%" },
-      { label: "Average Completion Rate", value: "87%" },
-      { label: "Avg Time on Assignment", value: "3.2 hrs" },
-      { label: "Students Needing Support", value: "5/42" },
-    ],
-    students: {
-      "s-001": {
-        stats: [
-          { label: "Assignment Score", value: "84%" },
-          { label: "Time on Assignment", value: "3.4 hrs" },
-          { label: "Compile Errors Resolved", value: "6" },
-          { label: "Late Submissions", value: "0" },
-        ],
-        aiOverview: [
-          "Strong on structure; should include more boundary test notes.",
-          "Had mild difficulty with validating nested optional fields.",
-        ],
-      },
-      "s-002": {
-        stats: [
-          { label: "Assignment Score", value: "90%" },
-          { label: "Time on Assignment", value: "2.8 hrs" },
-          { label: "Compile Errors Resolved", value: "2" },
-          { label: "Late Submissions", value: "0" },
-        ],
-        aiOverview: [
-          "Very efficient progression and clear decomposition.",
-          "Opportunity: communicate tradeoffs in helper-function naming.",
-        ],
-      },
-      "s-003": {
-        stats: [
-          { label: "Assignment Score", value: "74%" },
-          { label: "Time on Assignment", value: "4.6 hrs" },
-          { label: "Compile Errors Resolved", value: "10" },
-          { label: "Late Submissions", value: "0" },
-        ],
-        aiOverview: [
-          "Needed significant retries for validation flow.",
-          "Improved after writing smaller helper functions.",
-        ],
-      },
-      "s-004": {
-        stats: [
-          { label: "Assignment Score", value: "70%" },
-          { label: "Time on Assignment", value: "4.9 hrs" },
-          { label: "Compile Errors Resolved", value: "12" },
-          { label: "Late Submissions", value: "1" },
-        ],
-        aiOverview: [
-          "Most time spent debugging composed function interfaces.",
-          "Needs reinforcement on incremental test-first strategy.",
-        ],
-      },
-      "s-005": {
-        stats: [
-          { label: "Assignment Score", value: "89%" },
-          { label: "Time on Assignment", value: "3.1 hrs" },
-          { label: "Compile Errors Resolved", value: "3" },
-          { label: "Late Submissions", value: "0" },
-        ],
-        aiOverview: [
-          "Zoe handled function composition well and iterated mostly on polish.",
-          "Could improve by documenting edge behavior before implementation.",
-        ],
-      },
-      "s-006": {
-        stats: [
-          { label: "Assignment Score", value: "76%" },
-          { label: "Time on Assignment", value: "4.2 hrs" },
-          { label: "Compile Errors Resolved", value: "9" },
-          { label: "Late Submissions", value: "0" },
-        ],
-        aiOverview: [
-          "Owen improved significantly in render function structure over time.",
-          "Needs additional practice with validation guard ordering.",
-        ],
-      },
-    },
-    heatmap: {
-      "s-001": { validateInput: 45, buildSchedule: 38, renderHints: 30 },
-      "s-002": { validateInput: 22, buildSchedule: 26, renderHints: 24 },
-      "s-003": { validateInput: 71, buildSchedule: 62, renderHints: 58 },
-      "s-004": { validateInput: 77, buildSchedule: 74, renderHints: 66 },
-      "s-005": { validateInput: 31, buildSchedule: 36, renderHints: 33 },
-      "s-006": { validateInput: 59, buildSchedule: 52, renderHints: 63 },
-    },
-    narratives: {
-      "s-001": {
-        validateInput: "Avery fixed nested empty-input paths after adding targeted tests.",
-        buildSchedule: "Moderate effort balancing readability and special-case branching.",
-        renderHints: "Low struggle; polished output quickly.",
-      },
-      "s-002": {
-        validateInput: "Minimal friction and clean decomposition.",
-        buildSchedule: "One short revision to handle day rollover edge case.",
-        renderHints: "Completed quickly with precise formatting.",
-      },
-      "s-003": {
-        validateInput: "Frequent retries due to missed null/undefined combinations.",
-        buildSchedule: "Struggled with helper boundaries and duplicate logic.",
-        renderHints: "Needed support on deterministic ordering in output.",
-      },
-      "s-004": {
-        validateInput: "Primary blocker with guard ordering and early returns.",
-        buildSchedule: "Difficulties with state mutation across helper calls.",
-        renderHints: "Several formatting regressions before final cleanup.",
-      },
-      "s-005": {
-        validateInput: "Low struggle once optional-field checks were ordered correctly.",
-        buildSchedule: "Moderate effort around sorting and preserving enabled events.",
-        renderHints: "Mostly polish passes for consistent output style.",
-      },
-      "s-006": {
-        validateInput: "Needed multiple attempts to settle on stable guard sequence.",
-        buildSchedule: "Steady improvement after decomposing into helper sections.",
-        renderHints: "Main issue was output clipping and numbering consistency.",
-      },
-    },
-    replay: replayTemplates,
-  },
-];
-
-const cs50Assignments: Assignment[] = baseAssignments.map((assignment) => ({ ...assignment }));
-
-const cs210Assignments: Assignment[] = [
-  {
-    ...baseAssignments[0],
-    id: "a1-pointer-memory-lab",
-    title: "Pointer Memory Lab",
-    due: "Mar 06, 2026",
-  },
-  {
-    ...baseAssignments[1],
-    id: "a2-tree-traversal-analysis",
-    title: "Tree Traversal Analysis",
-    due: "Mar 20, 2026",
-  },
-];
-
-const engrAssignments: Assignment[] = [
-  {
-    ...baseAssignments[0],
-    id: "a1-systems-debug-practicum",
-    title: "Systems Debug Practicum",
-    due: "Mar 03, 2026",
-  },
-  {
-    ...baseAssignments[1],
-    id: "a2-interface-design-lab",
-    title: "Interface Design Lab",
-    due: "Mar 17, 2026",
-  },
-];
-
-const courses: Course[] = [
-  {
-    id: "cs50-spring26",
-    title: "CS50: Intro to Computer Science",
-    role: "Instructor",
-    term: "Spring 2026",
-    assignments: cs50Assignments,
-  },
-  {
-    id: "cs210-spring26",
-    title: "CS210: Data Structures",
-    role: "TA",
-    term: "Spring 2026",
-    assignments: cs210Assignments,
-  },
-  {
-    id: "engr101-spring26",
-    title: "ENGR101: Computing for Engineers",
-    role: "Instructor",
-    term: "Spring 2026",
-    assignments: engrAssignments,
-  },
-];
+type NavIconName = "faq" | "about" | "account";
 
 const appShellStyle: React.CSSProperties = {
   minHeight: "100vh",
@@ -715,76 +28,26 @@ const appShellStyle: React.CSSProperties = {
   color: "var(--text-primary)",
 };
 
-function scoreColor(score: number) {
-  if (score >= 80) return "#991b1b";
-  if (score >= 65) return "#dc2626";
-  if (score >= 50) return "#f97316";
-  if (score >= 35) return "#facc15";
-  return "#22c55e";
-}
-
-function sharedPrefixLength(a: string, b: string) {
-  let i = 0;
-  while (i < a.length && i < b.length && a[i] === b[i]) i += 1;
-  return i;
-}
-
-function findCourse(courseId?: string) {
-  return courses.find((course) => course.id === courseId);
-}
-
-function findAssignment(course: Course | undefined, assignmentId?: string) {
-  return course?.assignments.find((assignment) => assignment.id === assignmentId);
-}
-
-function topStruggleSummary(assignment: Assignment) {
-  let bestSymbol = assignment.symbols[0] ?? "";
-  let bestPercent = -1;
-
-  for (const symbol of assignment.symbols) {
-    const percent =
-      (students.filter((student) => (assignment.heatmap[student.id]?.[symbol] ?? 0) >= 60).length /
-        students.length) *
-      100;
-    if (percent > bestPercent) {
-      bestPercent = percent;
-      bestSymbol = symbol;
-    }
-  }
-
-  return `${bestSymbol} was a problem for ${Math.round(bestPercent)}% of the class.`;
-}
-
 function Navbar({
+  courses,
   onSignOut,
   theme,
   onToggleTheme,
-  collapsed,
-  onToggleCollapsed,
 }: {
+  courses: CourseWithRole[];
   onSignOut: () => Promise<void>;
   theme: ThemeMode;
   onToggleTheme: () => void;
-  collapsed: boolean;
-  onToggleCollapsed: () => void;
 }) {
   const location = useLocation();
-  const items = [
-    { label: "Dashboard", to: "/", icon: "dashboard" as NavIconName },
+
+  const bottomItems = [
     { label: "FAQ / How To Use", to: "/faq", icon: "faq" as NavIconName },
     { label: "About Our Product", to: "/about", icon: "about" as NavIconName },
     { label: "Account", to: "/account", icon: "account" as NavIconName },
   ];
 
   function renderNavIcon(icon: NavIconName) {
-    if (icon === "dashboard") {
-      return (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M3 11.5 12 4l9 7.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M6 10.5V20h12v-9.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      );
-    }
     if (icon === "faq") {
       return (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -812,7 +75,7 @@ function Navbar({
   }
 
   return (
-    <aside className={`sidebar ${collapsed ? "sidebar--collapsed" : ""}`}>
+    <aside className="sidebar">
       <div style={{ padding: "1rem 0.9rem 0.6rem", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem" }}>
         <div style={{ fontWeight: 800, letterSpacing: 0.5, fontSize: 30, lineHeight: 1.1 }}>
           <span className="brand-label">JumBuddy</span>
@@ -820,7 +83,36 @@ function Navbar({
         </div>
       </div>
       <nav className="sidebar-nav" style={{ display: "grid", gap: "0.25rem", padding: "0.8rem 0.6rem", alignContent: "start" }}>
-        {items.map((item) => {
+        {courses.length > 0 && (
+          <>
+            <div className="nav-label" style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "var(--text-muted)", padding: "0.25rem 0.35rem", letterSpacing: 1 }}>
+              Courses
+            </div>
+            {courses.map((c) => {
+              const code = c.course.code;
+              const active = location.pathname.startsWith(`/${code}`);
+              return (
+                <Link
+                  key={c.course.id}
+                  to={`/${code}`}
+                  className={`nav-link ${active ? "nav-link--active" : ""}`}
+                  data-tooltip={c.course.name}
+                  aria-label={c.course.name}
+                >
+                  <span className="nav-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M3 11.5 12 4l9 7.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M6 10.5V20h12v-9.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                  <span className="nav-label">{code}</span>
+                </Link>
+              );
+            })}
+          </>
+        )}
+        <div style={{ marginTop: "1rem" }} />
+        {bottomItems.map((item) => {
           const active = location.pathname === item.to;
           return (
             <Link
@@ -828,7 +120,7 @@ function Navbar({
               to={item.to}
               className={`nav-link ${active ? "nav-link--active" : ""}`}
               data-tooltip={item.label}
-              aria-label={collapsed ? item.label : undefined}
+              aria-label={item.label}
             >
               <span className="nav-icon">{renderNavIcon(item.icon)}</span>
               <span className="nav-label">{item.label}</span>
@@ -836,14 +128,6 @@ function Navbar({
           );
         })}
       </nav>
-      <button
-        className="btn btn-secondary sidebar-toggle-rail"
-        onClick={onToggleCollapsed}
-        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-      >
-        {collapsed ? "»" : "«"}
-      </button>
       <div className="sidebar-footer" style={{ marginTop: "auto", display: "flex", gap: "0.5rem", padding: "0.8rem", borderTop: "1px solid var(--border)" }}>
         <button
           className="btn btn-secondary theme-toggle"
@@ -854,23 +138,11 @@ function Navbar({
         >
           {theme === "dark" ? (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M12 4V2M12 22v-2M4 12H2m20 0h-2M6.34 6.34 4.93 4.93m14.14 14.14-1.41-1.41M6.34 17.66l-1.41 1.41m14.14-14.14-1.41 1.41M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12Z"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+              <path d="M12 4V2M12 22v-2M4 12H2m20 0h-2M6.34 6.34 4.93 4.93m14.14 14.14-1.41-1.41M6.34 17.66l-1.41 1.41m14.14-14.14-1.41 1.41M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           ) : (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
+              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           )}
         </button>
@@ -904,201 +176,393 @@ function LoginPage({ onLogin }: { onLogin: (email: string, password: string) => 
   }
 
   return (
-    <div
-      style={{
-        height: "100vh",
-        display: "grid",
-        gridTemplateColumns: "minmax(320px, 420px) 1fr",
-        background: "var(--bg-page)",
-      }}
-    >
-      <section
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          padding: "2.5rem 2.5rem",
-          background: "var(--surface)",
-          borderRight: "1px solid var(--border)",
-        }}
-      >
+    <div style={{ height: "100vh", display: "grid", gridTemplateColumns: "minmax(320px, 420px) 1fr", background: "var(--bg-page)" }}>
+      <section style={{ display: "flex", flexDirection: "column", justifyContent: "center", padding: "2.5rem", background: "var(--surface)", borderRight: "1px solid var(--border)" }}>
         <div style={{ fontSize: 36, fontWeight: 800, letterSpacing: 0.5, lineHeight: 1, marginBottom: "1.5rem" }}>JumBuddy</div>
         <form onSubmit={submit}>
           <label style={{ display: "block", marginBottom: "0.35rem", fontWeight: 600 }}>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{ width: "100%", padding: "0.7rem", borderRadius: 8, border: "1px solid var(--border)", marginBottom: "0.8rem" }}
-          />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={{ width: "100%", padding: "0.7rem", borderRadius: 8, border: "1px solid var(--border)", marginBottom: "0.8rem" }} />
           <label style={{ display: "block", marginBottom: "0.35rem", fontWeight: 600 }}>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            style={{ width: "100%", padding: "0.7rem", borderRadius: 8, border: "1px solid var(--border)", marginBottom: "1rem" }}
-          />
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={{ width: "100%", padding: "0.7rem", borderRadius: 8, border: "1px solid var(--border)", marginBottom: "1rem" }} />
           {error && <p style={{ color: "var(--danger)", marginTop: 0 }}>{error}</p>}
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={loading}
-            style={{ width: "100%", padding: "0.75rem", border: "none", borderRadius: 8, fontWeight: 700 }}
-          >
+          <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: "100%", padding: "0.75rem", border: "none", borderRadius: 8, fontWeight: 700 }}>
             {loading ? "Signing In..." : "Sign In"}
           </button>
         </form>
       </section>
-
-      <div
-        style={{
-          backgroundImage: "url(https://images.unsplash.com/photo-1534665482403-a909d0d97c67?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bWFuJTIwY29kaW5nfGVufDB8fDB8fHww)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />
+      <div style={{ backgroundImage: "url(https://images.unsplash.com/photo-1534665482403-a909d0d97c67?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bWFuJTIwY29kaW5nfGVufDB8fDB8fHww)", backgroundSize: "cover", backgroundPosition: "center" }} />
     </div>
   );
 }
 
-function DashboardPage() {
-  return (
-    <main style={{ maxWidth: 1200, margin: "0 auto", padding: "1rem 1.1rem 2rem" }}>
-      <h1 style={{ marginBottom: "0.3rem" }}>Dashboard</h1>
-      <p style={{ marginTop: 0, color: "var(--text-muted)" }}>Select a course to inspect assignments and student performance.</p>
-
-      <section className="surface-card" style={{ border: "1px solid var(--border)", borderRadius: 12, overflow: "hidden", background: "var(--surface)" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead style={{ background: "var(--surface-muted)", textAlign: "left" }}>
-            <tr>
-              <th style={{ padding: "0.75rem", borderBottom: "1px solid var(--border)" }}>Course</th>
-              <th style={{ padding: "0.75rem", borderBottom: "1px solid var(--border)" }}>Role</th>
-              <th style={{ padding: "0.75rem", borderBottom: "1px solid var(--border)" }}>Term</th>
-              <th style={{ padding: "0.75rem", borderBottom: "1px solid var(--border)" }}>Open</th>
-            </tr>
-          </thead>
-          <tbody>
-            {courses.map((course) => (
-              <tr key={course.id}>
-                <td style={{ padding: "0.75rem", borderBottom: "1px solid var(--border-soft)", fontWeight: 600 }}>{course.title}</td>
-                <td style={{ padding: "0.75rem", borderBottom: "1px solid var(--border-soft)" }}>{course.role}</td>
-                <td style={{ padding: "0.75rem", borderBottom: "1px solid var(--border-soft)" }}>{course.term}</td>
-                <td style={{ padding: "0.75rem", borderBottom: "1px solid var(--border-soft)" }}>
-                  <Link to={`/${course.id}`} className="text-link" style={{ color: "var(--accent)", fontWeight: 700, textDecoration: "none" }}>
-                    View Course
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-    </main>
-  );
-}
-
-function CoursePage() {
-  const { courseId } = useParams();
-  const course = findCourse(courseId);
-  if (!course) return <NotFoundPage />;
-
-  return (
-    <main style={{ maxWidth: 1200, margin: "0 auto", padding: "1rem 1.1rem 2rem" }}>
-      <h1 style={{ marginBottom: "0.3rem" }}>{course.title}</h1>
-      <p style={{ marginTop: 0, color: "var(--text-muted)" }}>
-        {course.role} • {course.term}
-      </p>
-
-      <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "0.9rem" }}>
-        {course.assignments.map((assignment) => (
-          <article className="surface-card" key={assignment.id} style={{ border: "1px solid var(--border)", borderRadius: 12, padding: "1rem", background: "var(--surface)" }}>
-            <h2 style={{ marginTop: 0, marginBottom: "0.35rem", fontSize: 19 }}>{assignment.title}</h2>
-            <p style={{ margin: "0 0 0.8rem", color: "var(--text-muted)" }}>Due: {assignment.due}</p>
-            <Link to={`/${course.id}/${assignment.id}`} className="text-link" style={{ color: "var(--accent)", fontWeight: 700, textDecoration: "none" }}>
-              Open Assignment
-            </Link>
-          </article>
-        ))}
-      </section>
-    </main>
-  );
-}
-
-function AssignmentPage() {
-  const { courseId, assignment: assignmentId } = useParams();
-  const course = findCourse(courseId);
-  const assignment = findAssignment(course, assignmentId);
-
-  const [selectedStudentId, setSelectedStudentId] = useState(students[0].id);
-  const [selectedCell, setSelectedCell] = useState<{ studentId: string; symbol: string } | null>(null);
+function CoursePage({ courses }: { courses: CourseWithRole[] }) {
+  const { courseCode } = useParams();
+  const courseEntry = courses.find((c) => c.course.code === courseCode);
+  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setSelectedStudentId(students[0].id);
-    setSelectedCell(null);
-  }, [courseId, assignmentId]);
+    if (!courseEntry) return;
+    setLoading(true);
+    apiFetch<Assignment[]>(`/assignments/course/${courseEntry.course.id}`)
+      .then(setAssignments)
+      .catch(() => setAssignments([]))
+      .finally(() => setLoading(false));
+  }, [courseEntry?.course.id]);
 
-  if (!course || !assignment) return <NotFoundPage />;
+  if (!courseEntry) return <NotFoundPage />;
 
-  const selectedStudent = students.find((student) => student.id === selectedStudentId) ?? students[0];
-  const selectedStudentAssignmentData = assignment.students[selectedStudentId];
+  return (
+    <main style={{ maxWidth: 1200, margin: "0 auto", padding: "1rem 1.1rem 2rem" }}>
+      <h1 style={{ marginBottom: "0.3rem" }}>{courseEntry.course.name}</h1>
+      <p style={{ marginTop: 0, color: "var(--text-muted)" }}>{courseEntry.role} • {courseEntry.course.code}</p>
 
-  const narrative =
-    selectedCell && assignment.narratives[selectedCell.studentId]
-      ? assignment.narratives[selectedCell.studentId][selectedCell.symbol]
-      : "Click any heatmap cell to drill into that student's narrative for a specific function or symbol.";
+      {loading ? (
+        <p style={{ color: "var(--text-muted)" }}>Loading assignments...</p>
+      ) : assignments.length === 0 ? (
+        <p style={{ color: "var(--text-muted)" }}>No assignments yet.</p>
+      ) : (
+        <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "0.9rem" }}>
+          {assignments.map((a) => (
+            <article className="surface-card" key={a.id} style={{ border: "1px solid var(--border)", borderRadius: 12, padding: "1rem", background: "var(--surface)" }}>
+              <h2 style={{ marginTop: 0, marginBottom: "0.35rem", fontSize: 19 }}>{a.name}</h2>
+              {a.description && <p style={{ margin: "0 0 0.8rem", color: "var(--text-muted)" }}>{a.description}</p>}
+              <Link to={`/${courseCode}/${a.id}`} className="text-link" style={{ color: "var(--accent)", fontWeight: 700, textDecoration: "none" }}>
+                Open Assignment
+              </Link>
+            </article>
+          ))}
+        </section>
+      )}
+    </main>
+  );
+}
 
-  const summary = topStruggleSummary(assignment);
+const HEATMAP_CATEGORIES = ["Time Spent", "Error Rate", "Retries", "Idle Gaps"];
+
+function seedHash(str: string): number {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+  }
+  return Math.abs(h);
+}
+
+function struggleColor(value: number): string {
+  // 0=green, 50=yellow, 100=red via HSL
+  const hue = value <= 50
+    ? 142 - (142 - 45) * (value / 50)
+    : 45 - 45 * ((value - 50) / 50);
+  const sat = 70 + 15 * (value / 100);
+  const light = 48 - 8 * (value / 100);
+  return `hsl(${hue}, ${sat}%, ${light}%)`;
+}
+
+function StruggleHeatmap({
+  students,
+  onCellClick,
+}: {
+  students: StudentEntry[];
+  onCellClick: (studentName: string, category: string, value: number) => void;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
+  const [hover, setHover] = useState<{ row: number; col: number; x: number; y: number } | null>(null);
+
+  const CELL_W = 72;
+  const CELL_H = 36;
+  const GAP = 3;
+  const RADIUS = 6;
+  const LABEL_W = 120;
+  const HEADER_H = 28;
+  const categories = HEATMAP_CATEGORIES;
+
+  // Generate deterministic values
+  const values: number[][] = students.map((s) =>
+    categories.map((cat) => seedHash(s.profile_id + cat) % 101)
+  );
+
+  const canvasW = LABEL_W + categories.length * (CELL_W + GAP) - GAP;
+  const canvasH = HEADER_H + students.length * (CELL_H + GAP) - GAP;
+
+  const draw = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = canvasW * dpr;
+    canvas.height = canvasH * dpr;
+    canvas.style.width = `${canvasW}px`;
+    canvas.style.height = `${canvasH}px`;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.scale(dpr, dpr);
+
+    // Read theme colors
+    const style = getComputedStyle(document.documentElement);
+    const textColor = style.getPropertyValue("--text-primary").trim() || "#2d2a26";
+    const mutedColor = style.getPropertyValue("--text-muted").trim() || "#6c655d";
+
+    ctx.clearRect(0, 0, canvasW, canvasH);
+
+    // Column headers
+    ctx.font = "600 11px system-ui, -apple-system, sans-serif";
+    ctx.fillStyle = mutedColor;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+    for (let c = 0; c < categories.length; c++) {
+      const x = LABEL_W + c * (CELL_W + GAP) + CELL_W / 2;
+      ctx.fillText(categories[c], x, HEADER_H - 4);
+    }
+
+    // Rows
+    for (let r = 0; r < students.length; r++) {
+      const y = HEADER_H + r * (CELL_H + GAP);
+
+      // Row label
+      ctx.font = "600 12px system-ui, -apple-system, sans-serif";
+      ctx.fillStyle = textColor;
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      const name = students[r].display_name ?? students[r].utln;
+      ctx.fillText(name.length > 14 ? name.slice(0, 13) + "..." : name, LABEL_W - 10, y + CELL_H / 2);
+
+      // Cells
+      for (let c = 0; c < categories.length; c++) {
+        const x = LABEL_W + c * (CELL_W + GAP);
+        const val = values[r][c];
+        const isHovered = hover?.row === r && hover?.col === c;
+
+        // Rounded rect
+        ctx.beginPath();
+        ctx.roundRect(x, y, CELL_W, CELL_H, RADIUS);
+        ctx.fillStyle = struggleColor(val);
+        ctx.fill();
+
+        if (isHovered) {
+          ctx.strokeStyle = style.getPropertyValue("--accent").trim() || "#3d5f85";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          // Brighten overlay
+          ctx.fillStyle = "rgba(255,255,255,0.15)";
+          ctx.fill();
+        }
+
+        // Value text
+        ctx.font = "700 13px system-ui, -apple-system, sans-serif";
+        ctx.fillStyle = val >= 40 ? "#fff" : "rgba(0,0,0,0.8)";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(String(val), x + CELL_W / 2, y + CELL_H / 2);
+      }
+    }
+  }, [students, hover, canvasW, canvasH, values]);
+
+  // Draw on mount and when hover/theme changes
+  useEffect(() => {
+    draw();
+  }, [draw]);
+
+  // Observe theme changes
+  useEffect(() => {
+    const observer = new MutationObserver(() => draw());
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => observer.disconnect();
+  }, [draw]);
+
+  function hitTest(e: React.MouseEvent): { row: number; col: number } | null {
+    const canvas = canvasRef.current;
+    if (!canvas) return null;
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    for (let r = 0; r < students.length; r++) {
+      for (let c = 0; c < categories.length; c++) {
+        const x = LABEL_W + c * (CELL_W + GAP);
+        const y = HEADER_H + r * (CELL_H + GAP);
+        if (mx >= x && mx <= x + CELL_W && my >= y && my <= y + CELL_H) {
+          return { row: r, col: c };
+        }
+      }
+    }
+    return null;
+  }
+
+  function handleMouseMove(e: React.MouseEvent) {
+    const hit = hitTest(e);
+    if (hit) {
+      const canvas = canvasRef.current!;
+      const rect = canvas.getBoundingClientRect();
+      setHover({ ...hit, x: e.clientX - rect.left, y: e.clientY - rect.top });
+    } else {
+      setHover(null);
+    }
+  }
+
+  function handleClick(e: React.MouseEvent) {
+    const hit = hitTest(e);
+    if (hit) {
+      const name = students[hit.row].display_name ?? students[hit.row].utln;
+      onCellClick(name, categories[hit.col], values[hit.row][hit.col]);
+    }
+  }
+
+  return (
+    <div style={{ position: "relative", display: "inline-block" }}>
+      <canvas
+        ref={canvasRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => setHover(null)}
+        onClick={handleClick}
+        style={{ cursor: hover ? "pointer" : "default", display: "block" }}
+      />
+      {hover && (
+        <div
+          ref={tooltipRef}
+          style={{
+            position: "absolute",
+            left: hover.x + 12,
+            top: hover.y - 8,
+            background: "var(--text-primary)",
+            color: "var(--bg-app)",
+            padding: "4px 10px",
+            borderRadius: 6,
+            fontSize: 12,
+            fontWeight: 600,
+            whiteSpace: "nowrap",
+            pointerEvents: "none",
+            zIndex: 10,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
+          }}
+        >
+          {students[hover.row].display_name ?? students[hover.row].utln} — {categories[hover.col]}: {values[hover.row][hover.col]}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AssignmentPage({ courses }: { courses: CourseWithRole[] }) {
+  const { courseCode, assignmentId } = useParams();
+  const courseEntry = courses.find((c) => c.course.code === courseCode);
+  const [assignmentName, setAssignmentName] = useState("");
+  const [students, setStudents] = useState<StudentEntry[]>([]);
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [narrative, setNarrative] = useState("Click a heatmap cell to see a per-student narrative for a specific function or symbol.");
+  const [studentSearch, setStudentSearch] = useState("");
+
+  useEffect(() => {
+    if (!assignmentId || !courseEntry) return;
+    setLoading(true);
+    // Fetch assignment name and students in parallel
+    Promise.all([
+      apiFetch<Assignment[]>(`/assignments/course/${courseEntry.course.id}`)
+        .then((assignments) => {
+          const match = assignments.find((a) => a.id === assignmentId);
+          setAssignmentName(match?.name ?? "Assignment");
+        })
+        .catch(() => setAssignmentName("Assignment")),
+      apiFetch<StudentEntry[]>(`/students/assignment/${assignmentId}`)
+        .then((data) => {
+          setStudents(data);
+          if (data.length > 0) setSelectedStudentId(data[0].profile_id);
+        })
+        .catch(() => setStudents([])),
+    ]).finally(() => setLoading(false));
+  }, [assignmentId, courseEntry?.course.id]);
+
+  if (!courseEntry) return <NotFoundPage />;
+
+  const selectedStudent = students.find((s) => s.profile_id === selectedStudentId);
+
+  // Placeholder stats
+  const classStats = [
+    { label: "Class Average Score", value: "—" },
+    { label: "Average Completion Rate", value: "—" },
+    { label: "Avg Time on Assignment", value: "—" },
+    { label: "Students Needing Support", value: "—" },
+  ];
+
+  const studentStats = [
+    { label: "Assignment Score", value: "—" },
+    { label: "Time on Assignment", value: "—" },
+    { label: "Compile Errors Resolved", value: "—" },
+    { label: "Late Submissions", value: "—" },
+  ];
 
   return (
     <main style={{ maxWidth: 1240, margin: "0 auto", padding: "1rem 1.1rem 2rem" }}>
-      <h1 style={{ marginBottom: "0.3rem" }}>{assignment.title}</h1>
-      <p style={{ marginTop: 0, color: "var(--text-muted)" }}>
-        {course.title} • Due {assignment.due}
-      </p>
+      <h1 style={{ marginBottom: "0.3rem" }}>{assignmentName || "Assignment"}</h1>
+      <p style={{ marginTop: 0, color: "var(--text-muted)" }}>{courseEntry.course.name} • {courseEntry.course.code}</p>
 
       <div style={{ display: "grid", gridTemplateColumns: "260px minmax(380px, 1fr)", gap: "1rem" }}>
+        {/* Student sidebar */}
         <aside style={{ border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", padding: "0.8rem" }}>
           <h2 style={{ marginTop: 0, fontSize: 18 }}>Students</h2>
-          <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-            {students.map((student) => (
-              <li key={student.id} style={{ marginBottom: "0.55rem" }}>
-                <div style={{ border: "1px solid var(--border-soft)", borderRadius: 8, padding: "0.45rem" }}>
-                  <button
-                    onClick={() => setSelectedStudentId(student.id)}
-                    className="student-button"
+          {!loading && students.length > 0 && (
+            <input
+              value={studentSearch}
+              onChange={(e) => setStudentSearch(e.target.value)}
+              placeholder="Search by UTLN..."
+              style={{ width: "100%", padding: "0.45rem 0.6rem", marginBottom: "0.6rem", borderRadius: 6, border: "1px solid var(--border)", fontSize: 13 }}
+            />
+          )}
+          {loading ? (
+            <p style={{ color: "var(--text-muted)" }}>Loading...</p>
+          ) : students.length === 0 ? (
+            <p style={{ color: "var(--text-muted)" }}>No students enrolled.</p>
+          ) : (() => {
+            const filtered = students.filter((s) =>
+              s.utln.toLowerCase().includes(studentSearch.toLowerCase())
+            );
+            const MAX_VISIBLE = 8;
+            const visible = filtered.slice(0, MAX_VISIBLE);
+            const remaining = filtered.length - MAX_VISIBLE;
+            return (
+              <>
+                {visible.map((s) => (
+                  <div
+                    key={s.profile_id}
+                    onClick={() => setSelectedStudentId(s.profile_id)}
                     style={{
-                      width: "100%",
-                      textAlign: "left",
-                      border: "none",
-                      background: selectedStudentId === student.id ? "var(--accent-soft)" : "transparent",
-                      padding: "0.35rem",
-                      borderRadius: 6,
-                      cursor: "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "space-between",
+                      padding: "0.4rem 0.5rem", marginBottom: 2, borderRadius: 6, cursor: "pointer",
+                      background: selectedStudentId === s.profile_id ? "var(--accent-soft)" : "transparent",
                     }}
                   >
-                    <div style={{ fontWeight: 700 }}>{student.name}</div>
-                    <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{student.email}</div>
-                  </button>
-                  <Link
-                    to={`/${course.id}/${assignment.id}/${student.id}`}
-                    className="text-link"
-                    style={{ display: "inline-block", marginTop: "0.35rem", fontSize: 13, color: "var(--accent)", textDecoration: "none", fontWeight: 700 }}
-                  >
-                    Details
-                  </Link>
-                </div>
-              </li>
-            ))}
-          </ul>
+                    <span style={{ fontWeight: 600, fontSize: 13 }}>{s.utln}</span>
+                    <Link
+                      to={`/${courseCode}/${assignmentId}/${s.profile_id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{ fontSize: 12, color: "var(--accent)", fontWeight: 700, textDecoration: "none" }}
+                    >
+                      Replay
+                    </Link>
+                  </div>
+                ))}
+                {remaining > 0 && (
+                  <p style={{ margin: "0.4rem 0 0", fontSize: 12, color: "var(--text-muted)" }}>
+                    +{remaining} more — search to find
+                  </p>
+                )}
+                {filtered.length === 0 && (
+                  <p style={{ margin: "0.4rem 0 0", fontSize: 12, color: "var(--text-muted)" }}>No matches.</p>
+                )}
+              </>
+            );
+          })()}
         </aside>
 
+        {/* Right content area */}
         <section style={{ display: "grid", gap: "1rem" }}>
+          {/* Student stats */}
           <section style={{ border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", padding: "1rem" }}>
-            <h2 style={{ marginTop: 0, marginBottom: "0.3rem" }}>Student Assignment Stats: {selectedStudent.name}</h2>
+            <h2 style={{ marginTop: 0, marginBottom: "0.3rem" }}>Student Assignment Stats: {selectedStudent?.display_name ?? selectedStudent?.utln ?? "—"}</h2>
             <div style={{ display: "grid", gridTemplateColumns: "minmax(240px, 1fr) minmax(260px, 1.1fr)", gap: "1rem" }}>
               <div>
                 <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-                  {selectedStudentAssignmentData.stats.map((item) => (
+                  {studentStats.map((item) => (
                     <li key={item.label} style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", borderBottom: "1px solid var(--border-soft)" }}>
                       <span>{item.label}</span>
                       <strong>{item.value}</strong>
@@ -1108,20 +572,17 @@ function AssignmentPage() {
               </div>
               <div style={{ border: "1px solid var(--border-soft)", borderRadius: 8, padding: "0.75rem", background: "var(--surface-muted)" }}>
                 <h3 style={{ marginTop: 0, marginBottom: "0.5rem", fontSize: 16 }}>AI Student Overview</h3>
-                {selectedStudentAssignmentData.aiOverview.map((line) => (
-                  <p key={line} style={{ margin: "0 0 0.45rem", lineHeight: 1.35 }}>
-                    {line}
-                  </p>
-                ))}
+                <p style={{ margin: "0 0 0.45rem", lineHeight: 1.35 }}>AI-generated student overview will appear here once connected.</p>
                 <p style={{ marginBottom: 0, color: "var(--text-muted)", fontSize: 13 }}>Placeholder for model output integration.</p>
               </div>
             </div>
           </section>
 
+          {/* Class stats */}
           <section style={{ border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", padding: "1rem" }}>
             <h2 style={{ marginTop: 0, marginBottom: "0.35rem" }}>Overall Class Statistics</h2>
             <ul style={{ listStyle: "none", margin: "0 0 0.8rem", padding: 0 }}>
-              {assignment.classStats.map((item) => (
+              {classStats.map((item) => (
                 <li key={item.label} style={{ display: "flex", justifyContent: "space-between", padding: "0.45rem 0", borderBottom: "1px solid var(--border-soft)" }}>
                   <span>{item.label}</span>
                   <strong>{item.value}</strong>
@@ -1130,53 +591,18 @@ function AssignmentPage() {
             </ul>
 
             <h3 style={{ marginTop: "0.8rem", marginBottom: "0.4rem" }}>Function/Symbol Struggle Heatmap</h3>
-            <p style={{ marginTop: 0, color: "var(--text-muted)" }}>{summary}</p>
+            <p style={{ marginTop: 0, marginBottom: "0.6rem", color: "var(--text-muted)" }}>Higher values indicate more struggle. Click a cell for details.</p>
 
-            <div style={{ overflowX: "auto", border: "1px solid var(--border-soft)", borderRadius: 8 }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 560 }}>
-                <thead style={{ background: "var(--surface-muted)" }}>
-                  <tr>
-                    <th style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid var(--border-soft)" }}>Student</th>
-                    {assignment.symbols.map((symbol) => (
-                      <th key={symbol} style={{ textAlign: "left", padding: "0.5rem", borderBottom: "1px solid var(--border-soft)", fontWeight: 600 }}>
-                        {symbol}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {students.map((student) => (
-                    <tr key={student.id}>
-                      <td style={{ padding: "0.45rem 0.5rem", borderBottom: "1px solid var(--border-soft)", fontWeight: 600 }}>{student.name}</td>
-                      {assignment.symbols.map((symbol) => {
-                        const score = assignment.heatmap[student.id]?.[symbol] ?? 0;
-                        const active = selectedCell?.studentId === student.id && selectedCell.symbol === symbol;
-                        return (
-                          <td key={`${student.id}-${symbol}`} style={{ padding: "0.3rem 0.45rem", borderBottom: "1px solid var(--border-soft)" }}>
-                            <button
-                              onClick={() => setSelectedCell({ studentId: student.id, symbol })}
-                              style={{
-                                width: "100%",
-                                border: active ? "2px solid var(--accent)" : "1px solid var(--border)",
-                                borderRadius: 6,
-                                background: scoreColor(score),
-                                color: score >= 65 ? "#fff" : "var(--text-primary)",
-                                padding: "0.35rem",
-                                fontWeight: 700,
-                                cursor: "pointer",
-                                transition: "filter 140ms ease",
-                              }}
-                            >
-                              {score}
-                            </button>
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {students.length > 0 && (
+              <div style={{ overflowX: "auto", padding: "0.25rem 0" }}>
+                <StruggleHeatmap
+                  students={students}
+                  onCellClick={(name, category, value) =>
+                    setNarrative(`${name} — ${category} (score: ${value}): Detailed analysis coming soon.`)
+                  }
+                />
+              </div>
+            )}
 
             <div style={{ marginTop: "0.8rem", border: "1px solid var(--border-soft)", borderRadius: 8, background: "var(--surface-muted)", padding: "0.75rem" }}>
               <h4 style={{ marginTop: 0, marginBottom: "0.35rem" }}>Narrative Drilldown</h4>
@@ -1189,279 +615,831 @@ function AssignmentPage() {
   );
 }
 
-function ReplayPage() {
-  const { courseId, assignment: assignmentId, student: studentId } = useParams();
-  const course = findCourse(courseId);
-  const assignment = findAssignment(course, assignmentId);
-  const student = students.find((item) => item.id === studentId);
+function ReplayTimeline({
+  flushes,
+  stepIndex,
+  onSeek,
+}: {
+  flushes: Flush[];
+  stepIndex: number;
+  onSeek: (idx: number) => void;
+}) {
+  const mainRef = useRef<HTMLCanvasElement>(null);
+  const miniRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [zoom, setZoom] = useState(1);
+  const [panX, setPanX] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
 
-  const replayFiles = assignment?.replay[studentId ?? ""] ?? [];
-  const [selectedFilePath, setSelectedFilePath] = useState(replayFiles[0]?.filePath ?? "");
-  const [stepIndex, setStepIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [displayCode, setDisplayCode] = useState("");
-  const [animationNonce, setAnimationNonce] = useState(0);
-  const [insights, setInsights] = useState<string[]>([]);
-  const [query, setQuery] = useState("");
-
-  useEffect(() => {
-    setSelectedFilePath(replayFiles[0]?.filePath ?? "");
-    setStepIndex(0);
-    setIsPlaying(false);
-  }, [courseId, assignmentId, studentId]);
-
-  const selectedFile = replayFiles.find((file) => file.filePath === selectedFilePath) ?? replayFiles[0];
-  const steps = selectedFile?.steps ?? [];
-  const step = steps[stepIndex];
-  const totalDuration = steps.reduce((sum, item) => sum + item.durationSeconds, 0);
-
-  useEffect(() => {
-    setStepIndex(0);
-    setIsPlaying(false);
-    setInsights(selectedFile ? [selectedFile.baseInsight] : []);
-  }, [selectedFilePath]);
-
-  useEffect(() => {
-    if (!step) {
-      setDisplayCode("");
-      return;
-    }
-    const prefix = sharedPrefixLength(step.before, step.after);
-    let currentText = step.before;
-    let timeoutId = 0;
-    let canceled = false;
-
-    setDisplayCode(currentText);
-
-    const deletePhase = () => {
-      if (canceled) return;
-      if (currentText.length > prefix) {
-        currentText = currentText.slice(0, -1);
-        setDisplayCode(currentText);
-        timeoutId = window.setTimeout(deletePhase, 7);
-        return;
-      }
-      timeoutId = window.setTimeout(typePhase, 55);
-    };
-
-    const typePhase = () => {
-      if (canceled) return;
-      if (currentText.length < step.after.length) {
-        currentText = step.after.slice(0, currentText.length + 1);
-        setDisplayCode(currentText);
-        timeoutId = window.setTimeout(typePhase, 7);
-      }
-    };
-
-    timeoutId = window.setTimeout(deletePhase, 130);
-
-    return () => {
-      canceled = true;
-      window.clearTimeout(timeoutId);
-    };
-  }, [selectedFilePath, stepIndex, step, animationNonce]);
-
-  useEffect(() => {
-    if (!isPlaying || !step || stepIndex >= steps.length - 1) {
-      if (stepIndex >= steps.length - 1) setIsPlaying(false);
-      return;
-    }
-    const UNIFORM_STEP_DELAY_MS = 1500;
-    const timerId = window.setTimeout(
-      () => setStepIndex((prev) => Math.min(prev + 1, steps.length - 1)),
-      UNIFORM_STEP_DELAY_MS,
-    );
-    return () => window.clearTimeout(timerId);
-  }, [isPlaying, step, stepIndex, steps]);
-
-  if (!course || !assignment || !student) return <NotFoundPage />;
-
-  function playPause() {
-    if (steps.length === 0) return;
-    if (isPlaying) {
-      setIsPlaying(false);
-      return;
-    }
-    if (stepIndex >= steps.length - 1) {
-      setStepIndex(0);
-      setAnimationNonce((prev) => prev + 1);
-      setIsPlaying(true);
-      return;
-    }
-    setAnimationNonce((prev) => prev + 1);
-    setIsPlaying(true);
+  // Compute cumulative positions for each flush (normalized 0..1)
+  const totalDur = flushes.reduce((s, f) => s + Math.max(f.window_duration || 0.5, 0.5), 0);
+  const positions: number[] = [];
+  let cum = 0;
+  for (const f of flushes) {
+    positions.push(cum / totalDur);
+    cum += Math.max(f.window_duration || 0.5, 0.5);
   }
 
-  function submitInsight(e: React.FormEvent) {
+  // Session detection
+  type Session = { startIdx: number; endIdx: number; label: string };
+  const sessions: Session[] = [];
+  if (flushes.length > 0) {
+    let sStart = 0;
+    for (let i = 1; i < flushes.length; i++) {
+      const gap = new Date(flushes[i].start_timestamp).getTime() - new Date(flushes[i - 1].end_timestamp).getTime();
+      if (gap > 30 * 60 * 1000) {
+        sessions.push({ startIdx: sStart, endIdx: i - 1, label: new Date(flushes[sStart].start_timestamp).toLocaleDateString() });
+        sStart = i;
+      }
+    }
+    sessions.push({ startIdx: sStart, endIdx: flushes.length - 1, label: new Date(flushes[sStart].start_timestamp).toLocaleDateString() });
+  }
+
+  const MAIN_H = 48;
+  const MINI_H = 12;
+
+  // Hit test: x pixel on main canvas → flush index
+  const xToIdx = useCallback((x: number, canvasW: number): number => {
+    const viewStart = panX;
+    const viewEnd = panX + 1 / zoom;
+    const norm = viewStart + (x / canvasW) * (viewEnd - viewStart);
+    let best = 0;
+    for (let i = 0; i < positions.length; i++) {
+      if (positions[i] <= norm) best = i;
+    }
+    return best;
+  }, [panX, zoom, positions]);
+
+  const drawMain = useCallback(() => {
+    const canvas = mainRef.current;
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const w = rect.width;
+    canvas.width = w * dpr;
+    canvas.height = MAIN_H * dpr;
+    canvas.style.height = `${MAIN_H}px`;
+    const ctx = canvas.getContext("2d")!;
+    ctx.scale(dpr, dpr);
+
+    const style = getComputedStyle(document.documentElement);
+    const accent = style.getPropertyValue("--accent").trim() || "#3d5f85";
+    const accentSoft = style.getPropertyValue("--accent-soft-2").trim() || "#c8d8e8";
+    const borderCol = style.getPropertyValue("--border").trim() || "#d7d0c4";
+    const mutedText = style.getPropertyValue("--text-muted").trim() || "#6c655d";
+    const surfaceMuted = style.getPropertyValue("--surface-muted").trim() || "#f3f0e8";
+
+    ctx.clearRect(0, 0, w, MAIN_H);
+
+    const viewStart = panX;
+    const viewEnd = panX + 1 / zoom;
+
+    // Draw session backgrounds
+    for (const session of sessions) {
+      const sNorm = positions[session.startIdx];
+      const eFlush = flushes[session.endIdx];
+      const eNorm = (positions[session.endIdx] + Math.max(eFlush.window_duration || 0.5, 0.5) / totalDur);
+      const sx = ((sNorm - viewStart) / (viewEnd - viewStart)) * w;
+      const ex = ((eNorm - viewStart) / (viewEnd - viewStart)) * w;
+      if (ex < 0 || sx > w) continue;
+      ctx.fillStyle = surfaceMuted;
+      ctx.fillRect(Math.max(sx, 0), 0, Math.min(ex, w) - Math.max(sx, 0), MAIN_H);
+      // Session label
+      if (ex - sx > 60) {
+        ctx.font = "600 9px system-ui, sans-serif";
+        ctx.fillStyle = mutedText;
+        ctx.textAlign = "left";
+        ctx.textBaseline = "top";
+        ctx.fillText(session.label, Math.max(sx + 4, 2), 2);
+      }
+    }
+
+    // Draw flush bars
+    for (let i = 0; i < flushes.length; i++) {
+      const f = flushes[i];
+      const dur = Math.max(f.window_duration || 0.5, 0.5);
+      const startN = positions[i];
+      const endN = startN + dur / totalDur;
+      const sx = ((startN - viewStart) / (viewEnd - viewStart)) * w;
+      const ex = ((endN - viewStart) / (viewEnd - viewStart)) * w;
+      if (ex < 0 || sx > w) continue;
+      const barW = Math.max(ex - sx, 2);
+      ctx.fillStyle = i === stepIndex ? accent : accentSoft;
+      ctx.beginPath();
+      ctx.roundRect(Math.max(sx, 0), 14, Math.min(barW, w - Math.max(sx, 0)), MAIN_H - 18, 3);
+      ctx.fill();
+    }
+
+    // Draw playhead
+    if (stepIndex >= 0 && stepIndex < positions.length) {
+      const pN = positions[stepIndex];
+      const px = ((pN - viewStart) / (viewEnd - viewStart)) * w;
+      if (px >= 0 && px <= w) {
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(px, 0);
+        ctx.lineTo(px, MAIN_H);
+        ctx.stroke();
+        // Playhead triangle
+        ctx.fillStyle = accent;
+        ctx.beginPath();
+        ctx.moveTo(px - 5, 0);
+        ctx.lineTo(px + 5, 0);
+        ctx.lineTo(px, 7);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    // Border
+    ctx.strokeStyle = borderCol;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(0.5, 0.5, w - 1, MAIN_H - 1);
+  }, [flushes, stepIndex, panX, zoom, positions, sessions, totalDur]);
+
+  const drawMini = useCallback(() => {
+    const canvas = miniRef.current;
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const w = rect.width;
+    canvas.width = w * dpr;
+    canvas.height = MINI_H * dpr;
+    canvas.style.height = `${MINI_H}px`;
+    const ctx = canvas.getContext("2d")!;
+    ctx.scale(dpr, dpr);
+
+    const style = getComputedStyle(document.documentElement);
+    const accent = style.getPropertyValue("--accent").trim() || "#3d5f85";
+    const accentSoft = style.getPropertyValue("--accent-soft-2").trim() || "#c8d8e8";
+    const borderCol = style.getPropertyValue("--border").trim() || "#d7d0c4";
+
+    ctx.clearRect(0, 0, w, MINI_H);
+
+    // Draw all flushes as tiny bars
+    for (let i = 0; i < flushes.length; i++) {
+      const f = flushes[i];
+      const dur = Math.max(f.window_duration || 0.5, 0.5);
+      const sx = positions[i] * w;
+      const ex = (positions[i] + dur / totalDur) * w;
+      ctx.fillStyle = i === stepIndex ? accent : accentSoft;
+      ctx.fillRect(sx, 1, Math.max(ex - sx, 1), MINI_H - 2);
+    }
+
+    // Viewport rectangle
+    const vx = panX * w;
+    const vw = (1 / zoom) * w;
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(vx, 0, vw, MINI_H);
+
+    ctx.strokeStyle = borderCol;
+    ctx.lineWidth = 0.5;
+    ctx.strokeRect(0, 0, w, MINI_H);
+  }, [flushes, stepIndex, panX, zoom, positions, totalDur]);
+
+  useEffect(() => { drawMain(); drawMini(); }, [drawMain, drawMini]);
+
+  // Theme observer
+  useEffect(() => {
+    const obs = new MutationObserver(() => { drawMain(); drawMini(); });
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => obs.disconnect();
+  }, [drawMain, drawMini]);
+
+  // Resize observer
+  useEffect(() => {
+    const ro = new ResizeObserver(() => { drawMain(); drawMini(); });
+    if (containerRef.current) ro.observe(containerRef.current);
+    return () => ro.disconnect();
+  }, [drawMain, drawMini]);
+
+  // Mouse handlers for main canvas
+  function handleMainMouseDown(e: React.MouseEvent) {
+    const canvas = mainRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    onSeek(xToIdx(x, rect.width));
+    setIsDragging(true);
+  }
+
+  function handleMainMouseMove(e: React.MouseEvent) {
+    if (!isDragging) return;
+    const canvas = mainRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+    onSeek(xToIdx(x, rect.width));
+  }
+
+  function handleMainMouseUp() {
+    setIsDragging(false);
+  }
+
+  // Wheel zoom
+  function handleWheel(e: React.WheelEvent) {
     e.preventDefault();
-    const cleaned = query.trim();
-    if (!cleaned) return;
-    setInsights((prev) => [
-      ...prev,
-      `Teacher: ${cleaned}`,
-      "AI: Placeholder answer. Connect this input to your LLM endpoint and append model output here.",
-    ]);
-    setQuery("");
+    const canvas = mainRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const mouseNorm = panX + ((e.clientX - rect.left) / rect.width) * (1 / zoom);
+
+    const factor = e.deltaY < 0 ? 1.3 : 1 / 1.3;
+    const newZoom = Math.max(1, Math.min(zoom * factor, Math.max(flushes.length, 10)));
+    const newPan = Math.max(0, Math.min(mouseNorm - ((e.clientX - rect.left) / rect.width) * (1 / newZoom), 1 - 1 / newZoom));
+    setZoom(newZoom);
+    setPanX(newPan);
+  }
+
+  // Minimap click
+  function handleMiniClick(e: React.MouseEvent) {
+    const canvas = miniRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const clickNorm = (e.clientX - rect.left) / rect.width;
+    const halfView = (1 / zoom) / 2;
+    setPanX(Math.max(0, Math.min(clickNorm - halfView, 1 - 1 / zoom)));
   }
 
   return (
-    <main style={{ maxWidth: 1280, margin: "0 auto", padding: "1rem 1.1rem 2rem" }}>
-      <h1 style={{ marginBottom: "0.25rem" }}>{assignment.title} • Progress Replay</h1>
-      <p style={{ marginTop: 0, color: "var(--text-muted)" }}>
-        {student.name} ({student.email})
-      </p>
+    <div ref={containerRef} style={{ userSelect: "none" }}>
+      {/* Minimap */}
+      <canvas
+        ref={miniRef}
+        onClick={handleMiniClick}
+        style={{ width: "100%", height: MINI_H, cursor: "pointer", display: "block", marginBottom: 4, borderRadius: 4 }}
+      />
+      {/* Main timeline */}
+      <canvas
+        ref={mainRef}
+        onMouseDown={handleMainMouseDown}
+        onMouseMove={handleMainMouseMove}
+        onMouseUp={handleMainMouseUp}
+        onMouseLeave={handleMainMouseUp}
+        onWheel={handleWheel}
+        style={{ width: "100%", height: MAIN_H, cursor: isDragging ? "grabbing" : "pointer", display: "block", borderRadius: 8 }}
+      />
+    </div>
+  );
+}
 
-      <div style={{ display: "grid", gridTemplateColumns: "220px minmax(460px, 1fr) 380px", gap: "1rem" }}>
-        <section style={{ border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", padding: "0.75rem" }}>
-          <h2 style={{ marginTop: 0, fontSize: 18 }}>File Tree</h2>
-          <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-            {replayFiles.map((file) => (
-              <li key={file.filePath} style={{ marginBottom: "0.4rem" }}>
-                <button
-                  className="file-tree-button"
-                  onClick={() => setSelectedFilePath(file.filePath)}
-                  style={{
-                    width: "100%",
-                    textAlign: "left",
-                    padding: "0.45rem",
-                    border: "1px solid var(--border)",
-                    borderRadius: 8,
-                    background: selectedFilePath === file.filePath ? "var(--accent-soft)" : "var(--surface)",
-                    fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
-                    fontSize: 12,
-                    cursor: "pointer",
-                  }}
-                >
-                  {file.filePath}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
+// Visual typing state: code + cursor position + edit region for highlighting
+type TypingState = {
+  code: string;
+  cursorPos: number;       // -1 = no cursor visible
+  editStart: number;       // start of highlighted edit region
+  editEnd: number;         // end of highlighted edit region
+  phase: "idle" | "deleting" | "inserting";
+};
 
-        <section style={{ border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", padding: "0.75rem" }}>
-          <div style={{ border: "1px solid #1e293b", borderRadius: 8, background: "var(--text-primary)", padding: "0.75rem", marginBottom: "0.8rem" }}>
-            <p style={{ color: "var(--border)", marginTop: 0, marginBottom: "0.45rem" }}>
-              <code>{selectedFile?.filePath ?? "-"}</code>
-            </p>
-            <pre
+function CodeViewer({ state, filePath, timestamp }: { state: TypingState; filePath: string; timestamp: string }) {
+  const codeRef = useRef<HTMLDivElement>(null);
+
+  const { code, cursorPos, editStart, editEnd, phase } = state;
+
+  const elements: React.ReactNode[] = [];
+
+  if (!code && cursorPos < 0) {
+    elements.push(<span key="empty" style={{ color: "#5a6785" }}>{"// No replay data for this file."}</span>);
+  } else {
+    const lines = code.split("\n");
+    let charOffset = 0;
+
+    for (let lineIdx = 0; lineIdx < lines.length; lineIdx++) {
+      const line = lines[lineIdx];
+      const lineStart = charOffset;
+      const lineEnd = charOffset + line.length;
+      const lineNum = lineIdx + 1;
+
+      const cursorOnLine = cursorPos >= lineStart && cursorPos <= lineEnd;
+      const editOverlap = editStart < editEnd && editStart < lineEnd + 1 && editEnd > lineStart;
+
+      const lineStyle: React.CSSProperties = {
+        display: "block",
+        minHeight: "1.5em",
+        padding: "0 0 0 0",
+        background: cursorOnLine && phase !== "idle" ? (phase === "deleting" ? "rgba(220, 38, 38, 0.08)" : "rgba(34, 197, 94, 0.08)") : "transparent",
+        borderLeft: cursorOnLine && phase !== "idle" ? `2px solid ${phase === "deleting" ? "#dc2626" : "#22c55e"}` : "2px solid transparent",
+        paddingLeft: "0.5rem",
+      };
+
+      const lineContent: React.ReactNode[] = [];
+
+      lineContent.push(
+        <span key={`ln-${lineIdx}`} style={{ display: "inline-block", width: 36, color: "#3d4663", textAlign: "right", marginRight: 12, userSelect: "none", fontSize: 11 }}>
+          {lineNum}
+        </span>
+      );
+
+      let pos = lineStart;
+      const endPos = lineEnd;
+
+      while (pos <= endPos) {
+        if (pos === cursorPos && phase !== "idle") {
+          lineContent.push(
+            <span
+              key={`cursor-${lineIdx}`}
+              className="typing-cursor"
               style={{
-                margin: 0,
-                color: "var(--border-soft)",
-                minHeight: 280,
-                whiteSpace: "pre-wrap",
-                fontSize: 13,
-                lineHeight: 1.45,
-                fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                display: "inline-block",
+                width: 2,
+                height: "1.15em",
+                background: phase === "deleting" ? "#dc2626" : "#22c55e",
+                verticalAlign: "text-bottom",
+                marginLeft: -1,
+                marginRight: -1,
+                animation: "cursor-blink 0.6s step-end infinite",
+              }}
+            />
+          );
+        }
+
+        if (pos >= endPos) break;
+
+        const inEdit = editOverlap && pos >= editStart && pos < editEnd;
+
+        if (inEdit) {
+          let editChunkEnd = pos;
+          while (editChunkEnd < endPos && editChunkEnd < editEnd) editChunkEnd++;
+          const chunk = code.slice(pos, editChunkEnd);
+          lineContent.push(
+            <span
+              key={`edit-${lineIdx}-${pos}`}
+              style={{
+                background: phase === "inserting" ? "rgba(34, 197, 94, 0.2)" : "rgba(220, 38, 38, 0.15)",
+                borderRadius: 2,
               }}
             >
-              {displayCode || "// No replay data for this file."}
-            </pre>
-          </div>
+              {chunk}
+            </span>
+          );
+          pos = editChunkEnd;
+        } else {
+          let chunkEnd = pos;
+          while (chunkEnd < endPos && !(editOverlap && chunkEnd >= editStart && chunkEnd < editEnd) && chunkEnd !== cursorPos) chunkEnd++;
+          if (chunkEnd === pos) chunkEnd = pos + 1;
+          lineContent.push(<span key={`txt-${lineIdx}-${pos}`}>{code.slice(pos, chunkEnd)}</span>);
+          pos = chunkEnd;
+        }
+      }
 
-          <div style={{ marginBottom: "0.65rem" }}>
-            <p style={{ marginTop: 0, marginBottom: "0.35rem", fontSize: 12, color: "var(--text-muted)" }}>
-              Timeline ({stepIndex + 1}/{Math.max(steps.length, 1)})
-            </p>
-            <div style={{ display: "flex", height: 18, overflow: "hidden", borderRadius: 999, border: "1px solid var(--border)" }}>
-              {steps.map((entry, idx) => {
-                const width = totalDuration > 0 ? (entry.durationSeconds / totalDuration) * 100 : 0;
-                const active = idx === stepIndex;
-                return (
-                  <button
-                    className="timeline-segment"
-                    key={entry.id}
-                    onClick={() => {
-                      setIsPlaying(false);
-                      setStepIndex(idx);
-                    }}
-                    title={`${entry.title} (${entry.durationSeconds}s)`}
-                    style={{ width: `${width}%`, border: "none", borderRight: "1px solid var(--accent-soft-2)", background: active ? "var(--accent)" : "var(--accent-soft-2)", cursor: "pointer" }}
-                  />
-                );
-              })}
-            </div>
-          </div>
+      elements.push(
+        <div key={`line-${lineIdx}`} style={lineStyle}>
+          {lineContent}
+        </div>
+      );
 
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
-            <button
-              className="btn-icon"
-              onClick={() => {
-                setIsPlaying(false);
-                setStepIndex((prev) => Math.max(prev - 1, 0));
-              }}
-              disabled={stepIndex === 0}
-              aria-label="Previous step"
-              title="Previous step"
-              style={{ width: 36, height: 36, display: "grid", placeItems: "center" }}
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <rect x="2" y="3" width="2" height="10" fill="currentColor" />
-                <path d="M12 3L5 8L12 13V3Z" fill="currentColor" />
-              </svg>
+      charOffset = lineEnd + 1;
+    }
+  }
+
+  useEffect(() => {
+    if (cursorPos < 0 || !codeRef.current) return;
+    const lineIdx = code.slice(0, cursorPos).split("\n").length - 1;
+    const lineEl = codeRef.current.children[lineIdx] as HTMLElement | undefined;
+    if (lineEl) {
+      lineEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    }
+  }, [cursorPos, code]);
+
+  return (
+    <div style={{ border: "1px solid #1e293b", borderRadius: 8, background: "#1a1a2e", padding: "0.75rem", flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+      <style>{`@keyframes cursor-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }`}</style>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem", flexShrink: 0 }}>
+        <code style={{ color: "#8892b0", fontSize: 12 }}>{filePath || "—"}</code>
+        <span style={{ color: "#5a6785", fontSize: 11 }}>{timestamp}</span>
+      </div>
+      <div
+        ref={codeRef}
+        style={{
+          margin: 0, color: "#ccd6f6", flex: 1, overflowY: "auto", minHeight: 0,
+          fontSize: 13, lineHeight: 1.5,
+          fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+        }}
+      >
+        {elements}
+      </div>
+    </div>
+  );
+}
+
+const SPEED_OPTIONS = [0.5, 1, 2, 4, 8, 16] as const;
+
+function formatDuration(ms: number): string {
+  const totalSec = Math.floor(ms / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${m}:${String(s).padStart(2, "0")}`;
+}
+
+/** Compute per-flush "density" (how much changed) for the bottom bar gradient */
+function computeDensities(flushes: Flush[]): number[] {
+  if (flushes.length === 0) return [];
+  // Use diff length as a proxy for change density
+  const raw = flushes.map((f) => f.diffs.length);
+  const maxVal = Math.max(...raw, 1);
+  return raw.map((v) => v / maxVal);
+}
+
+/** Density bar: renders a horizontal gradient strip colored by change density */
+function DensityBar({ flushes, stepIndex, onSeek }: { flushes: Flush[]; stepIndex: number; onSeek: (idx: number) => void }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const densities = computeDensities(flushes);
+  const BAR_H = 6;
+
+  const draw = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const w = rect.width;
+    canvas.width = w * dpr;
+    canvas.height = BAR_H * dpr;
+    canvas.style.height = `${BAR_H}px`;
+    const ctx = canvas.getContext("2d")!;
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, w, BAR_H);
+
+    if (flushes.length === 0) return;
+
+    const segW = w / flushes.length;
+    for (let i = 0; i < flushes.length; i++) {
+      const d = densities[i];
+      // Low density = cool blue, high density = hot orange/red
+      const hue = 220 - d * 200; // 220 (blue) → 20 (red-orange)
+      const sat = 50 + d * 40;
+      const light = 55 - d * 15;
+      ctx.fillStyle = `hsl(${hue}, ${sat}%, ${light}%)`;
+      ctx.fillRect(i * segW, 0, Math.ceil(segW) + 1, BAR_H);
+    }
+
+    // Playhead marker
+    if (stepIndex >= 0 && stepIndex < flushes.length) {
+      const px = (stepIndex + 0.5) * segW;
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(px - 1, 0, 2, BAR_H);
+    }
+  }, [flushes, stepIndex, densities]);
+
+  useEffect(() => { draw(); }, [draw]);
+
+  useEffect(() => {
+    const ro = new ResizeObserver(() => draw());
+    if (canvasRef.current) ro.observe(canvasRef.current);
+    return () => ro.disconnect();
+  }, [draw]);
+
+  function handleClick(e: React.MouseEvent) {
+    const canvas = canvasRef.current;
+    if (!canvas || flushes.length === 0) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const idx = Math.min(Math.floor((x / rect.width) * flushes.length), flushes.length - 1);
+    onSeek(Math.max(0, idx));
+  }
+
+  return (
+    <canvas
+      ref={canvasRef}
+      onClick={handleClick}
+      style={{ width: "100%", height: BAR_H, cursor: "pointer", display: "block", borderRadius: 3 }}
+    />
+  );
+}
+
+/**
+ * Pre-compute all file snapshots and a flat timeline of char-level edits.
+ * Each "edit segment" is a transition between two flush states, broken into
+ * individual character operations spread across the real wall-clock time
+ * of that flush. The result is one continuous stream — no visible chunk boundaries.
+ */
+type EditOp = {
+  /** Cumulative time offset in ms from the start of the first flush */
+  timeMs: number;
+  /** The full code string at this point */
+  code: string;
+  cursorPos: number;
+  editStart: number;
+  editEnd: number;
+  phase: "idle" | "deleting" | "inserting";
+  /** Which flush index this op came from (for timeline/density bar mapping) */
+  flushIdx: number;
+};
+
+function buildEditStream(flushes: Flush[], reconstruct: (fs: Flush[], idx: number) => string): EditOp[] {
+  if (flushes.length === 0) return [];
+
+  const ops: EditOp[] = [];
+  const timeOrigin = new Date(flushes[0].start_timestamp).getTime();
+
+  // Initial state
+  const initial = reconstruct(flushes, 0);
+  ops.push({ timeMs: 0, code: initial, cursorPos: -1, editStart: 0, editEnd: 0, phase: "idle", flushIdx: 0 });
+
+  for (let fi = 1; fi < flushes.length; fi++) {
+    const fromCode = reconstruct(flushes, fi - 1);
+    const toCode = reconstruct(flushes, fi);
+    if (fromCode === toCode) continue;
+
+    const flush = flushes[fi];
+    const flushStartMs = new Date(flush.start_timestamp).getTime() - timeOrigin;
+    const flushDurMs = Math.max((flush.window_duration || 0.5) * 1000, 100);
+
+    // Find diff region
+    let prefixLen = 0;
+    while (prefixLen < fromCode.length && prefixLen < toCode.length && fromCode[prefixLen] === toCode[prefixLen]) prefixLen++;
+    let fromEnd = fromCode.length;
+    let toEnd = toCode.length;
+    while (fromEnd > prefixLen && toEnd > prefixLen && fromCode[fromEnd - 1] === toCode[toEnd - 1]) {
+      fromEnd--;
+      toEnd--;
+    }
+
+    const charsToDelete = fromEnd - prefixLen;
+    const charsToInsert = toEnd - prefixLen;
+    const suffix = fromCode.slice(fromEnd);
+    const totalSteps = charsToDelete + charsToInsert;
+    if (totalSteps === 0) continue;
+
+    const stepDurMs = flushDurMs / totalSteps;
+
+    for (let s = 0; s < totalSteps; s++) {
+      const t = flushStartMs + s * stepDurMs;
+      if (s < charsToDelete) {
+        const remaining = charsToDelete - s;
+        const code = fromCode.slice(0, prefixLen + remaining - 1) + suffix;
+        const cursorAt = prefixLen + remaining - 1;
+        ops.push({ timeMs: t, code, cursorPos: cursorAt, editStart: prefixLen, editEnd: cursorAt, phase: "deleting", flushIdx: fi });
+      } else {
+        const insertCount = s - charsToDelete + 1;
+        const code = toCode.slice(0, prefixLen + insertCount) + suffix;
+        const cursorAt = prefixLen + insertCount;
+        ops.push({ timeMs: t, code, cursorPos: cursorAt, editStart: prefixLen, editEnd: cursorAt, phase: "inserting", flushIdx: fi });
+      }
+    }
+
+    // Final idle state at end of flush
+    ops.push({ timeMs: flushStartMs + flushDurMs, code: toCode, cursorPos: -1, editStart: 0, editEnd: 0, phase: "idle", flushIdx: fi });
+  }
+
+  return ops;
+}
+
+function ReplayPage() {
+  const { courseCode, assignmentId, studentId } = useParams();
+  const [allFlushes, setAllFlushes] = useState<Flush[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedFilePath, setSelectedFilePath] = useState("");
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [speed, setSpeed] = useState<number>(1);
+  const [typingState, setTypingState] = useState<TypingState>({ code: "", cursorPos: -1, editStart: 0, editEnd: 0, phase: "idle" });
+  const [playheadMs, setPlayheadMs] = useState(0);
+  const [currentFlushIdx, setCurrentFlushIdx] = useState(0);
+  const animFrameRef = useRef<number>(0);
+  const playStartRef = useRef<{ wallTime: number; streamTime: number }>({ wallTime: 0, streamTime: 0 });
+
+  useEffect(() => {
+    if (!studentId || !assignmentId) return;
+    setLoading(true);
+    apiFetch<Flush[]>(`/flushes/student/${studentId}?assignment_id=${assignmentId}`)
+      .then((data) => {
+        const deduped = dedupFlushes(data);
+        setAllFlushes(deduped);
+        const paths = [...new Set(deduped.map((f) => f.file_path))];
+        setSelectedFilePath(paths[0] ?? "");
+        setPlayheadMs(0);
+      })
+      .catch(() => setAllFlushes([]))
+      .finally(() => setLoading(false));
+  }, [studentId, assignmentId]);
+
+  // Group by file path
+  const fileGroups: Record<string, Flush[]> = {};
+  for (const f of allFlushes) {
+    (fileGroups[f.file_path] ??= []).push(f);
+  }
+  for (const key of Object.keys(fileGroups)) {
+    fileGroups[key].sort((a, b) => a.sequence_number - b.sequence_number);
+  }
+  const filePaths = Object.keys(fileGroups);
+  const currentFlushes = fileGroups[selectedFilePath] ?? [];
+
+  // Build the continuous edit stream (memoized on flushes)
+  const editStream = useRef<EditOp[]>([]);
+  const editStreamKey = useRef("");
+  const streamKey = selectedFilePath + ":" + currentFlushes.length;
+  if (editStreamKey.current !== streamKey) {
+    editStreamKey.current = streamKey;
+    editStream.current = buildEditStream(currentFlushes, reconstructFileAtStep);
+  }
+  const stream = editStream.current;
+  const totalDurationMs = stream.length > 0 ? stream[stream.length - 1].timeMs : 0;
+
+  // Find the edit op at a given time
+  const opAtTime = useCallback((timeMs: number): EditOp | null => {
+    const s = stream;
+    if (s.length === 0) return null;
+    const t = Math.max(0, Math.min(timeMs, totalDurationMs));
+    // Binary search for the last op at or before t
+    let lo = 0, hi = s.length - 1;
+    while (lo < hi) {
+      const mid = (lo + hi + 1) >> 1;
+      if (s[mid].timeMs <= t) lo = mid;
+      else hi = mid - 1;
+    }
+    return s[lo];
+  }, [stream, totalDurationMs]);
+
+  // Update display whenever playheadMs changes
+  useEffect(() => {
+    const op = opAtTime(playheadMs);
+    if (op) {
+      setTypingState({ code: op.code, cursorPos: op.cursorPos, editStart: op.editStart, editEnd: op.editEnd, phase: op.phase });
+      setCurrentFlushIdx(op.flushIdx);
+    } else if (currentFlushes.length === 0) {
+      setTypingState({ code: "", cursorPos: -1, editStart: 0, editEnd: 0, phase: "idle" });
+    }
+  }, [playheadMs, opAtTime, currentFlushes.length]);
+
+  // Animation loop for continuous playback
+  useEffect(() => {
+    if (!isPlaying) return;
+
+    playStartRef.current = { wallTime: performance.now(), streamTime: playheadMs };
+
+    function frame() {
+      const elapsed = (performance.now() - playStartRef.current.wallTime) * speed;
+      const newTime = playStartRef.current.streamTime + elapsed;
+
+      if (newTime >= totalDurationMs) {
+        setPlayheadMs(totalDurationMs);
+        setIsPlaying(false);
+        return;
+      }
+
+      setPlayheadMs(newTime);
+      animFrameRef.current = requestAnimationFrame(frame);
+    }
+
+    animFrameRef.current = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(animFrameRef.current);
+  }, [isPlaying, speed, totalDurationMs]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === "[") {
+        setSpeed((s) => { const idx = SPEED_OPTIONS.indexOf(s as typeof SPEED_OPTIONS[number]); return idx > 0 ? SPEED_OPTIONS[idx - 1] : s; });
+      } else if (e.key === "]") {
+        setSpeed((s) => { const idx = SPEED_OPTIONS.indexOf(s as typeof SPEED_OPTIONS[number]); return idx < SPEED_OPTIONS.length - 1 ? SPEED_OPTIONS[idx + 1] : s; });
+      } else if (e.key === " ") {
+        e.preventDefault();
+        playPause();
+      }
+    }
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [isPlaying, totalDurationMs, playheadMs]);
+
+  // When speed changes during playback, reset the wall-time anchor so playback continues smoothly
+  useEffect(() => {
+    if (isPlaying) {
+      playStartRef.current = { wallTime: performance.now(), streamTime: playheadMs };
+    }
+  }, [speed]);
+
+  function playPause() {
+    if (stream.length === 0) return;
+    if (isPlaying) { setIsPlaying(false); return; }
+    if (playheadMs >= totalDurationMs) setPlayheadMs(0);
+    setIsPlaying(true);
+  }
+
+  function seekToFlush(idx: number) {
+    setIsPlaying(false);
+    // Find the first op for this flush index
+    if (idx <= 0) { setPlayheadMs(0); return; }
+    const firstOp = stream.find((op) => op.flushIdx >= idx && op.phase === "idle");
+    setPlayheadMs(firstOp ? firstOp.timeMs : 0);
+  }
+
+  function seekToTime(ms: number) {
+    setIsPlaying(false);
+    setPlayheadMs(Math.max(0, Math.min(ms, totalDurationMs)));
+  }
+
+  // Compute current timestamp from flush
+  const currentFlush = currentFlushes[currentFlushIdx];
+  const currentTime = currentFlush ? new Date(currentFlush.start_timestamp).toLocaleString() : "";
+
+  if (loading) {
+    return (
+      <main style={{ height: "100vh", display: "grid", placeItems: "center" }}>
+        <p style={{ color: "var(--text-muted)" }}>Loading replay data...</p>
+      </main>
+    );
+  }
+
+  return (
+    <main style={{ height: "calc(100vh - 0px)", display: "flex", flexDirection: "column", padding: 0, overflow: "hidden" }}>
+      {/* Header bar */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.5rem 1rem", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
+        <div>
+          <span style={{ fontWeight: 700, fontSize: 15 }}>Progress Replay</span>
+          <span style={{ color: "var(--text-muted)", fontSize: 12, marginLeft: 12 }}>Student: {studentId}</span>
+        </div>
+        <span style={{ fontSize: 12, color: "var(--text-muted)", fontVariantNumeric: "tabular-nums" }}>
+          {currentTime || "—"}
+        </span>
+      </div>
+
+      {/* Main content: file tree + code viewer */}
+      <div style={{ display: "grid", gridTemplateColumns: "180px 1fr", flex: 1, minHeight: 0, overflow: "hidden" }}>
+        {/* File Tree */}
+        <aside style={{ borderRight: "1px solid var(--border)", background: "var(--surface)", padding: "0.5rem", overflowY: "auto" }}>
+          <h2 style={{ marginTop: 0, fontSize: 13, marginBottom: "0.4rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1 }}>Files</h2>
+          {filePaths.length === 0 ? (
+            <p style={{ color: "var(--text-muted)", fontSize: 12 }}>No files tracked.</p>
+          ) : (
+            filePaths.map((fp) => (
+              <button
+                key={fp}
+                onClick={() => { setSelectedFilePath(fp); setPlayheadMs(0); setIsPlaying(false); }}
+                style={{
+                  display: "block", width: "100%", textAlign: "left", padding: "0.3rem 0.4rem",
+                  border: "none", borderRadius: 4, marginBottom: 1,
+                  background: selectedFilePath === fp ? "var(--accent-soft)" : "transparent",
+                  fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace", fontSize: 11,
+                  cursor: "pointer", color: "inherit",
+                }}
+              >
+                {fp}
+              </button>
+            ))
+          )}
+        </aside>
+
+        {/* Code viewer fills remaining space */}
+        <div style={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
+          <CodeViewer state={typingState} filePath={selectedFilePath} timestamp={currentTime} />
+        </div>
+      </div>
+
+      {/* Bottom: controls + density bar */}
+      <div style={{ borderTop: "1px solid var(--border)", background: "var(--surface)", padding: "0.4rem 0.75rem 0.3rem", flexShrink: 0 }}>
+        {/* Timeline scrubber */}
+        <ReplayTimeline flushes={currentFlushes} stepIndex={currentFlushIdx} onSeek={seekToFlush} />
+
+        {/* Controls row */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "0.35rem" }}>
+          {/* Transport controls */}
+          <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+            <button className="btn-icon" onClick={() => seekToTime(0)} disabled={playheadMs === 0} title="Skip to start" style={{ width: 28, height: 28, display: "grid", placeItems: "center" }}>
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="2" height="10" fill="currentColor" /><path d="M12 3L5 8L12 13V3Z" fill="currentColor" /></svg>
             </button>
-            <button
-              className="btn-icon btn-icon-lg"
-              onClick={playPause}
-              disabled={steps.length === 0}
-              aria-label={isPlaying ? "Pause" : "Play"}
-              title={isPlaying ? "Pause" : "Play"}
-              style={{ width: 44, height: 44, borderRadius: 999, display: "grid", placeItems: "center" }}
-            >
+            <button className="btn-icon btn-icon-lg" onClick={playPause} disabled={stream.length === 0} title={isPlaying ? "Pause" : "Play"} style={{ width: 34, height: 34, borderRadius: 999, display: "grid", placeItems: "center" }}>
               {isPlaying ? (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <rect x="3" y="2" width="3" height="12" fill="currentColor" />
-                  <rect x="10" y="2" width="3" height="12" fill="currentColor" />
-                </svg>
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="3" height="12" fill="currentColor" /><rect x="10" y="2" width="3" height="12" fill="currentColor" /></svg>
               ) : (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path d="M4 2L13 8L4 14V2Z" fill="currentColor" />
-                </svg>
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 2L13 8L4 14V2Z" fill="currentColor" /></svg>
               )}
             </button>
-            <button
-              className="btn-icon"
-              onClick={() => {
-                setIsPlaying(false);
-                setStepIndex((prev) => Math.min(prev + 1, steps.length - 1));
-              }}
-              disabled={stepIndex >= steps.length - 1}
-              aria-label="Next step"
-              title="Next step"
-              style={{ width: 36, height: 36, display: "grid", placeItems: "center" }}
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <rect x="12" y="3" width="2" height="10" fill="currentColor" />
-                <path d="M4 3L11 8L4 13V3Z" fill="currentColor" />
-              </svg>
+            <button className="btn-icon" onClick={() => seekToTime(totalDurationMs)} disabled={playheadMs >= totalDurationMs} title="Skip to end" style={{ width: 28, height: 28, display: "grid", placeItems: "center" }}>
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="12" y="3" width="2" height="10" fill="currentColor" /><path d="M4 3L11 8L4 13V3Z" fill="currentColor" /></svg>
             </button>
           </div>
-        </section>
 
-        <section style={{ border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", padding: "0.75rem", display: "flex", flexDirection: "column", minHeight: 450 }}>
-          <h2 style={{ marginTop: 0, fontSize: 18 }}>AI Insights</h2>
-          <p style={{ marginTop: 0, marginBottom: "0.5rem", color: "var(--text-muted)", fontSize: 12 }}>
-            Current Replay Step: {step?.title ?? "No step selected"}
-          </p>
-          <div style={{ flex: 1, border: "1px solid var(--border-soft)", borderRadius: 8, background: "var(--surface-muted)", padding: "0.6rem", overflowY: "auto", marginBottom: "0.6rem" }}>
-            {insights.map((line, idx) => (
-              <p key={`${idx}-${line}`} style={{ margin: "0 0 0.5rem", lineHeight: 1.35, fontSize: 12 }}>
-                {line}
-              </p>
+          {/* Elapsed / total time */}
+          <span style={{ fontSize: 11, color: "var(--text-muted)", fontVariantNumeric: "tabular-nums", fontFamily: "ui-monospace, monospace" }}>
+            {formatDuration(playheadMs)} / {formatDuration(totalDurationMs)}
+            {currentTime && <span style={{ marginLeft: 8, fontFamily: "system-ui, sans-serif" }}>{currentTime}</span>}
+          </span>
+
+          {/* Speed selector */}
+          <div style={{ display: "flex", borderRadius: 999, overflow: "hidden", border: "1px solid var(--border)" }}>
+            {SPEED_OPTIONS.map((s) => (
+              <button
+                key={s}
+                onClick={() => setSpeed(s)}
+                style={{
+                  padding: "0.15rem 0.45rem", border: "none", fontSize: 10, fontWeight: 700,
+                  background: speed === s ? "var(--accent)" : "transparent",
+                  color: speed === s ? "#fff" : "var(--text-muted)",
+                  cursor: "pointer",
+                }}
+              >
+                {s}x
+              </button>
             ))}
           </div>
-          <form onSubmit={submitInsight} style={{ display: "flex", gap: "0.45rem" }}>
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Ask AI about this student"
-              style={{ flex: 1, padding: "0.55rem" }}
-            />
-            <button type="submit" style={{ padding: "0.55rem 0.8rem" }}>
-              Send
-            </button>
-          </form>
-        </section>
+        </div>
+
+        {/* Density bar at the very bottom */}
+        <div style={{ marginTop: "0.3rem" }}>
+          <DensityBar flushes={currentFlushes} stepIndex={currentFlushIdx} onSeek={seekToFlush} />
+        </div>
       </div>
     </main>
   );
@@ -1470,14 +1448,7 @@ function ReplayPage() {
 function GenericPage({ title, body }: { title: string; body: string }) {
   return (
     <main style={{ maxWidth: 900, margin: "0 auto", padding: "1.5rem 1.1rem 2rem" }}>
-      <div
-        style={{
-          border: "1px solid var(--border)",
-          borderRadius: 12,
-          background: "var(--surface)",
-          padding: "1.5rem 1.75rem",
-        }}
-      >
+      <div style={{ border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", padding: "1.5rem 1.75rem" }}>
         <h1 style={{ marginTop: 0 }}>{title}</h1>
         <p style={{ color: "var(--text-muted)", lineHeight: 1.65, marginBottom: 0 }}>{body}</p>
       </div>
@@ -1488,28 +1459,11 @@ function GenericPage({ title, body }: { title: string; body: string }) {
 function NotFoundPage() {
   return (
     <main style={{ maxWidth: 900, margin: "0 auto", padding: "1.5rem 1.1rem 2rem" }}>
-      <div
-        style={{
-          border: "1px solid var(--border)",
-          borderRadius: 12,
-          background: "var(--surface)",
-          padding: "1.5rem 1.75rem",
-        }}
-      >
+      <div style={{ border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", padding: "1.5rem 1.75rem" }}>
         <h1 style={{ marginTop: 0 }}>Not Found</h1>
-        <p style={{ color: "var(--text-muted)" }}>This page does not exist in the current routing setup.</p>
-        <Link
-          to="/"
-          className="btn btn-primary"
-          style={{
-            display: "inline-block",
-            padding: "0.55rem 1.1rem",
-            borderRadius: 8,
-            color: "white",
-            textDecoration: "none",
-          }}
-        >
-          Back to Dashboard
+        <p style={{ color: "var(--text-muted)" }}>This page does not exist.</p>
+        <Link to="/" className="btn btn-primary" style={{ display: "inline-block", padding: "0.55rem 1.1rem", borderRadius: 8, color: "white", textDecoration: "none" }}>
+          Back Home
         </Link>
       </div>
     </main>
@@ -1520,57 +1474,38 @@ function AuthedApp({
   onSignOut,
   theme,
   onToggleTheme,
-  collapsed,
-  onToggleCollapsed,
 }: {
   onSignOut: () => Promise<void>;
   theme: ThemeMode;
   onToggleTheme: () => void;
-  collapsed: boolean;
-  onToggleCollapsed: () => void;
 }) {
+  const [courses, setCourses] = useState<CourseWithRole[]>([]);
+
+  useEffect(() => {
+    apiFetch<CourseWithRole[]>("/courses/my")
+      .then(setCourses)
+      .catch(() => setCourses([]));
+  }, []);
+
+  const firstCode = courses[0]?.course.code;
+
   return (
-    <div style={appShellStyle} className={`app-shell ${collapsed ? "sidebar-collapsed" : ""}`}>
+    <div style={appShellStyle} className="app-shell">
       <Navbar
+        courses={courses}
         onSignOut={onSignOut}
         theme={theme}
         onToggleTheme={onToggleTheme}
-        collapsed={collapsed}
-        onToggleCollapsed={onToggleCollapsed}
       />
       <div className="content-shell">
         <Routes>
-          <Route path="/" element={<DashboardPage />} />
-          <Route
-            path="/faq"
-            element={
-              <GenericPage
-                title="FAQ / How To Use"
-                body="Use Dashboard to choose a course, click into assignments, inspect student and class stats, then open Details for per-student replay and AI-supported insight threads."
-              />
-            }
-          />
-          <Route
-            path="/about"
-            element={
-              <GenericPage
-                title="About Our Product"
-                body="JumBuddy helps instructors identify where students struggle by combining assignment analytics, replay-based development traces, and AI-assisted interpretation of learning behaviors."
-              />
-            }
-          />
-          <Route
-            path="/account"
-            element={
-              <GenericPage
-                title="Account"
-                body="Account settings can be connected here. Current demo includes authentication via Supabase and role-aware course navigation."
-              />
-            }
-          />
-          <Route path="/:courseId" element={<CoursePage />} />
-          <Route path="/:courseId/:assignment" element={<AssignmentPage />} />
-          <Route path="/:courseId/:assignment/:student" element={<ReplayPage />} />
+          <Route path="/" element={firstCode ? <Navigate to={`/${firstCode}`} replace /> : <main style={{ padding: "2rem" }}><p style={{ color: "var(--text-muted)" }}>No courses found. Contact your administrator.</p></main>} />
+          <Route path="/faq" element={<GenericPage title="FAQ / How To Use" body="Use the sidebar to choose a course, click into assignments, then open Details on a student for replay-based progress analysis." />} />
+          <Route path="/about" element={<GenericPage title="About Our Product" body="JumBuddy helps instructors identify where students struggle by combining assignment analytics, replay-based development traces, and AI-assisted interpretation of learning behaviors." />} />
+          <Route path="/account" element={<GenericPage title="Account" body="Account settings can be connected here. Current demo includes authentication via Supabase and role-aware course navigation." />} />
+          <Route path="/:courseCode" element={<CoursePage courses={courses} />} />
+          <Route path="/:courseCode/:assignmentId" element={<AssignmentPage courses={courses} />} />
+          <Route path="/:courseCode/:assignmentId/:studentId" element={<ReplayPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
@@ -1584,7 +1519,6 @@ function App() {
     const saved = localStorage.getItem("jumbuddy-theme");
     return saved === "light" ? "light" : "dark";
   });
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
@@ -1626,8 +1560,6 @@ function App() {
       onSignOut={handleSignOut}
       theme={theme}
       onToggleTheme={() => setTheme((prev) => (prev === "light" ? "dark" : "light"))}
-      collapsed={sidebarCollapsed}
-      onToggleCollapsed={() => setSidebarCollapsed((prev) => !prev)}
     />
   );
 }

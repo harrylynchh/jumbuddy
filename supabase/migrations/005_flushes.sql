@@ -19,7 +19,7 @@ create table public.flushes (
     -- Used to verify reconstruction correctness
     content_hash char(64) not null,
 
-    trigger varchar(50) not null,
+    "trigger" varchar(50) not null,
     start_timestamp timestamptz not null,
     end_timestamp timestamptz not null,
     diffs text not null,
@@ -36,7 +36,7 @@ create table public.flushes (
     -- Derived column: window duration in seconds
     window_duration double precision generated always as (
         extract(epoch from end_timestamp - start_timestamp)
-    ) stored,
+    ) stored
 
     -- No unique constraints — append-only, dedup at read time via client_flush_id
 );
