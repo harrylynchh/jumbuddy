@@ -1,0 +1,1 @@
+I want you to understand the VSCode extension diffing logic and ingestion pipeline. I want you to maintain a .jumbud directory.

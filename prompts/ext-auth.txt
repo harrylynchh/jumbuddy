@@ -1,0 +1,25 @@
+I want you to create you begin the drafting of the VSCODE extension. There should be a command or means to initiate a project from a directory. This will be done with a command, and it will ask for utln and assignment. During initialization, we will create a .jumbud directory. Inside this directory, we will be keeping a ./jumbud/mirror 
+
+that will represent a lagging state of each file. 
+
+This ./jumbud/mirror will be used to create conscurive diffs. This will be used to create flushes corresponding to each file. At initalization, we do diffs that represent complete pure additions of file content.
+
+Lets define a "debounce". We basically maintain a timer doubounce_time (will be in config.yaml) right now 10 seconds. There is inactive and active state. active state begins on first change is detected and it starts the count down and the timer is reset to debounce_time every time their is an edit, when that timer ends, we calculate a diff for a file.
+
+Diffing for a file is isolated to a file and the file history doesnt effect other file histlory. These saves should be done with the utln and assignment, the utln to be able to find the user id, and then we use that to save the debounces.
+
+There is no authentication, this is a proof of concept and for hackathon. 
+
+We maintain config.yaml variable debounces_before_push=10 which basically queues up these debounces. It should send a do a group save after accumnetatling at least that manym, and their should be a python endpoint that can easily save these in mass to the flushes table.
+
+Refer to the flushes table to understand all the vars we want. 
+
+Make the endpoint from python to be able to create new flushes. It receives data from the vscode extension, and it writes data to the supabase. It writes based on
+
+FOR NOW, LEAVE everything in metrics nulls. 
+
+
+
+
+
+

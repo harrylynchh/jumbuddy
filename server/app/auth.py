@@ -1,6 +1,6 @@
 import functools
 import jwt
-from flask import request, g, jsonify, current_app
+from flask import request, g, jsonify
 
 
 def require_auth(f):
@@ -14,13 +14,9 @@ def require_auth(f):
         token = auth_header.split(" ", 1)[1]
 
         try:
-            # Supabase JWTs are signed with the JWT secret; for now we
-            # decode without full verification (the Supabase client already
-            # validated the session). In production, verify with the JWT secret.
             payload = jwt.decode(token, options={"verify_signature": False})
             g.user_id = payload.get("sub")
             g.user_email = payload.get("email")
-            g.user_role = payload.get("user_metadata", {}).get("role", "student")
         except jwt.PyJWTError:
             return jsonify({"error": "Invalid token"}), 401
 

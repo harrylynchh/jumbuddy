@@ -7,7 +7,7 @@
 | PostgreSQL        | 10005 | localhost:10005            |
 
 Test credentials (after running `./restart.sh`):
-- Email: professor@codeactivity.test
+- Email: professor@jumbud.test
 - Password: testpass123
 
 All Supabase services run locally in Docker. No external accounts needed.

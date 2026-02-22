@@ -1,23 +1,39 @@
 {
-  "name": "code-activity-logger",
-  "displayName": "CodeActivity Logger",
-  "description": "Logs coding activity to CodeActivity server",
-  "version": "0.1.0",
-  "engines": {
-    "vscode": "^1.85.0"
-  },
-  "categories": ["Other"],
-  "activationEvents": ["onStartupFinished"],
-  "main": "./out/extension.js",
-  "scripts": {
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.49.1"
-  },
-  "devDependencies": {
-    "@types/vscode": "^1.85.0",
-    "typescript": "^5.7.2"
-  }
+	"name": "jumbud",
+	"publisher": "jumbud",
+	"displayName": "JumBud",
+	"description": "Tracks coding activity and sends edit flushes to JumBud server",
+	"version": "0.2.0",
+	"engines": {
+		"vscode": "^1.85.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onStartupFinished",
+		"onUri"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "jumbud.init",
+				"title": "JumBud: Initialize Tracking"
+			}
+		]
+	},
+	"scripts": {
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./"
+	},
+	"dependencies": {
+		"diff": "^7.0.0"
+	},
+	"devDependencies": {
+		"@types/diff": "^6.0.0",
+		"@types/node": "^25.3.0",
+		"@types/vscode": "^1.85.0",
+		"typescript": "^5.7.2"
+	}
 }

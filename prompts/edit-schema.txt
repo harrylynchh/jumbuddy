@@ -1,0 +1,46 @@
+
+
+Do not touch VSCODE EXTENSION FRONTEND. 
+Only write python middleware and supabase schema.
+
+I also want a "courses" table  with a name and ID. It should have a profile id associated with the professor.
+
+profiles should have utln (like slupo01).
+
+profiles no longer have roles, its represented like this
+I would like a fact table "students" which joins profiles with classes, showing memberships in class.
+I would like a fact table "assistants" which joins profiles with classes, showing ta membership in classes.
+
+I would like "assignments" which associates "courses" and a name and other metadata..
+
+Now lock in, I want to define a "flushes". this table is associated with a profile, a assignment, and a "file_path" (determining the file thats being editted) by the flush. (this will be a relative path from the project), and a timestamp. The goal of flushes is to be able to represesnt a series of diffs, always being able to reconstruct the current state of the file.
+
+Each flush is associated with a id, trigger ("varchar"), user_id, assignment_id, start_timestamp, end_timestamp, diffs ("variable length string"), file_path, active_symbol (varchar"), window_duration (derived from start and end timestamps), (edit_), metrics (json) 
+
+metrics structure.
+{
+  "chars_inserted": 203,
+  "chars_deleted": 89,
+  "rewrite_ratio": 0.30,
+  "edit_velocity": 3.13,
+  "lines_touched": 5,
+  "thrash": {
+    "score": 0.72,
+    "thrashing_lines": [34]
+  },
+  "error_churn": {
+    "introduced": 1,
+    "resolved": 0,
+    "persisting": 2
+  },
+  "delete_rewrite": null,
+  "cursor_reads": {
+    "arraylist.h:ArrayList:data": 3
+  }
+}
+ 
+
+Use a proper index, to speed up operations that a diff chain would work.   
+With each profile with role student, I would like to create a table of edits.
+
+The key premise is that we are trying to keep a retracable reconstructable history of each file efficiently.

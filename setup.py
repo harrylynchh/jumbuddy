@@ -29,7 +29,7 @@ def venv_pip():
 
 
 def main():
-    print("=== CodeActivity Setup ===\n")
+    print("=== JumBud Setup ===\n")
 
     # .env
     env_file = os.path.join(ROOT, ".env")

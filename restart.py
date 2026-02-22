@@ -57,7 +57,7 @@ def venv_pip():
 
 
 def main():
-    print("=== CodeActivity Restart ===\n")
+    print("=== JumBud Restart ===\n")
 
     # 1. Stop + wipe
     print("--- Stopping Docker services + wiping DB volume ---")
@@ -68,6 +68,13 @@ def main():
     docker_compose("up --build -d")
 
     # 3. Wait for Supabase
+    print("\n---  Waiting for Kong ---")
+    wait_for_url(
+    "http://localhost:10002",
+    "Kong",
+    headers={"apikey": ANON_KEY},
+    max_attempts=30,
+    )
     print("\n--- Waiting for Supabase ---")
     auth_ok = wait_for_url(
         "http://localhost:10002/auth/v1/health",
@@ -122,7 +129,7 @@ def main():
     print("Supabase Studio:  http://localhost:10003")
     print("PostgreSQL:       localhost:10005")
     print("\n=== Restart complete ===")
-    print("Login with: professor@codeactivity.test / testpass123")
+    print("Login with: professor@jumbud.test / testpass123")
 
 
 if __name__ == "__main__":
