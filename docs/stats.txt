@@ -24,11 +24,14 @@ Flushes are the raw data. All metrics derive from analyzing flush sequences.
 
 2.1 EDIT REGIONS
 ----------------
-Each flush is parsed to extract:
-  - line_start, line_end: Which lines were touched (from diff hunks)
-  - chars_inserted, chars_deleted: Character-level change counts
+Each flush becomes ONE EditRegion (hunks aggregated to prevent time overcounting):
+  - line_start, line_end: Range of all lines touched (min/max across hunks)
+  - chars_inserted, chars_deleted: Total changes across all hunks
   - net_change: inserted - deleted
-  - duration_sec: Time spent on this edit
+  - duration_sec: flush.window_duration (counted ONCE per flush)
+
+CRITICAL: One region per flush, NOT one per hunk.
+This prevents overcounting time when a flush has multiple diff hunks.
 
 2.2 LINGER SCORE (Algorithm 1: Struggle Detection)
 ---------------------------------------------------
@@ -76,7 +79,10 @@ Which symbols/functions cause the most students to struggle?
 2.5 DISPLAYED STATS
 -------------------
 Student Stats:
-  - Time on Assignment: sum of all window_duration values
+  - Time on Assignment: ACTIVE TIME ONLY
+    Filters: window_duration < 5 minutes AND has diffs
+    Excludes: idle periods, long pauses, empty flushes
+    Formula: sum(flush.window_duration for flush in active_flushes)
   - Top Struggle Area: symbol with highest linger_score
   - Current Focus: symbol with highest recency-weighted time
   - Avg Churn Rate: mean churn across all symbols
@@ -95,9 +101,10 @@ Linger Breakdown Table (per student):
 3. AI REPORT GENERATION (LLM-Based Semantic Analysis)
 ================================================================================
 
-3.1 PREPROCESSING: TIMELINE CONSTRUCTION
------------------------------------------
-Raw flushes are transformed into a human-readable timeline:
+3.1 PREPROCESSING: TIMELINE CONSTRUCTION (WHITESPACE PRESERVED)
+----------------------------------------------------------------
+Raw flushes are transformed into a human-readable timeline with exact
+whitespace preservation for accurate code analysis:
 
   1. Sort flushes by timestamp
   2. Group into sessions (gap > 30 min = new session)
@@ -127,6 +134,19 @@ Output format:
         removed: return x + y
 
 This gives the LLM semantic understanding of what the student actually did.
+
+WHITESPACE HANDLING:
+  - Indentation is PRESERVED when extracting diff snippets
+  - Leading/trailing spaces kept intact (critical for Python, YAML, etc.)
+  - Tab characters preserved (not converted to spaces)
+  - Empty lines skipped, but indented lines with code kept
+  - Max 100 chars per line (truncate long lines, not indentation)
+  - Full diff hunks shown for significant changes (with @@ context)
+
+This ensures the LLM sees proper code structure and can understand:
+  - Indentation-based scoping (Python, YAML)
+  - Code blocks and nesting levels
+  - Formatting changes vs. logic changes
 
 3.2 LLM PROMPT CONSTRUCTION
 ----------------------------
@@ -194,7 +214,174 @@ Click a cell to see:
 ✓ No black boxes: TAs can verify AI claims against raw timeline data
 
 ================================================================================
-6. DEBUGGING & VERIFICATION
+6. WHITESPACE & RECONSTRUCTION GUARANTEES
+================================================================================
+
+6.1 DIFF CREATION (VS Code Extension)
+--------------------------------------
+When the extension creates diffs (`differ.ts`):
+
+  ✓ Line endings normalized to LF (\n)
+    - Prevents CRLF (Windows) vs LF (Unix/Mac) mismatches
+    - Ensures cross-platform compatibility
+
+  ✓ Whitespace preserved exactly:
+    - Tabs remain tabs (not converted to spaces)
+    - Spaces remain spaces
+    - Leading indentation preserved
+    - Trailing whitespace preserved (no auto-trim)
+
+  ✓ Options: ignoreWhitespace: false
+    - Forces `diff` library to treat whitespace as significant
+    - Every space/tab/newline matters
+
+6.2 RECONSTRUCTION (Web Replay)
+--------------------------------
+When reconstructing files during replay (`reconstruct.ts`):
+
+  ✓ Line ending normalization:
+    - Both content and diff normalized to LF before applying patch
+    - Prevents platform-specific line ending issues
+
+  ✓ Whitespace fidelity:
+    - applyPatch preserves exact whitespace from diff
+    - No trimming, no expansion, no normalization (except LF)
+
+  ✓ Error handling:
+    - If patch fails, logs detailed error to console
+    - Returns last known good state (partial reconstruction)
+    - Allows debugging of whitespace-related patch failures
+
+6.3 CONTENT HASH VERIFICATION
+------------------------------
+Each flush has a SHA-256 content_hash of the file AFTER applying the diff.
+
+To verify reconstruction correctness:
+  1. Reconstruct file at step N
+  2. Compute SHA-256 hash of reconstructed content
+  3. Compare with flush[N].content_hash
+  4. If mismatch → whitespace drift or patch failure
+
+This guarantees bit-perfect reconstruction when hashes match.
+
+6.4 COMMON WHITESPACE PITFALLS (AVOIDED)
+-----------------------------------------
+❌ WRONG: Tabs converted to spaces → breaks Python, Makefiles
+   ✓ FIXED: Tabs preserved as-is
+
+❌ WRONG: CRLF/LF mismatch → patch fails on Windows files
+   ✓ FIXED: All normalized to LF at diff creation & reconstruction
+
+❌ WRONG: Trailing whitespace trimmed → breaks string literals, heredocs
+   ✓ FIXED: No auto-trimming anywhere in pipeline
+
+❌ WRONG: ignoreWhitespace: true → loses indentation changes
+   ✓ FIXED: ignoreWhitespace: false (whitespace is significant)
+
+6.5 TESTING WHITESPACE CORRECTNESS
+-----------------------------------
+To verify whitespace handling:
+
+  1. Create a file with mixed tabs/spaces, trailing whitespace
+  2. Make edits in VS Code extension
+  3. Check replay reconstruction matches exactly
+  4. Verify content_hash matches at each step
+  5. Check console for any patch failure errors
+
+If reconstruction fails:
+  - Check console.error logs for patch failure details
+  - Verify line endings are consistent (LF)
+  - Check for non-printable characters (BOM, etc.)
+
+================================================================================
+7. SYNTAX HIGHLIGHTING (REPLAY)
+================================================================================
+
+The replay code viewer includes syntax highlighting for common languages.
+
+Supported Languages:
+  ✓ C / C++        (.c, .h, .cpp, .hpp, .cc, .cxx, .hh)
+  ✓ Python         (.py)
+  ✓ Java           (.java)
+  ✓ JavaScript     (.js)
+  ✓ TypeScript     (.ts)
+  ✓ JSX / TSX      (.jsx, .tsx)
+  ✓ Rust           (.rs)
+  ✓ Go             (.go)
+  ✓ Ruby           (.rb)
+  ✓ Bash           (.sh, .bash)
+  ✓ SQL            (.sql)
+  ✓ JSON           (.json)
+  ✓ YAML           (.yaml, .yml)
+  ✓ HTML           (.html, .htm, .xml)
+  ✓ CSS            (.css)
+
+Color Scheme: VS Code Dark+ (dark background)
+
+Token Colors:
+  - Keywords (if, for, class):     Purple (#C586C0)
+  - Functions:                      Yellow (#DCDCAA)
+  - Strings:                        Orange (#CE9178)
+  - Numbers:                        Light Green (#B5CEA8)
+  - Comments:                       Green (#6A9955)
+  - Variables/Properties:           Light Blue (#9CDCFE)
+  - Types/Classes:                  Teal (#4EC9B0)
+  - Operators:                      White (#D4D4D4)
+
+Highlighting Features:
+  ✓ Works with typing animation (character-by-character)
+  ✓ Preserves cursor position highlighting (green/red)
+  ✓ Preserves edit region highlighting
+  ✓ Preserves whitespace (spaces, tabs, indentation)
+  ✓ Auto-detects language from file extension
+  ✓ Graceful fallback for unknown languages (plain text)
+
+Implementation:
+  - Uses Prism.js for tokenization
+  - Tokens applied per-character for animation compatibility
+  - Zero performance impact (tokenization happens once per step)
+
+================================================================================
+8. EXTENSION DEBUG MODE
+================================================================================
+
+To enable detailed flush logging in VS Code:
+
+1. Edit .jumbuddy/config.json:
+   {
+     "utln": "your_utln",
+     "key": "your_key",
+     "assignment_id": "...",
+     "course_id": "...",
+     "server_url": "...",
+     "debug": true  // ADD THIS LINE
+   }
+
+2. Reload VS Code extension (or restart VS Code)
+
+3. Open "View" → "Output" → Select "JumBuddy Debug" from dropdown
+
+4. As you edit files, detailed flush stats will appear:
+   - File path, sequence number, trigger
+   - Active symbol, time window, duration
+   - Character changes (inserted/deleted)
+   - Lines touched, edit velocity, rewrite ratio
+   - Thrash score, error churn, delete/rewrite stats
+   - Content hash (for verification)
+   - Diff preview (first 10 lines)
+   - Push status (success/failure)
+
+This helps verify:
+  ✓ Flushes are being created correctly
+  ✓ Window durations are accurate
+  ✓ Diffs contain expected changes
+  ✓ Metrics are computed correctly
+  ✓ Pushes are succeeding
+
+To disable: Set "debug": false (or remove the line)
+
+================================================================================
+8. DEBUGGING & VERIFICATION
 ================================================================================
 
 Endpoints:

@@ -102,41 +102,43 @@ def parse_diff_stats(diff_text: str) -> list[HunkStat]:
 
 
 def flushes_to_edit_regions(flushes: list[dict]) -> list[EditRegion]:
-    """Convert raw flush dicts to EditRegion list."""
+    """
+    Convert raw flush dicts to EditRegion list.
+
+    IMPORTANT: Creates ONE region per flush (not per hunk) to prevent
+    time overcounting. All hunks in a flush are aggregated together.
+    """
     regions: list[EditRegion] = []
     for f in flushes:
         hunks = parse_diff_stats(f.get("diffs", ""))
         duration = f.get("window_duration") or 0.0
         symbol = f.get("active_symbol") or None
 
+        # Aggregate all hunks from this flush
         if hunks:
-            for h in hunks:
-                regions.append(EditRegion(
-                    file_path=f["file_path"],
-                    symbol=symbol,
-                    line_start=h.line_start,
-                    line_end=h.line_end,
-                    chars_inserted=h.inserted,
-                    chars_deleted=h.deleted,
-                    net_change=h.inserted - h.deleted,
-                    start_time=f["start_timestamp"],
-                    end_time=f["end_timestamp"],
-                    duration_sec=duration,
-                ))
+            total_inserted = sum(h.inserted for h in hunks)
+            total_deleted = sum(h.deleted for h in hunks)
+            line_start = min(h.line_start for h in hunks)
+            line_end = max(h.line_end for h in hunks)
         else:
-            # Flush with no diff hunks — still counts as a visit
-            regions.append(EditRegion(
-                file_path=f["file_path"],
-                symbol=symbol,
-                line_start=0,
-                line_end=0,
-                chars_inserted=0,
-                chars_deleted=0,
-                net_change=0,
-                start_time=f["start_timestamp"],
-                end_time=f["end_timestamp"],
-                duration_sec=duration,
-            ))
+            total_inserted = 0
+            total_deleted = 0
+            line_start = 0
+            line_end = 0
+
+        # Create ONE region per flush (aggregated stats)
+        regions.append(EditRegion(
+            file_path=f["file_path"],
+            symbol=symbol,
+            line_start=line_start,
+            line_end=line_end,
+            chars_inserted=total_inserted,
+            chars_deleted=total_deleted,
+            net_change=total_inserted - total_deleted,
+            start_time=f["start_timestamp"],
+            end_time=f["end_timestamp"],
+            duration_sec=duration,
+        ))
 
     return regions
 

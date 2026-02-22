@@ -2,6 +2,7 @@ import { FlushPayload } from "../utils/types";
 import { getServerUrl, readConfig, loadQueue, saveQueue } from "../utils/config";
 import { httpPost } from "./http";
 import { setPushing, flashSuccess, flashError } from "../ui/statusbar";
+import { logFlushStats, debugLog } from "../utils/logger";
 
 let queue: FlushPayload[] = [];
 const DEBOUNCE_THRESHOLD = 2;
@@ -24,8 +25,12 @@ export async function enqueueFlush(flush: FlushPayload): Promise<void> {
     `[JumBuddy] Flush queued: file=${flush.file_path} seq=${flush.sequence_number} trigger=${flush.trigger} queue_size=${queue.length}/${DEBOUNCE_THRESHOLD}`,
   );
 
+  // DEBUG: Log detailed flush statistics to VS Code output channel
+  logFlushStats(flush);
+
   if (queue.length >= DEBOUNCE_THRESHOLD) {
     console.log("[JumBuddy] Queue threshold reached, pushing...");
+    debugLog("Queue threshold reached, pushing batch to server...");
     await pushFlushes();
   }
 }
@@ -52,6 +57,7 @@ export async function pushFlushes(): Promise<void> {
   console.log(
     `[JumBuddy] Pushing ${batch.length} flushes to ${url}`,
   );
+  debugLog(`Pushing batch of ${batch.length} flushes to server...`);
 
   setPushing();
 
@@ -68,11 +74,13 @@ export async function pushFlushes(): Promise<void> {
       console.error(
         `[JumBuddy] Push FAILED (${response.status}): ${response.data}`,
       );
+      debugLog(`❌ Push FAILED: HTTP ${response.status}`);
       flashError();
     } else {
       console.log(
         `[JumBuddy] Push OK: ${response.data}`,
       );
+      debugLog(`✅ Push successful: ${batch.length} flushes uploaded`);
       flashSuccess();
     }
   } catch (err) {
@@ -80,6 +88,7 @@ export async function pushFlushes(): Promise<void> {
     queue.unshift(...batch);
     saveQueue(queue);
     console.error("[JumBuddy] Push ERROR:", err);
+    debugLog(`❌ Push ERROR: ${err}`);
     flashError();
   }
 }

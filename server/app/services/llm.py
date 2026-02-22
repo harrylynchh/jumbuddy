@@ -42,6 +42,48 @@ def _call_llm(prompt: str, system: str, max_tokens: int = 200) -> str:
         return f"(LLM error: {e})"
 
 
+def _extract_meaningful_hunks(diff_text: str, max_hunks: int = 2) -> list[str]:
+    """
+    Extract complete diff hunks with context, preserving whitespace.
+    Returns list of hunk strings (not just isolated lines).
+    """
+    if not diff_text:
+        return []
+
+    hunks = []
+    lines = diff_text.split("\n")
+    current_hunk = []
+    in_hunk = False
+
+    for line in lines:
+        # Hunk header
+        if line.startswith("@@"):
+            if current_hunk and len(hunks) < max_hunks:
+                hunks.append("\n".join(current_hunk))
+            current_hunk = [line]
+            in_hunk = True
+        elif in_hunk:
+            # Skip file headers
+            if line.startswith("---") or line.startswith("+++"):
+                continue
+            # Add all hunk content (context, additions, deletions)
+            # Limit hunk size to prevent huge output
+            if len(current_hunk) < 15:
+                current_hunk.append(line)
+            else:
+                # Hunk too large, close it
+                if len(hunks) < max_hunks:
+                    hunks.append("\n".join(current_hunk))
+                current_hunk = []
+                in_hunk = False
+
+    # Add final hunk
+    if current_hunk and len(hunks) < max_hunks:
+        hunks.append("\n".join(current_hunk))
+
+    return hunks
+
+
 def _preprocess_flushes_for_llm(flushes: list[dict]) -> str:
     """
     Convert flush sequence into readable timeline showing what student actually did.
@@ -101,25 +143,28 @@ def _preprocess_flushes_for_llm(flushes: list[dict]) -> str:
             visits = len(flushes)
             total_time = sum(f.get("window_duration", 0) for f in flushes)
 
-            # Analyze diffs
+            # Analyze diffs with whitespace preservation
             total_added = 0
             total_removed = 0
-            diff_snippets = []
+            code_changes = []  # (action, full_line_with_indent)
 
             for flush in flushes:
                 diff = flush.get("diffs", "")
                 if diff:
-                    # Count added/removed lines
+                    # Count added/removed lines and capture meaningful changes
                     for line in diff.split("\n"):
                         if line.startswith("+") and not line.startswith("+++"):
                             total_added += 1
-                            # Capture interesting additions (non-whitespace)
-                            if len(line.strip()) > 3 and len(diff_snippets) < 3:
-                                diff_snippets.append(("added", line[1:60]))
+                            # Preserve indentation: only skip completely empty lines
+                            actual_code = line[1:]  # Remove the '+' prefix
+                            if actual_code.strip() and len(code_changes) < 5:
+                                # Keep full line with indentation, max 100 chars
+                                code_changes.append(("added", actual_code[:100]))
                         elif line.startswith("-") and not line.startswith("---"):
                             total_removed += 1
-                            if len(line.strip()) > 3 and len(diff_snippets) < 3:
-                                diff_snippets.append(("removed", line[1:60]))
+                            actual_code = line[1:]  # Remove the '-' prefix
+                            if actual_code.strip() and len(code_changes) < 5:
+                                code_changes.append(("removed", actual_code[:100]))
 
             timeline.append(f"    Time: {int(total_time)}s, Visits: {visits}")
             timeline.append(f"    Changes: +{total_added} lines, -{total_removed} lines")
@@ -132,11 +177,23 @@ def _preprocess_flushes_for_llm(flushes: list[dict]) -> str:
             if visits > 3:
                 timeline.append(f"    ⚠ Revisited {visits} times (possible struggle)")
 
-            # Show sample changes
-            if diff_snippets:
-                timeline.append(f"    Sample changes:")
-                for action, snippet in diff_snippets[:2]:
-                    timeline.append(f"      {action}: {snippet}")
+            # Show code changes with preserved indentation
+            if code_changes:
+                timeline.append(f"    Code changes:")
+                for action, code_line in code_changes[:4]:
+                    # Preserve exact whitespace by not stripping
+                    timeline.append(f"      {action:8s} | {code_line}")
+
+            # For significant changes, show full diff hunks with context
+            if total_added + total_removed > 10 and len(flushes) <= 2:
+                for flush in flushes[:1]:  # Show first flush's hunks only
+                    diff = flush.get("diffs", "")
+                    hunks = _extract_meaningful_hunks(diff, max_hunks=1)
+                    if hunks:
+                        timeline.append(f"    Diff context (whitespace preserved):")
+                        for hunk in hunks:
+                            for hunk_line in hunk.split("\n")[:10]:  # Limit lines
+                                timeline.append(f"      {hunk_line}")
 
     return "\n".join(timeline)
 

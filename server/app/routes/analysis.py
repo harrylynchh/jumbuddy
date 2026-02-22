@@ -80,12 +80,22 @@ def student_analysis(student_id):
     regions = flushes_to_edit_regions(flushes)
     linger = compute_linger_scores(regions)
     focus = compute_current_focus(regions)
-    total_time = sum(r.duration_sec for r in regions)
 
-    # File breakdown
+    # ACTIVE TIME ONLY: Filter out idle flushes
+    # Criteria: window_duration < 5 minutes (300s) AND has actual changes
+    MAX_ACTIVE_WINDOW = 300  # 5 minutes - longer windows likely include idle time
+    active_flushes = [
+        f for f in flushes
+        if f.get("window_duration", 0) < MAX_ACTIVE_WINDOW
+        and f.get("diffs", "").strip()  # Must have actual diff content
+    ]
+
+    total_time = sum(f.get("window_duration", 0) for f in active_flushes)
+
+    # File breakdown: only count active time
     file_times: dict[str, float] = {}
-    for r in regions:
-        file_times[r.file_path] = file_times.get(r.file_path, 0) + r.duration_sec
+    for f in active_flushes:
+        file_times[f["file_path"]] = file_times.get(f["file_path"], 0) + f.get("window_duration", 0)
     file_breakdown = [
         {"file_path": fp, "time_sec": round(t, 1)}
         for fp, t in sorted(file_times.items(), key=lambda x: -x[1])

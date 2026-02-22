@@ -11,7 +11,9 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
     "@types/diff": "^7.0.2",
+    "@types/prismjs": "^1.26.6",
     "diff": "^8.0.3",
+    "prismjs": "^1.30.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.13.0"

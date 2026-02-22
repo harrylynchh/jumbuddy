@@ -28,11 +28,6 @@ metrics structure.
     "score": 0.72,
     "thrashing_lines": [34]
   },
-  "error_churn": {
-    "introduced": 1,
-    "resolved": 0,
-    "persisting": 2
-  },
   "delete_rewrite": null,
   "cursor_reads": {
     "arraylist.h:ArrayList:data": 3

@@ -13,7 +13,7 @@ import {
 } from "../utils/config";
 import { computeDiff } from "./differ";
 import { enqueueFlush, pushFlushes } from "../sync/flusher";
-import { computeMetrics } from "./metrics";
+import { computeMetrics, emptyLiveMetrics, LiveMetrics } from "./metrics";
 import { getActiveSymbol } from "./symbols";
 import { FlushPayload } from "../utils/types";
 import { sha256 } from "../utils/hash";
@@ -24,6 +24,7 @@ interface FileState {
   startTimestamp: string;
   lastSymbol: string | null;
   cursorReads: Map<string, number>;
+  live: LiveMetrics;
 }
 
 const activeFiles = new Map<string, FileState>();
@@ -38,6 +39,33 @@ export function startTracking(): void {
       if (e.contentChanges.length === 0) return;
       if (!isTrackedFile(filePath)) return;
       console.log(`[JumBuddy] Tracker: text changed in ${path.basename(filePath)}`);
+
+      // Accumulate live keystroke metrics BEFORE debounce logic
+      const state = activeFiles.get(filePath);
+      if (state) {
+        for (const change of e.contentChanges) {
+          state.live.charsAdded += change.text.length;
+          state.live.charsRemoved += change.rangeLength;
+          // Track which lines were touched
+          for (let line = change.range.start.line; line <= change.range.end.line; line++) {
+            state.live.lineEditCounts.set(line, (state.live.lineEditCounts.get(line) || 0) + 1);
+          }
+          // New lines from inserted text
+          const newLineCount = (change.text.match(/\n/g) || []).length;
+          for (let i = 1; i <= newLineCount; i++) {
+            const line = change.range.start.line + i;
+            state.live.lineEditCounts.set(line, (state.live.lineEditCounts.get(line) || 0) + 1);
+          }
+          state.live.editEvents++;
+          // Pause detection: > 2s gap between edits
+          const now = Date.now();
+          if (state.live.lastEditMs > 0 && (now - state.live.lastEditMs) > 2000) {
+            state.live.pauseCount++;
+          }
+          state.live.lastEditMs = now;
+        }
+      }
+
       onFileChanged(filePath);
     }),
   );
@@ -137,6 +165,7 @@ function onFileChanged(filePath: string): void {
       startTimestamp: now,
       lastSymbol: null,
       cursorReads: new Map(),
+      live: emptyLiveMetrics(),
     };
 
     activeFiles.set(filePath, state);
@@ -175,7 +204,7 @@ async function initNewFile(filePath: string): Promise<void> {
   // Generate init flush with sequence and hash
   const now = new Date().toISOString();
   const diffs = computeDiff(relativePath, "", content);
-  const metrics = computeMetrics(diffs, "", content, now, now, new Map());
+  const metrics = computeMetrics(emptyLiveMetrics(), "", content, now, now, new Map());
   const sequence = getNextSequence(relativePath);
   const hash = sha256(content);
 
@@ -260,7 +289,7 @@ async function flushFile(
   const now = new Date().toISOString();
 
   const metrics = computeMetrics(
-    diffs,
+    state.live,
     mirrorContent,
     currentContent,
     state.startTimestamp,

@@ -108,11 +108,6 @@ See metrics.ts for the full implementation.
     content. Returns a score (thrashing lines / lines touched) and
     the list of thrashing line contents.
 
-  error_churn
-    Counts lines matching error-like patterns (TODO, FIXME, HACK,
-    assert, etc.) in old vs new content. Reports how many were
-    introduced, resolved, or persisting.
-
   delete_rewrite
     Non-null when a large block was deleted and a large block was
     inserted in roughly equal proportion. Thresholds are hardcoded

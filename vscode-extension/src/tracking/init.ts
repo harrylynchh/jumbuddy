@@ -9,7 +9,7 @@ import {
 } from "../utils/config";
 import { computeDiff } from "./differ";
 import { enqueueFlush, pushFlushes } from "../sync/flusher";
-import { computeMetrics } from "./metrics";
+import { computeMetrics, emptyLiveMetrics } from "./metrics";
 import { startTracking } from "./tracker";
 import { FlushPayload } from "../utils/types";
 import { sha256 } from "../utils/hash";
@@ -31,7 +31,7 @@ export async function initializeTracking(workspaceRoot: string): Promise<void> {
     fs.writeFileSync(mirrorPath, content);
 
     const diffs = computeDiff(relativePath, "", content);
-    const metrics = computeMetrics(diffs, "", content, now, now, new Map());
+    const metrics = computeMetrics(emptyLiveMetrics(), "", content, now, now, new Map());
     const sequence = getNextSequence(relativePath);
     const hash = sha256(content);
 

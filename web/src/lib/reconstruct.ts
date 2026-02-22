@@ -2,8 +2,21 @@ import { applyPatch } from "diff";
 import type { Flush } from "../types";
 
 /**
+ * Normalize line endings to LF for consistent reconstruction.
+ * Prevents CRLF/LF mismatches between platforms.
+ */
+function normalizeLF(text: string): string {
+  return text.replace(/\r\n/g, "\n");
+}
+
+/**
  * Reconstruct file content at a given step index.
  * Finds the latest snapshot at or before targetIndex, then applies diffs forward.
+ *
+ * WHITESPACE PRESERVATION:
+ * - Line endings normalized to LF for cross-platform consistency
+ * - All other whitespace (tabs, spaces, indentation) preserved exactly
+ * - If reconstruction fails, returns partial content (last known good state)
  */
 export function reconstructFileAtStep(
   flushes: Flush[],
@@ -23,18 +36,29 @@ export function reconstructFileAtStep(
   }
 
   // Start from snapshot content or empty string
-  let content = snapshotIdx >= 0 ? flushes[snapshotIdx].snapshot! : "";
+  let content = snapshotIdx >= 0 ? normalizeLF(flushes[snapshotIdx].snapshot!) : "";
   const startFrom = snapshotIdx >= 0 ? snapshotIdx + 1 : 0;
 
-  // Apply diffs forward
+  // Apply diffs forward with whitespace preservation
   for (let i = startFrom; i <= idx; i++) {
     const flush = flushes[i];
     if (flush.snapshot != null) {
-      content = flush.snapshot;
+      // Jump to snapshot
+      content = normalizeLF(flush.snapshot);
     } else {
-      const result = applyPatch(content, flush.diffs);
+      // Normalize both content and diff to prevent line ending issues
+      const normalizedContent = normalizeLF(content);
+      const normalizedDiff = normalizeLF(flush.diffs);
+
+      const result = applyPatch(normalizedContent, normalizedDiff);
       if (result === false) {
-        // Patch failed — return what we have so far
+        // Patch failed — log error in console and return last known good state
+        console.error(`[Reconstruct] Patch failed at flush ${i}/${idx}`, {
+          file: flush.file_path,
+          sequence: flush.sequence_number,
+          contentLength: content.length,
+          diffPreview: flush.diffs.slice(0, 200),
+        });
         break;
       }
       content = result;

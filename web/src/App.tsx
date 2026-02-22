@@ -18,6 +18,7 @@ import type {
   Flush,
 } from "./types";
 import { reconstructFileAtStep, dedupFlushes } from "./lib/reconstruct";
+import { tokenizeCode, getTokenColor } from "./lib/highlight";
 
 type ThemeMode = "light" | "dark";
 type NavIconName = "faq" | "about" | "account";
@@ -1050,6 +1051,17 @@ function CodeViewer({ state, filePath, timestamp }: { state: TypingState; filePa
   if (!code && cursorPos < 0) {
     elements.push(<span key="empty" style={{ color: "#5a6785" }}>{"// No replay data for this file."}</span>);
   } else {
+    // Tokenize entire code for syntax highlighting
+    const tokens = tokenizeCode(code, filePath);
+
+    // Build token spans with absolute positions: [{start, end, type}]
+    const tokenSpans: { start: number; end: number; type: string }[] = [];
+    let tokenCharOffset = 0;
+    for (const token of tokens) {
+      tokenSpans.push({ start: tokenCharOffset, end: tokenCharOffset + token.content.length, type: token.type });
+      tokenCharOffset += token.content.length;
+    }
+
     const lines = code.split("\n");
     let charOffset = 0;
 
@@ -1079,11 +1091,36 @@ function CodeViewer({ state, filePath, timestamp }: { state: TypingState; filePa
         </span>
       );
 
-      let pos = lineStart;
-      const endPos = lineEnd;
+      // Build split points on this line: token boundaries, cursor, edit boundaries
+      const splitPoints = new Set<number>();
+      splitPoints.add(lineStart);
+      splitPoints.add(lineEnd);
+      if (cursorOnLine && phase !== "idle") splitPoints.add(cursorPos);
+      if (editOverlap) {
+        if (editStart > lineStart && editStart < lineEnd) splitPoints.add(editStart);
+        if (editEnd > lineStart && editEnd < lineEnd) splitPoints.add(editEnd);
+      }
+      // Add token boundaries that fall within this line
+      for (const ts of tokenSpans) {
+        if (ts.start > lineEnd) break;
+        if (ts.end < lineStart) continue;
+        if (ts.start > lineStart && ts.start < lineEnd) splitPoints.add(ts.start);
+        if (ts.end > lineStart && ts.end < lineEnd) splitPoints.add(ts.end);
+      }
+      const sorted = Array.from(splitPoints).sort((a, b) => a - b);
 
-      while (pos <= endPos) {
-        if (pos === cursorPos && phase !== "idle") {
+      // Find which token covers a given position
+      let tokenIdx = 0;
+      const getTokenType = (pos: number): string => {
+        while (tokenIdx < tokenSpans.length && tokenSpans[tokenIdx].end <= pos) tokenIdx++;
+        if (tokenIdx < tokenSpans.length && tokenSpans[tokenIdx].start <= pos) return tokenSpans[tokenIdx].type;
+        return "plain";
+      };
+
+      for (let si = 0; si < sorted.length; si++) {
+        const segStart = sorted[si];
+        // Insert cursor before this segment if cursor is at segStart
+        if (segStart === cursorPos && phase !== "idle") {
           lineContent.push(
             <span
               key={`cursor-${lineIdx}`}
@@ -1102,33 +1139,34 @@ function CodeViewer({ state, filePath, timestamp }: { state: TypingState; filePa
           );
         }
 
-        if (pos >= endPos) break;
+        if (si + 1 >= sorted.length) break;
+        const segEnd = sorted[si + 1];
+        if (segEnd <= segStart) continue;
 
-        const inEdit = editOverlap && pos >= editStart && pos < editEnd;
+        const chunk = code.slice(segStart, segEnd);
+        if (!chunk) continue;
+
+        const tokenType = getTokenType(segStart);
+        const color = getTokenColor(tokenType);
+        const inEdit = editOverlap && segStart >= editStart && segEnd <= editEnd;
 
         if (inEdit) {
-          let editChunkEnd = pos;
-          while (editChunkEnd < endPos && editChunkEnd < editEnd) editChunkEnd++;
-          const chunk = code.slice(pos, editChunkEnd);
           lineContent.push(
-            <span
-              key={`edit-${lineIdx}-${pos}`}
-              style={{
-                background: phase === "inserting" ? "rgba(34, 197, 94, 0.2)" : "rgba(220, 38, 38, 0.15)",
-                borderRadius: 2,
-              }}
-            >
-              {chunk}
-            </span>
+            <span key={`s-${lineIdx}-${segStart}`} style={{
+              background: phase === "inserting" ? "rgba(34, 197, 94, 0.2)" : "rgba(220, 38, 38, 0.15)",
+              borderRadius: 2, color,
+            }}>{chunk}</span>
           );
-          pos = editChunkEnd;
         } else {
-          let chunkEnd = pos;
-          while (chunkEnd < endPos && !(editOverlap && chunkEnd >= editStart && chunkEnd < editEnd) && chunkEnd !== cursorPos) chunkEnd++;
-          if (chunkEnd === pos) chunkEnd = pos + 1;
-          lineContent.push(<span key={`txt-${lineIdx}-${pos}`}>{code.slice(pos, chunkEnd)}</span>);
-          pos = chunkEnd;
+          lineContent.push(
+            <span key={`s-${lineIdx}-${segStart}`} style={{ color }}>{chunk}</span>
+          );
         }
+      }
+
+      // Handle cursor at end of line
+      if (cursorPos === lineEnd && phase !== "idle" && !cursorOnLine) {
+        // already handled above
       }
 
       elements.push(
@@ -1163,6 +1201,7 @@ function CodeViewer({ state, filePath, timestamp }: { state: TypingState; filePa
           margin: 0, color: "#ccd6f6", flex: 1, overflowY: "auto", minHeight: 0,
           fontSize: 13, lineHeight: 1.5,
           fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+          whiteSpace: "pre",  // CRITICAL: Preserve all whitespace (spaces, tabs, indentation)
         }}
       >
         {elements}
@@ -1171,7 +1210,7 @@ function CodeViewer({ state, filePath, timestamp }: { state: TypingState; filePa
   );
 }
 
-const SPEED_OPTIONS = [0.5, 1, 2, 4, 8, 16] as const;
+const SPEED_OPTIONS = [1, 2, 4, 8, 16, 100, 500] as const;
 
 function formatDuration(ms: number): string {
   const totalSec = Math.floor(ms / 1000);
