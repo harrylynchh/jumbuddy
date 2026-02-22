@@ -44,7 +44,13 @@ export default function Connect() {
     const res = await fetch(`${API}/api/extensions/connect-info`, {
       headers: { Authorization: `Bearer ${session.access_token}` },
     });
-    if (!res.ok) return;
+    if (!res.ok) {
+      // Token is stale (DB was wiped) — sign out so user re-authenticates
+      console.error("connect-info failed:", res.status);
+      await supabase.auth.signOut();
+      setError("Session expired. Please sign in again.");
+      return;
+    }
     const json = await res.json();
     setUtln(json.utln);
     setCourses(json.courses);

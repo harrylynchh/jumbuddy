@@ -23,35 +23,31 @@ interface FileState {
 const activeFiles = new Map<string, FileState>();
 const disposables: vscode.Disposable[] = [];
 
-/**
- * Start tracking file changes in the workspace.
- */
 export function startTracking(): void {
-  // Text document changes → reset debounce
+  console.log("[CodeActivity] Tracker: starting file change listeners");
+
   disposables.push(
     vscode.workspace.onDidChangeTextDocument((e) => {
       const filePath = e.document.uri.fsPath;
       if (e.contentChanges.length === 0) return;
       if (!isTrackedFile(filePath)) return;
+      console.log(`[CodeActivity] Tracker: text changed in ${path.basename(filePath)}`);
       onFileChanged(filePath);
     }),
   );
 
-  // Active editor change → flush previous file with file_switch trigger
   disposables.push(
     vscode.window.onDidChangeActiveTextEditor(async (editor) => {
       if (!editor) return;
-
-      // Flush any active files that aren't the newly focused file
-      for (const [filePath, state] of activeFiles) {
+      for (const [filePath] of activeFiles) {
         if (filePath !== editor.document.uri.fsPath) {
+          console.log(`[CodeActivity] Tracker: file_switch from ${path.basename(filePath)}`);
           await flushFile(filePath, "file_switch");
         }
       }
     }),
   );
 
-  // Cursor/selection change → check for symbol change
   disposables.push(
     vscode.window.onDidChangeTextEditorSelection(async (e) => {
       const filePath = e.textEditor.document.uri.fsPath;
@@ -60,54 +56,61 @@ export function startTracking(): void {
 
       const currentSymbol = await getActiveSymbol(e.textEditor);
       if (currentSymbol !== state.lastSymbol && state.lastSymbol !== null) {
+        console.log(
+          `[CodeActivity] Tracker: symbol_change ${state.lastSymbol} → ${currentSymbol}`,
+        );
         await flushFile(filePath, "symbol_change");
       }
     }),
   );
+
+  console.log("[CodeActivity] Tracker: listeners registered");
 }
 
-/**
- * Stop tracking and flush all active files.
- */
 export async function stopTracking(): Promise<void> {
-  // Flush all active files
+  console.log("[CodeActivity] Tracker: stopping, flushing %d active files", activeFiles.size);
   for (const filePath of [...activeFiles.keys()]) {
     await flushFile(filePath, "deactivate");
   }
   await pushFlushes();
 
-  // Clean up listeners
   for (const d of disposables) {
     d.dispose();
   }
   disposables.length = 0;
+  console.log("[CodeActivity] Tracker: stopped");
 }
 
 function onFileChanged(filePath: string): void {
   const existing = activeFiles.get(filePath);
 
   if (existing) {
-    // Reset the debounce timer
     clearTimeout(existing.timer);
-    existing.timer = setTimeout(() => flushFile(filePath, "timeout"), DEBOUNCE_TIME);
+    existing.timer = setTimeout(() => {
+      console.log(`[CodeActivity] Tracker: timeout for ${path.basename(filePath)}`);
+      flushFile(filePath, "timeout");
+    }, DEBOUNCE_TIME);
   } else {
-    // New active file
     const now = new Date().toISOString();
     const editor = vscode.window.activeTextEditor;
 
+    console.log(`[CodeActivity] Tracker: new active file ${path.basename(filePath)}`);
+
     const state: FileState = {
-      timer: setTimeout(() => flushFile(filePath, "timeout"), DEBOUNCE_TIME),
-      maxTimer: setTimeout(
-        () => flushFile(filePath, "max_duration"),
-        MAX_DEBOUNCE_TIME,
-      ),
+      timer: setTimeout(() => {
+        console.log(`[CodeActivity] Tracker: timeout for ${path.basename(filePath)}`);
+        flushFile(filePath, "timeout");
+      }, DEBOUNCE_TIME),
+      maxTimer: setTimeout(() => {
+        console.log(`[CodeActivity] Tracker: max_duration for ${path.basename(filePath)}`);
+        flushFile(filePath, "max_duration");
+      }, MAX_DEBOUNCE_TIME),
       startTimestamp: now,
       lastSymbol: null,
     };
 
     activeFiles.set(filePath, state);
 
-    // Async get initial symbol
     if (editor && editor.document.uri.fsPath === filePath) {
       getActiveSymbol(editor).then((sym) => {
         const s = activeFiles.get(filePath);
@@ -124,7 +127,6 @@ async function flushFile(
   const state = activeFiles.get(filePath);
   if (!state) return;
 
-  // Clear timers
   clearTimeout(state.timer);
   clearTimeout(state.maxTimer);
   activeFiles.delete(filePath);
@@ -132,7 +134,6 @@ async function flushFile(
   const mirrorDir = getMirrorDir();
   const workspaceRoot = getWorkspaceRoot();
   if (workspaceRoot && filePath.startsWith(path.join(workspaceRoot, ".jumbud"))) {
-    console.log("Trigger")
     return;
   }
   if (!mirrorDir || !workspaceRoot) return;
@@ -140,30 +141,39 @@ async function flushFile(
   const relativePath = path.relative(workspaceRoot, filePath);
   const mirrorPath = path.join(mirrorDir, relativePath);
 
-  // Read current content
+  // Read from editor buffer (unsaved state), fall back to disk
+  const openDoc = vscode.workspace.textDocuments.find(
+    (d) => d.uri.fsPath === filePath,
+  );
   let currentContent: string;
-  try {
-    currentContent = fs.readFileSync(filePath, "utf-8");
-  } catch {
-    return; // File deleted or unreadable
+  if (openDoc) {
+    currentContent = openDoc.getText();
+  } else {
+    try {
+      currentContent = fs.readFileSync(filePath, "utf-8");
+    } catch {
+      console.warn(`[CodeActivity] Tracker: cannot read ${relativePath}, skipping`);
+      return;
+    }
   }
 
-  // Read mirror content
   let mirrorContent = "";
   try {
     mirrorContent = fs.readFileSync(mirrorPath, "utf-8");
   } catch {
-    // No mirror yet — diff from empty
+    // No mirror yet
   }
 
-  // Compute diff
+  if (currentContent === mirrorContent) {
+    console.log(`[CodeActivity] Tracker: no changes in ${relativePath}, skipping flush`);
+    return;
+  }
+
   const diffs = computeDiff(relativePath, mirrorContent, currentContent);
 
-  // Update mirror
   fs.mkdirSync(path.dirname(mirrorPath), { recursive: true });
   fs.writeFileSync(mirrorPath, currentContent);
 
-  // Get active symbol
   let activeSymbol: string | null = null;
   const editor = vscode.window.activeTextEditor;
   if (editor && editor.document.uri.fsPath === filePath) {
@@ -180,6 +190,10 @@ async function flushFile(
     diffs,
     active_symbol: activeSymbol,
   };
+
+  console.log(
+    `[CodeActivity] Tracker: flushing ${relativePath} trigger=${trigger} symbol=${activeSymbol}`,
+  );
 
   await enqueueFlush(flush);
 }

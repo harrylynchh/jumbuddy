@@ -19,7 +19,7 @@ event_types:
 extension:
   debounce_time: 10
   max_debounce_time: 60
-  debounces_before_push: 10
+  debounces_before_push: 3
   tracked_extensions:
     - .c
     - .cpp

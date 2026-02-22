@@ -5,8 +5,6 @@ Creates: professor, 2 students, 1 TA, 1 course, 1 assignment, sample flushes.
 """
 
 import os
-import sys
-from datetime import datetime, timedelta, timezone
 
 from dotenv import load_dotenv
 from supabase import create_client
@@ -89,71 +87,13 @@ def seed():
     assignment_id = assignment.data[0]["id"]
     print(f"  Assignment: HW1 ({assignment_id})")
 
-    # --- Assignment Key ---
-    assignment_key = "ak_test_hw1_key_123"
-    sb.table("assignment_keys").insert({
-        "key": assignment_key,
-        "assignment_id": assignment_id,
-    }).execute()
-    print(f"  Assignment Key: {assignment_key}")
-
-    # --- Sample flushes for student1 ---
-    now = datetime.now(timezone.utc)
-    flushes = [
-        {
-            "user_id": stu1_id,
-            "assignment_id": assignment_id,
-            "file_path": "src/main.py",
-            "trigger": "save",
-            "start_timestamp": (now - timedelta(minutes=30)).isoformat(),
-            "end_timestamp": (now - timedelta(minutes=28)).isoformat(),
-            "diffs": "--- /dev/null\n+++ b/src/main.py\n@@ -0,0 +1,2 @@\n+# Hello World\n+print(\"Hello\")\n",
-            "active_symbol": "main.py",
-            "metrics": {
-                "chars_inserted": 32,
-                "chars_deleted": 0,
-                "rewrite_ratio": 0.0,
-                "edit_velocity": 0.27,
-                "lines_touched": 2,
-                "thrash": {"score": 0.0, "thrashing_lines": []},
-                "error_churn": {"introduced": 0, "resolved": 0, "persisting": 0},
-                "delete_rewrite": None,
-                "cursor_reads": {},
-            },
-        },
-        {
-            "user_id": stu1_id,
-            "assignment_id": assignment_id,
-            "file_path": "src/main.py",
-            "trigger": "save",
-            "start_timestamp": (now - timedelta(minutes=10)).isoformat(),
-            "end_timestamp": (now - timedelta(minutes=8)).isoformat(),
-            "diffs": "--- a/src/main.py\n+++ b/src/main.py\n@@ -1,2 +1,2 @@\n # Hello World\n-print(\"Hello\")\n+print(\"Hello, World!\")\n",
-            "active_symbol": "main.py:print",
-            "metrics": {
-                "chars_inserted": 22,
-                "chars_deleted": 16,
-                "rewrite_ratio": 0.42,
-                "edit_velocity": 0.32,
-                "lines_touched": 1,
-                "thrash": {"score": 0.1, "thrashing_lines": []},
-                "error_churn": {"introduced": 0, "resolved": 0, "persisting": 0},
-                "delete_rewrite": None,
-                "cursor_reads": {},
-            },
-        },
-    ]
-    sb.table("flushes").insert(flushes).execute()
-    print(f"  Inserted {len(flushes)} sample flushes for slupo01")
-
     print("\nSeed done.")
     print("\n=== Test credentials ===")
     print("  Professor:  professor@codeactivity.test / testpass123  (utln: mprof01)")
     print("  TA:         ta@codeactivity.test / testpass123         (utln: jta0102)")
     print("  Student 1:  student1@codeactivity.test / testpass123   (utln: slupo01)")
     print("  Student 2:  student2@codeactivity.test / testpass123   (utln: abrow02)")
-    print(f"\n=== Assignment Key (HW1) ===")
-    print(f"  {assignment_key}")
+    print("\n  Keys and flushes are generated naturally via the VS Code extension.")
 
 
 if __name__ == "__main__":

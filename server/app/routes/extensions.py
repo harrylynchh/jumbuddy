@@ -1,24 +1,31 @@
+import logging
 import secrets
 from flask import Blueprint, jsonify, request, g
 from ..auth import require_auth
 from ..services.supabase_client import get_supabase
 
+log = logging.getLogger("extensions")
+log.setLevel(logging.DEBUG)
+
 extensions_bp = Blueprint("extensions", __name__)
 
 
 def _resolve_key(key):
-    """Lookup assignment_key → returns (assignment_id, course_id) or None."""
+    """Lookup assignment_key → returns {user_id, assignment_id, course_id} or None."""
     sb = get_supabase()
     result = (
         sb.table("assignment_keys")
-        .select("assignment_id")
+        .select("user_id, assignment_id")
         .eq("key", key)
-        .maybe_single()
         .execute()
     )
     if not result.data:
+        log.warning("Key lookup failed: key not found")
         return None
-    assignment_id = result.data["assignment_id"]
+
+    user_id = result.data[0]["user_id"]
+    assignment_id = result.data[0]["assignment_id"]
+
     assignment = (
         sb.table("assignments")
         .select("course_id")
@@ -26,7 +33,10 @@ def _resolve_key(key):
         .single()
         .execute()
     )
+
+    log.debug("Key resolved: user_id=%s assignment_id=%s", user_id, assignment_id)
     return {
+        "user_id": user_id,
         "assignment_id": assignment_id,
         "course_id": assignment.data["course_id"],
     }
@@ -36,13 +46,12 @@ def _resolve_key(key):
 @require_auth
 def connect_info():
     """Get the logged-in user's courses and assignments for the /connect page."""
+    log.info("connect-info requested by user_id=%s", g.user_id)
     sb = get_supabase()
 
-    # Get user's profile (utln)
     profile = sb.table("profiles").select("utln").eq("id", g.user_id).single().execute()
     utln = profile.data["utln"]
 
-    # Get all courses the user is part of (professor, student, or assistant)
     prof_courses = (
         sb.table("courses")
         .select("id, name, code")
@@ -75,7 +84,6 @@ def connect_info():
             .execute()
         ).data or []
 
-    # Deduplicate
     seen = set()
     courses = []
     for c in (prof_courses.data or []) + member_courses:
@@ -83,7 +91,6 @@ def connect_info():
             seen.add(c["id"])
             courses.append(c)
 
-    # Get assignments for each course
     course_ids = [c["id"] for c in courses]
     assignments = []
     if course_ids:
@@ -94,6 +101,7 @@ def connect_info():
             .execute()
         ).data or []
 
+    log.info("connect-info: utln=%s courses=%d assignments=%d", utln, len(courses), len(assignments))
     return jsonify({
         "utln": utln,
         "courses": courses,
@@ -104,7 +112,7 @@ def connect_info():
 @extensions_bp.route("/generate-key", methods=["POST"])
 @require_auth
 def generate_key():
-    """Auto-generate an assignment key. Requires JWT auth."""
+    """Generate a unique API key for this user + assignment. Requires JWT auth."""
     body = request.get_json()
     if not body:
         return jsonify({"error": "JSON body required"}), 400
@@ -113,26 +121,32 @@ def generate_key():
     if not assignment_id:
         return jsonify({"error": "assignment_id required"}), 400
 
+    user_id = g.user_id
+    log.info("generate-key: user_id=%s assignment_id=%s", user_id, assignment_id)
+
     sb = get_supabase()
 
-    # Return existing key if one exists
+    # Return existing key if user already has one for this assignment
     existing = (
         sb.table("assignment_keys")
         .select("key")
+        .eq("user_id", user_id)
         .eq("assignment_id", assignment_id)
-        .maybe_single()
         .execute()
     )
     if existing.data:
-        return jsonify({"key": existing.data["key"]})
+        log.info("generate-key: returning existing key for user_id=%s", user_id)
+        return jsonify({"key": existing.data[0]["key"]})
 
-    # Generate new key
+    # Generate new unique key
     key = f"ak_{secrets.token_hex(16)}"
     sb.table("assignment_keys").insert({
         "key": key,
+        "user_id": user_id,
         "assignment_id": assignment_id,
     }).execute()
 
+    log.info("generate-key: created new key for user_id=%s key=%s...", user_id, key[:12])
     return jsonify({"key": key})
 
 
@@ -171,31 +185,27 @@ def validate_key():
 
 @extensions_bp.route("/flushes", methods=["POST"])
 def create_flushes():
-    """Batch insert flushes. Requires assignment key + utln."""
+    """Batch insert flushes. Key identifies both user and assignment."""
     body = request.get_json()
     if not body:
         return jsonify({"error": "JSON body required"}), 400
 
     key = body.get("key")
-    utln = body.get("utln")
     flushes = body.get("flushes")
 
-    if not key or not utln or not flushes:
-        return jsonify({"error": "key, utln, and flushes are required"}), 400
+    if not key or not flushes:
+        return jsonify({"error": "key and flushes are required"}), 400
 
     resolved = _resolve_key(key)
     if not resolved:
         return jsonify({"error": "Invalid assignment key"}), 401
 
+    user_id = resolved["user_id"]
     assignment_id = resolved["assignment_id"]
 
+    log.info("flushes: user_id=%s assignment_id=%s count=%d", user_id, assignment_id, len(flushes))
+
     sb = get_supabase()
-
-    profile = sb.table("profiles").select("id").eq("utln", utln).maybe_single().execute()
-    if not profile.data:
-        return jsonify({"error": "Profile not found for utln"}), 404
-
-    user_id = profile.data["id"]
 
     rows = []
     for f in flushes:
@@ -212,5 +222,7 @@ def create_flushes():
         })
 
     result = sb.table("flushes").insert(rows).execute()
+    inserted = len(result.data or [])
 
-    return jsonify({"inserted": len(result.data or [])})
+    log.info("flushes: inserted %d rows for user_id=%s", inserted, user_id)
+    return jsonify({"inserted": inserted})
