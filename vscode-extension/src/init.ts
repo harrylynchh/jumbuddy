@@ -7,6 +7,7 @@ import {
 } from "./config";
 import { computeDiff } from "./differ";
 import { enqueueFlush, pushFlushes } from "./flusher";
+import { computeMetrics } from "./metrics";
 import { startTracking } from "./tracker";
 import { FlushPayload } from "./types";
 
@@ -27,6 +28,7 @@ export async function initializeTracking(workspaceRoot: string): Promise<void> {
     fs.writeFileSync(mirrorPath, content);
 
     const diffs = computeDiff(relativePath, "", content);
+    const metrics = computeMetrics(diffs, "", content, now, now, new Map());
     const flush: FlushPayload = {
       file_path: relativePath,
       trigger: "init",
@@ -34,6 +36,7 @@ export async function initializeTracking(workspaceRoot: string): Promise<void> {
       end_timestamp: now,
       diffs,
       active_symbol: null,
+      metrics,
     };
     await enqueueFlush(flush);
   }

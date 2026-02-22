@@ -218,7 +218,7 @@ def create_flushes():
             "end_timestamp": f["end_timestamp"],
             "diffs": f["diffs"],
             "active_symbol": f.get("active_symbol"),
-            "metrics": {},
+            "metrics": f.get("metrics", {}),
         })
 
     result = sb.table("flushes").insert(rows).execute()

@@ -10,6 +10,7 @@ import {
 } from "./config";
 import { computeDiff } from "./differ";
 import { enqueueFlush, pushFlushes } from "./flusher";
+import { computeMetrics } from "./metrics";
 import { getActiveSymbol } from "./symbols";
 import { FlushPayload } from "./types";
 
@@ -18,6 +19,7 @@ interface FileState {
   maxTimer: ReturnType<typeof setTimeout>;
   startTimestamp: string;
   lastSymbol: string | null;
+  cursorReads: Map<string, number>;
 }
 
 const activeFiles = new Map<string, FileState>();
@@ -55,6 +57,12 @@ export function startTracking(): void {
       if (!state) return;
 
       const currentSymbol = await getActiveSymbol(e.textEditor);
+      if (currentSymbol) {
+        state.cursorReads.set(
+          currentSymbol,
+          (state.cursorReads.get(currentSymbol) || 0) + 1,
+        );
+      }
       if (currentSymbol !== state.lastSymbol && state.lastSymbol !== null) {
         console.log(
           `[JumBud] Tracker: symbol_change ${state.lastSymbol} → ${currentSymbol}`,
@@ -107,6 +115,7 @@ function onFileChanged(filePath: string): void {
       }, MAX_DEBOUNCE_TIME),
       startTimestamp: now,
       lastSymbol: null,
+      cursorReads: new Map(),
     };
 
     activeFiles.set(filePath, state);
@@ -182,6 +191,15 @@ async function flushFile(
 
   const now = new Date().toISOString();
 
+  const metrics = computeMetrics(
+    diffs,
+    mirrorContent,
+    currentContent,
+    state.startTimestamp,
+    now,
+    state.cursorReads,
+  );
+
   const flush: FlushPayload = {
     file_path: relativePath,
     trigger,
@@ -189,6 +207,7 @@ async function flushFile(
     end_timestamp: now,
     diffs,
     active_symbol: activeSymbol,
+    metrics,
   };
 
   console.log(
