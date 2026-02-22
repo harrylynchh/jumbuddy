@@ -281,25 +281,26 @@ th,
 }
 
 .sidebar-toggle-rail {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 24px;
-  min-width: 24px;
-  height: 46px;
-  min-height: 46px;
-  border-radius: 10px;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  border-radius: 6px;
   border: 1px solid var(--border);
   background: var(--surface);
   padding: 0;
   font-size: 14px;
   display: grid;
   place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: background 140ms ease, color 140ms ease;
 }
 
 .sidebar-toggle-rail:hover:not(:disabled) {
-  transform: translateY(-50%);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
 }
 
 .brand-mini {
@@ -323,7 +324,8 @@ th,
 
 .app-shell.sidebar-collapsed .brand-label,
 .app-shell.sidebar-collapsed .nav-label,
-.app-shell.sidebar-collapsed .signout-label {
+.app-shell.sidebar-collapsed .signout-label,
+.app-shell.sidebar-collapsed .nav-section-label {
   display: none;
 }
 
@@ -439,4 +441,27 @@ th,
   .sidebar-toggle-rail {
     display: none;
   }
+}
+
+/* Range slider (replay progress bar) */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--surface);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  cursor: pointer;
+  margin-top: -4px;
+}
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--surface);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  cursor: pointer;
 }

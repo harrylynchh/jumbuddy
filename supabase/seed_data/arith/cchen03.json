@@ -1,0 +1,54 @@
+{
+  "style": "Defensive, lots of error checking, multiple passes",
+  "description": "Charlie: Defensive approach with validation, type checking, and comprehensive testing",
+  "flushes": [
+    {
+      "file_path": "arith.py",
+      "diffs": "+def add(a, b):\n+    if type(a) != int or type(b) != int:\n+        raise TypeError('Must be int')\n+    total = a\n+    total += b\n+    return total",
+      "content": "def add(a, b):\n    if type(a) != int or type(b) != int:\n        raise TypeError('Must be int')\n    total = a\n    total += b\n    return total\n",
+      "active_symbol": "add",
+      "trigger": "init",
+      "window_duration": 20.0
+    },
+    {
+      "file_path": "arith.py",
+      "diffs": "-def add(a, b):\n-    if type(a) != int or type(b) != int:\n-        raise TypeError('Must be int')\n-    total = a\n-    total += b\n-    return total\n+def add(a, b):\n+    if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):\n+        raise TypeError('Must be numeric')\n+    total = a\n+    total += b\n+    if isinstance(total, float) and total.is_integer():\n+        return int(total)\n+    return total",
+      "content": "def add(a, b):\n    if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):\n        raise TypeError('Must be numeric')\n    total = a\n    total += b\n    if isinstance(total, float) and total.is_integer():\n        return int(total)\n    return total\n",
+      "active_symbol": "add",
+      "trigger": "timeout",
+      "window_duration": 25.0
+    },
+    {
+      "file_path": "arith.py",
+      "diffs": "+def subtract(a, b):\n+    if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):\n+        raise TypeError('Must be numeric')\n+    result = a - b\n+    if result < 0:\n+        print(f'Warning: negative result {result}')\n+    return result",
+      "content": "def add(a, b):\n    if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):\n        raise TypeError('Must be numeric')\n    total = a\n    total += b\n    if isinstance(total, float) and total.is_integer():\n        return int(total)\n    return total\n\ndef subtract(a, b):\n    if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):\n        raise TypeError('Must be numeric')\n    result = a - b\n    if result < 0:\n        print(f'Warning: negative result {result}')\n    return result\n",
+      "active_symbol": "subtract",
+      "trigger": "timeout",
+      "window_duration": 28.0
+    },
+    {
+      "file_path": "arith.py",
+      "diffs": "+def multiply(a, b):\n+    if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):\n+        raise TypeError('Must be numeric')\n+    product = 0\n+    for _ in range(abs(int(b))):\n+        product += a\n+    if b < 0:\n+        product = -product\n+    return product",
+      "content": "def add(a, b):\n    if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):\n        raise TypeError('Must be numeric')\n    total = a\n    total += b\n    if isinstance(total, float) and total.is_integer():\n        return int(total)\n    return total\n\ndef subtract(a, b):\n    if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):\n        raise TypeError('Must be numeric')\n    result = a - b\n    if result < 0:\n        print(f'Warning: negative result {result}')\n    return result\n\ndef multiply(a, b):\n    if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):\n        raise TypeError('Must be numeric')\n    product = 0\n    for _ in range(abs(int(b))):\n        product += a\n    if b < 0:\n        product = -product\n    return product\n",
+      "active_symbol": "multiply",
+      "trigger": "timeout",
+      "window_duration": 35.0
+    },
+    {
+      "file_path": "arith.py",
+      "diffs": "-    product = 0\n+    product = 0 if a != 0 else 0",
+      "content": "def add(a, b):\n    if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):\n        raise TypeError('Must be numeric')\n    total = a\n    total += b\n    if isinstance(total, float) and total.is_integer():\n        return int(total)\n    return total\n\ndef subtract(a, b):\n    if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):\n        raise TypeError('Must be numeric')\n    result = a - b\n    if result < 0:\n        print(f'Warning: negative result {result}')\n    return result\n\ndef multiply(a, b):\n    if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):\n        raise TypeError('Must be numeric')\n    product = 0 if a != 0 else 0\n    for _ in range(abs(int(b))):\n        product += a\n    if b < 0:\n        product = -product\n    return product\n",
+      "active_symbol": "multiply",
+      "trigger": "timeout",
+      "window_duration": 20.0
+    },
+    {
+      "file_path": "test.py",
+      "diffs": "+def test_add():\n+    assert add(2, 3) == 5\n+    assert add(-1, 1) == 0\n+\n+def test_subtract():\n+    assert subtract(5, 3) == 2\n+    assert subtract(2, 5) == -3\n+\n+def test_multiply():\n+    assert multiply(3, 4) == 12\n+    assert multiply(0, 100) == 0\n+\n+def test_errors():\n+    try:\n+        add('a', 1)\n+        assert False\n+    except TypeError:\n+        pass",
+      "content": "def test_add():\n    assert add(2, 3) == 5\n    assert add(-1, 1) == 0\n\ndef test_subtract():\n    assert subtract(5, 3) == 2\n    assert subtract(2, 5) == -3\n\ndef test_multiply():\n    assert multiply(3, 4) == 12\n    assert multiply(0, 100) == 0\n\ndef test_errors():\n    try:\n        add('a', 1)\n        assert False\n    except TypeError:\n        pass\n",
+      "active_symbol": "test",
+      "trigger": "timeout",
+      "window_duration": 32.0
+    }
+  ]
+}

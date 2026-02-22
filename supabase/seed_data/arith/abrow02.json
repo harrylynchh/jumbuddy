@@ -1,0 +1,22 @@
+{
+  "style": "Quick, compact, done fast",
+  "description": "Alice: Compact approach, all functions at once, minimal testing",
+  "flushes": [
+    {
+      "file_path": "arith.py",
+      "diffs": "+def add(a, b):\n+    return a + b\n+\n+def subtract(a, b):\n+    return a - b\n+\n+def multiply(a, b):\n+    return a * b",
+      "content": "def add(a, b):\n    return a + b\n\ndef subtract(a, b):\n    return a - b\n\ndef multiply(a, b):\n    return a * b\n",
+      "active_symbol": "add",
+      "trigger": "init",
+      "window_duration": 4.0
+    },
+    {
+      "file_path": "test.py",
+      "diffs": "+assert add(2, 3) == 5\n+assert subtract(10, 3) == 7\n+assert multiply(4, 5) == 20",
+      "content": "assert add(2, 3) == 5\nassert subtract(10, 3) == 7\nassert multiply(4, 5) == 20\n",
+      "active_symbol": "test",
+      "trigger": "timeout",
+      "window_duration": 2.0
+    }
+  ]
+}

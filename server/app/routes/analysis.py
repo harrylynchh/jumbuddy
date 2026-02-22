@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, Response
 from ..auth import require_auth
 from ..services.supabase_client import get_supabase
 from ..services.analysis import (
@@ -7,7 +7,7 @@ from ..services.analysis import (
     compute_current_focus,
     compute_class_struggle,
 )
-from ..services.llm import generate_detailed_report, generate_class_narrative
+from ..services.llm import generate_detailed_report, generate_class_narrative, chat_about_student
 from dataclasses import asdict
 import os
 
@@ -151,3 +151,41 @@ def class_analysis(assignment_id):
             "student_lingers": student_lingers,
         }
     })
+
+
+@analysis_bp.route("/chat/<student_id>", methods=["POST"])
+@require_auth
+def chat_with_student_data(student_id):
+    """SSE streaming chat about a student's coding journey."""
+    body = request.get_json(force=True)
+    message = body.get("message", "")
+    assignment_id = body.get("assignment_id")
+    history = body.get("history", [])
+
+    if not assignment_id or not message:
+        return jsonify({"error": "assignment_id and message required"}), 400
+
+    sb = get_supabase()
+    result = (
+        sb.table("flushes")
+        .select("*")
+        .eq("profile_id", student_id)
+        .eq("assignment_id", assignment_id)
+        .order("start_timestamp", desc=False)
+        .execute()
+    )
+    flushes = result.data or []
+
+    if not flushes:
+        def empty():
+            yield "data: No activity recorded for this student.\n\n"
+            yield "data: [DONE]\n\n"
+        return Response(empty(), mimetype="text/event-stream")
+
+    regions = flushes_to_edit_regions(flushes)
+    linger_scores = compute_linger_scores(regions)
+
+    return Response(
+        chat_about_student(flushes, linger_scores, message, history),
+        mimetype="text/event-stream",
+    )

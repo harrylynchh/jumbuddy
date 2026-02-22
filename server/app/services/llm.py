@@ -236,6 +236,68 @@ Provide a clear, actionable report for the TA in 4-6 sentences. Be specific abou
     return _call_llm(prompt, system, max_tokens=500)
 
 
+def chat_about_student(flushes: list[dict], linger_scores: list[SymbolScore], message: str, history: list[dict]):
+    """
+    Streaming chat generator for TA questions about a student's coding journey.
+    Yields SSE-formatted chunks: 'data: {token}\n\n' and 'data: [DONE]\n\n'.
+    """
+    client = _get_client()
+    if not client:
+        yield "data: (LLM unavailable — set OPENAI_API_KEY to enable chat)\n\n"
+        yield "data: [DONE]\n\n"
+        return
+
+    timeline = _preprocess_flushes_for_llm(flushes)
+
+    top_struggles = linger_scores[:5]
+    struggle_summary = "\n".join(
+        f"- {s.symbol} in {s.file_path}: {s.visits} visits, {int(s.dwell_time)}s, churn {s.churn}"
+        for s in top_struggles
+    ) if top_struggles else "No significant struggles detected."
+
+    total_time = sum(f.get("window_duration", 0) for f in flushes)
+
+    system_msg = f"""You are a TA reviewing a student's real edit history for a programming assignment. You can see every edit they made, when, and in what order.
+
+Rules:
+- Keep answers short — 2-4 sentences unless asked for detail.
+- Plain text only. No markdown, no bullet lists, no headers.
+- Talk about what the student actually did: which functions they wrote, rewrote, or got stuck on.
+- When you mention struggle, say what they were trying to do and what went wrong (e.g. "they rewrote the loop in compress() three times, switching between iterative and recursive approaches").
+- Don't parrot raw metrics. Translate them into insight ("spent a long time on X" not "dwell_time=240s, churn=4.2").
+- If you don't have enough data to answer, say so briefly.
+
+EDIT TIMELINE:
+{timeline}
+
+TOP STRUGGLES:
+{struggle_summary}
+
+Total: {int(total_time/60)}min, {len(flushes)} flushes."""
+
+    messages = [{"role": "system", "content": system_msg}]
+    for h in history:
+        messages.append({"role": h["role"], "content": h["content"]})
+    messages.append({"role": "user", "content": message})
+
+    try:
+        resp = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            max_tokens=300,
+            temperature=0.3,
+            stream=True,
+        )
+        for chunk in resp:
+            delta = chunk.choices[0].delta if chunk.choices else None
+            if delta and delta.content:
+                yield f"data: {delta.content}\n\n"
+        yield "data: [DONE]\n\n"
+    except Exception as e:
+        yield f"data: (Error: {e})\n\n"
+        yield "data: [DONE]\n\n"
+
+
 def generate_class_narrative(struggle_topics: list[ClassSymbolScore]) -> str:
     top = struggle_topics[:8]
 
