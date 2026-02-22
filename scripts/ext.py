@@ -6,20 +6,17 @@ import sys
 import time
 
 HOME = os.path.expanduser("~")
-TARGET_DIR = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.path.join(HOME, "code", "cpp-fun")
+TARGET_DIR = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.path.join(HOME, "CODE", "cpp-fun")
 JUMBUDDY_DIR = os.path.join(TARGET_DIR, ".jumbuddy")
 EXTENSION_DIR = os.path.join(HOME, "code", "jumbohack2026", "vscode-extension")
 EXTENSIONS_DIR = os.path.join(HOME, ".vscode", "extensions")
 INSTALL_DIR = os.path.join(EXTENSIONS_DIR, "jumbuddy")
 GHOST_PROFILE = os.path.join(HOME, ".vscode-jumbuddy-test")
 
-# Gracefully quit VS Code on macOS, fall back to killall
-subprocess.run(
-  ["osascript", "-e", 'tell application "Visual Studio Code" to quit'],
-  capture_output=True,
-)
+# Kill VS Code (Linux)
+subprocess.run(["pkill", "-f", "code"], capture_output=True)
 time.sleep(2)
-subprocess.run(["killall", "Code"], capture_output=True)
+print("Closed VS Code")
 print("Closed VS Code")
 
 # Delete ghost profile left over from old --user-data-dir approach
