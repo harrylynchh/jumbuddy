@@ -33,8 +33,8 @@ export async function pushFlushes(): Promise<void> {
 
   try {
     const response = await httpPost(url, {
+      key: config.key,
       utln: config.utln,
-      assignment_id: config.assignment_id,
       flushes: batch,
     });
 

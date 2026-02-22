@@ -15,6 +15,7 @@ export interface FlushPayload {
 
 export interface JumbudConfig {
   utln: string;
+  key: string;
   assignment_id: string;
   course_id: string;
   server_url: string;

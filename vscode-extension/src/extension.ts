@@ -1,102 +1,85 @@
-// Must be set before any imports that might trigger network code
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 import * as vscode from "vscode";
-import * as http from "http";
-import { jumbudExists, readConfig, writeConfig } from "./config";
-import { runInit } from "./init";
+import { jumbudExists, readConfig, writeConfig, getWorkspaceRoot } from "./config";
+
+import { initializeTracking } from "./init";
 import { startTracking, stopTracking } from "./tracker";
 import { pushFlushes } from "./flusher";
+import { JumbudConfig } from "./types";
 
-const BASE_URL = "http://127.0.0.1:10000";
-const INTERNAL_API_KEY = "vscode-dev-key";
-
-function getAuthHeaders(): Record<string, string> {
-  const config = readConfig();
-  const utln = config?.utln ?? "";
-  return {
-    "X-Internal-Key": INTERNAL_API_KEY,
-    "X-User-UTLN": utln,
-  };
-}
-
-function rawHttpGet(url: string, headers: Record<string, string> = {}): Promise<{ status: number; body: string }> {
-  return new Promise((resolve, reject) => {
-    const req = http.get(url, { agent: false, headers }, (res) => {
-      let body = "";
-      res.on("data", (chunk) => (body += chunk));
-      res.on("end", () => resolve({ status: res.statusCode ?? 0, body }));
-      res.on("error", reject);
-    });
-    req.on("error", (err) => {
-      const details = JSON.stringify(err, Object.getOwnPropertyNames(err));
-      console.error("[CodeActivity] http.get error:", details);
-      reject(err);
-    });
-    req.setTimeout(5000, () => {
-      req.destroy(new Error("Request timed out after 5s"));
-    });
-    req.end();
-  });
-}
+const DEFAULT_SERVER_URL = "http://localhost:10000";
+const WEB_URL = "http://localhost:10001";
 
 export async function activate(context: vscode.ExtensionContext) {
   console.log("[CodeActivity] Activating extension...");
-  console.log("[CodeActivity] Node version:", process.version);
-  console.log("[CodeActivity] HTTP_PROXY:", process.env.HTTP_PROXY ?? "(none)");
-  console.log("[CodeActivity] HTTPS_PROXY:", process.env.HTTPS_PROXY ?? "(none)");
 
-  const pingCmd = vscode.commands.registerCommand(
-    "codeactivity.ping",
-    async () => {
-      const url = `${BASE_URL}/api/profiles/me`;
-      console.log("[CodeActivity] Pinging:", url);
+  // Register URI handler for browser callback
+  const uriHandler: vscode.UriHandler = {
+    handleUri(uri: vscode.Uri) {
+      console.log("[CodeActivity] URI callback received:", uri.toString());
 
-      try {
-        const { status, body } = await rawHttpGet(url, getAuthHeaders());
-        const msg = `status=${status} body=${body.substring(0, 100)}`;
-        console.log("[CodeActivity] Ping success:", msg);
-        vscode.window.showInformationMessage(`Ping OK: ${msg}`);
-      } catch (err: any) {
-        const details = JSON.stringify(err, Object.getOwnPropertyNames(err));
-        console.error("[CodeActivity] Ping failed:", details);
+      const params = new URLSearchParams(uri.query);
+      const key = params.get("key");
+      const utln = params.get("utln");
+      const assignmentId = params.get("assignment_id");
+      const courseId = params.get("course_id");
+      const serverUrl = params.get("server_url") ?? DEFAULT_SERVER_URL;
+
+      if (!key || !utln || !assignmentId || !courseId) {
         vscode.window.showErrorMessage(
-          `Ping FAILED: ${err?.message ?? err} | code=${err?.code} | cause=${err?.cause?.message ?? "(none)"}`,
+          "CodeActivity: Invalid callback — missing parameters.",
         );
+        return;
       }
-    },
-  );
-  context.subscriptions.push(pingCmd);
 
+      const workspaceRoot = getWorkspaceRoot();
+      if (!workspaceRoot) {
+        vscode.window.showErrorMessage(
+          "CodeActivity: No workspace folder open.",
+        );
+        return;
+      }
+
+      const config: JumbudConfig = {
+        utln,
+        key,
+        assignment_id: assignmentId,
+        course_id: courseId,
+        server_url: serverUrl,
+      };
+      writeConfig(config);
+
+      initializeTracking(workspaceRoot).then(() => {
+        vscode.window.showInformationMessage(
+          `CodeActivity: Connected as ${utln}. Tracking started.`,
+        );
+      });
+    },
+  };
+  context.subscriptions.push(vscode.window.registerUriHandler(uriHandler));
+
+  // Init command — opens browser
   const initCmd = vscode.commands.registerCommand(
     "codeactivity.init",
     async () => {
-      await runInit();
+      if (!getWorkspaceRoot()) {
+        vscode.window.showErrorMessage(
+          "CodeActivity: Open a workspace folder first.",
+        );
+        return;
+      }
+
+      const connectUrl = `${WEB_URL}/connect`;
+      await vscode.env.openExternal(vscode.Uri.parse(connectUrl));
+      vscode.window.showInformationMessage(
+        "CodeActivity: Complete setup in your browser.",
+      );
     },
   );
   context.subscriptions.push(initCmd);
 
-  const setUtlnCmd = vscode.commands.registerCommand(
-    "codeactivity.setUtln",
-    async () => {
-      const utln = await vscode.window.showInputBox({
-        prompt: "Enter your UTLN (e.g. slupo01)",
-        placeHolder: "slupo01",
-      });
-      if (!utln) return;
-
-      const config = readConfig() ?? {
-        utln: "",
-        assignment_id: "",
-        course_id: "",
-        server_url: "http://127.0.0.1:10000",
-      };
-      writeConfig({ ...config, utln });
-      vscode.window.showInformationMessage(`UTLN set to: ${utln}`);
-    },
-  );
-  context.subscriptions.push(setUtlnCmd);
-
+  // Resume tracking if .jumbud/ already exists
   if (jumbudExists()) {
     const config = readConfig();
     if (config) {

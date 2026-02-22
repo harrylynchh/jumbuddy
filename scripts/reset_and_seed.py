@@ -89,6 +89,14 @@ def seed():
     assignment_id = assignment.data[0]["id"]
     print(f"  Assignment: HW1 ({assignment_id})")
 
+    # --- Assignment Key ---
+    assignment_key = "ak_test_hw1_key_123"
+    sb.table("assignment_keys").insert({
+        "key": assignment_key,
+        "assignment_id": assignment_id,
+    }).execute()
+    print(f"  Assignment Key: {assignment_key}")
+
     # --- Sample flushes for student1 ---
     now = datetime.now(timezone.utc)
     flushes = [
@@ -144,6 +152,8 @@ def seed():
     print("  TA:         ta@codeactivity.test / testpass123         (utln: jta0102)")
     print("  Student 1:  student1@codeactivity.test / testpass123   (utln: slupo01)")
     print("  Student 2:  student2@codeactivity.test / testpass123   (utln: abrow02)")
+    print(f"\n=== Assignment Key (HW1) ===")
+    print(f"  {assignment_key}")
 
 
 if __name__ == "__main__":
