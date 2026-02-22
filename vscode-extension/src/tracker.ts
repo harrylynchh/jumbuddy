@@ -131,6 +131,10 @@ async function flushFile(
 
   const mirrorDir = getMirrorDir();
   const workspaceRoot = getWorkspaceRoot();
+  if (workspaceRoot && filePath.startsWith(path.join(workspaceRoot, ".jumbud"))) {
+    console.log("Trigger")
+    return;
+  }
   if (!mirrorDir || !workspaceRoot) return;
 
   const relativePath = path.relative(workspaceRoot, filePath);

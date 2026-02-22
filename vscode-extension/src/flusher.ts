@@ -3,7 +3,7 @@ import { getServerUrl, readConfig } from "./config";
 import { httpPost } from "./http";
 
 const queue: FlushPayload[] = [];
-let debounceThreshold = 10;
+let debounceThreshold = 1;
 
 export function setDebounceThreshold(n: number): void {
   debounceThreshold = n;

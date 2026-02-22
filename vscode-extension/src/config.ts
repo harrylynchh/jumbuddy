@@ -71,6 +71,9 @@ export function getServerUrl(): string {
 }
 
 export function isTrackedFile(filePath: string): boolean {
+  const root = getWorkspaceRoot();
+  if (root && filePath.startsWith(path.join(root, JUMBUD_DIR))) return false;
+
   const basename = path.basename(filePath);
   if (TRACKED_FILENAMES.has(basename)) return true;
   const ext = path.extname(filePath);
