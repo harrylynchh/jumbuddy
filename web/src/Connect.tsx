@@ -20,7 +20,7 @@ interface Assignment {
 
 export default function Connect() {
   const [session, setSession] = useState<Session | null>(null);
-  const [email, setEmail] = useState("student1@codeactivity.test");
+  const [email, setEmail] = useState("student1@jumbud.test");
   const [password, setPassword] = useState("testpass123");
   const [error, setError] = useState("");
 
@@ -109,7 +109,7 @@ export default function Connect() {
       server_url: API,
     });
 
-    const vscodeUri = `vscode://codeactivity.code-activity-logger/callback?${params.toString()}`;
+    const vscodeUri = `vscode://jumbud.jumbud/callback?${params.toString()}`;
     window.location.href = vscodeUri;
     setDone(true);
     setConnecting(false);
@@ -122,7 +122,7 @@ export default function Connect() {
   if (!session) {
     return (
       <div style={{ padding: "2rem", fontFamily: "system-ui, sans-serif", maxWidth: 400, margin: "0 auto" }}>
-        <h1>Connect to VS Code</h1>
+        <h1>Connect to JumBud</h1>
         <p>Sign in to link your VS Code extension.</p>
         <form onSubmit={handleLogin}>
           <div style={{ marginBottom: "0.5rem" }}>
@@ -163,7 +163,7 @@ export default function Connect() {
 
   return (
     <div style={{ padding: "2rem", fontFamily: "system-ui, sans-serif", maxWidth: 500, margin: "0 auto" }}>
-      <h1>Connect to VS Code</h1>
+      <h1>Connect to JumBud</h1>
       <p>
         Signed in as <strong>{session.user.email}</strong> (utln: {utln})
       </p>

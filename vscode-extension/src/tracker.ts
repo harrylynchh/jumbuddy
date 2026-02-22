@@ -24,14 +24,14 @@ const activeFiles = new Map<string, FileState>();
 const disposables: vscode.Disposable[] = [];
 
 export function startTracking(): void {
-  console.log("[CodeActivity] Tracker: starting file change listeners");
+  console.log("[JumBud] Tracker: starting file change listeners");
 
   disposables.push(
     vscode.workspace.onDidChangeTextDocument((e) => {
       const filePath = e.document.uri.fsPath;
       if (e.contentChanges.length === 0) return;
       if (!isTrackedFile(filePath)) return;
-      console.log(`[CodeActivity] Tracker: text changed in ${path.basename(filePath)}`);
+      console.log(`[JumBud] Tracker: text changed in ${path.basename(filePath)}`);
       onFileChanged(filePath);
     }),
   );
@@ -41,7 +41,7 @@ export function startTracking(): void {
       if (!editor) return;
       for (const [filePath] of activeFiles) {
         if (filePath !== editor.document.uri.fsPath) {
-          console.log(`[CodeActivity] Tracker: file_switch from ${path.basename(filePath)}`);
+          console.log(`[JumBud] Tracker: file_switch from ${path.basename(filePath)}`);
           await flushFile(filePath, "file_switch");
         }
       }
@@ -57,18 +57,18 @@ export function startTracking(): void {
       const currentSymbol = await getActiveSymbol(e.textEditor);
       if (currentSymbol !== state.lastSymbol && state.lastSymbol !== null) {
         console.log(
-          `[CodeActivity] Tracker: symbol_change ${state.lastSymbol} → ${currentSymbol}`,
+          `[JumBud] Tracker: symbol_change ${state.lastSymbol} → ${currentSymbol}`,
         );
         await flushFile(filePath, "symbol_change");
       }
     }),
   );
 
-  console.log("[CodeActivity] Tracker: listeners registered");
+  console.log("[JumBud] Tracker: listeners registered");
 }
 
 export async function stopTracking(): Promise<void> {
-  console.log("[CodeActivity] Tracker: stopping, flushing %d active files", activeFiles.size);
+  console.log("[JumBud] Tracker: stopping, flushing %d active files", activeFiles.size);
   for (const filePath of [...activeFiles.keys()]) {
     await flushFile(filePath, "deactivate");
   }
@@ -78,7 +78,7 @@ export async function stopTracking(): Promise<void> {
     d.dispose();
   }
   disposables.length = 0;
-  console.log("[CodeActivity] Tracker: stopped");
+  console.log("[JumBud] Tracker: stopped");
 }
 
 function onFileChanged(filePath: string): void {
@@ -87,22 +87,22 @@ function onFileChanged(filePath: string): void {
   if (existing) {
     clearTimeout(existing.timer);
     existing.timer = setTimeout(() => {
-      console.log(`[CodeActivity] Tracker: timeout for ${path.basename(filePath)}`);
+      console.log(`[JumBud] Tracker: timeout for ${path.basename(filePath)}`);
       flushFile(filePath, "timeout");
     }, DEBOUNCE_TIME);
   } else {
     const now = new Date().toISOString();
     const editor = vscode.window.activeTextEditor;
 
-    console.log(`[CodeActivity] Tracker: new active file ${path.basename(filePath)}`);
+    console.log(`[JumBud] Tracker: new active file ${path.basename(filePath)}`);
 
     const state: FileState = {
       timer: setTimeout(() => {
-        console.log(`[CodeActivity] Tracker: timeout for ${path.basename(filePath)}`);
+        console.log(`[JumBud] Tracker: timeout for ${path.basename(filePath)}`);
         flushFile(filePath, "timeout");
       }, DEBOUNCE_TIME),
       maxTimer: setTimeout(() => {
-        console.log(`[CodeActivity] Tracker: max_duration for ${path.basename(filePath)}`);
+        console.log(`[JumBud] Tracker: max_duration for ${path.basename(filePath)}`);
         flushFile(filePath, "max_duration");
       }, MAX_DEBOUNCE_TIME),
       startTimestamp: now,
@@ -152,7 +152,7 @@ async function flushFile(
     try {
       currentContent = fs.readFileSync(filePath, "utf-8");
     } catch {
-      console.warn(`[CodeActivity] Tracker: cannot read ${relativePath}, skipping`);
+      console.warn(`[JumBud] Tracker: cannot read ${relativePath}, skipping`);
       return;
     }
   }
@@ -165,7 +165,7 @@ async function flushFile(
   }
 
   if (currentContent === mirrorContent) {
-    console.log(`[CodeActivity] Tracker: no changes in ${relativePath}, skipping flush`);
+    console.log(`[JumBud] Tracker: no changes in ${relativePath}, skipping flush`);
     return;
   }
 
@@ -192,7 +192,7 @@ async function flushFile(
   };
 
   console.log(
-    `[CodeActivity] Tracker: flushing ${relativePath} trigger=${trigger} symbol=${activeSymbol}`,
+    `[JumBud] Tracker: flushing ${relativePath} trigger=${trigger} symbol=${activeSymbol}`,
   );
 
   await enqueueFlush(flush);

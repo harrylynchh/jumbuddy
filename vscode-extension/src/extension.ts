@@ -7,17 +7,22 @@ import { initializeTracking } from "./init";
 import { startTracking, stopTracking } from "./tracker";
 import { pushFlushes } from "./flusher";
 import { JumbudConfig } from "./types";
+import { createStatusBar, setTracking, setIdle, dispose as disposeStatusBar } from "./statusbar";
 
 const DEFAULT_SERVER_URL = "http://localhost:10000";
 const WEB_URL = "http://localhost:10001";
 
 export async function activate(context: vscode.ExtensionContext) {
-  console.log("[CodeActivity] Activating extension...");
+  console.log("[JumBud] Activating extension...");
+
+  // Status bar
+  const statusBar = createStatusBar();
+  context.subscriptions.push(statusBar);
 
   // Register URI handler for browser callback
   const uriHandler: vscode.UriHandler = {
     handleUri(uri: vscode.Uri) {
-      console.log("[CodeActivity] URI callback received:", uri.toString());
+      console.log("[JumBud] URI callback received:", uri.toString());
 
       const params = new URLSearchParams(uri.query);
       const key = params.get("key");
@@ -28,7 +33,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
       if (!key || !utln || !assignmentId || !courseId) {
         vscode.window.showErrorMessage(
-          "CodeActivity: Invalid callback — missing parameters.",
+          "JumBud: Invalid callback — missing parameters.",
         );
         return;
       }
@@ -36,7 +41,7 @@ export async function activate(context: vscode.ExtensionContext) {
       const workspaceRoot = getWorkspaceRoot();
       if (!workspaceRoot) {
         vscode.window.showErrorMessage(
-          "CodeActivity: No workspace folder open.",
+          "JumBud: No workspace folder open.",
         );
         return;
       }
@@ -51,8 +56,9 @@ export async function activate(context: vscode.ExtensionContext) {
       writeConfig(config);
 
       initializeTracking(workspaceRoot).then(() => {
+        setTracking();
         vscode.window.showInformationMessage(
-          `CodeActivity: Connected as ${utln}. Tracking started.`,
+          `JumBud: Connected as ${utln}. Tracking started.`,
         );
       });
     },
@@ -61,11 +67,11 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Init command — opens browser
   const initCmd = vscode.commands.registerCommand(
-    "codeactivity.init",
+    "jumbud.init",
     async () => {
       if (!getWorkspaceRoot()) {
         vscode.window.showErrorMessage(
-          "CodeActivity: Open a workspace folder first.",
+          "JumBud: Open a workspace folder first.",
         );
         return;
       }
@@ -73,7 +79,7 @@ export async function activate(context: vscode.ExtensionContext) {
       const connectUrl = `${WEB_URL}/connect`;
       await vscode.env.openExternal(vscode.Uri.parse(connectUrl));
       vscode.window.showInformationMessage(
-        "CodeActivity: Complete setup in your browser.",
+        "JumBud: Complete setup in your browser.",
       );
     },
   );
@@ -84,7 +90,8 @@ export async function activate(context: vscode.ExtensionContext) {
     const config = readConfig();
     if (config) {
       startTracking();
-      vscode.window.showInformationMessage("CodeActivity: Resumed tracking.");
+      setTracking();
+      vscode.window.showInformationMessage("JumBud: Resumed tracking.");
     }
   }
 }
@@ -92,4 +99,5 @@ export async function activate(context: vscode.ExtensionContext) {
 export async function deactivate() {
   await stopTracking();
   await pushFlushes();
+  disposeStatusBar();
 }

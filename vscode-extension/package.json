@@ -1,8 +1,8 @@
 {
-	"name": "code-activity-logger",
-	"publisher": "codeactivity",
-	"displayName": "CodeActivity Logger",
-	"description": "Tracks coding activity and sends edit flushes to CodeActivity server",
+	"name": "jumbud",
+	"publisher": "jumbud",
+	"displayName": "JumBud",
+	"description": "Tracks coding activity and sends edit flushes to JumBud server",
 	"version": "0.2.0",
 	"engines": {
 		"vscode": "^1.85.0"
@@ -18,8 +18,8 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "codeactivity.init",
-				"title": "CodeActivity: Initialize Tracking"
+				"command": "jumbud.init",
+				"title": "JumBud: Initialize Tracking"
 			}
 		]
 	},

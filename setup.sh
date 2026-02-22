@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 
-echo "=== CodeActivity Setup ==="
+echo "=== JumBud Setup ==="
 
 # Check for .env
 if [ ! -f "$ROOT/.env" ]; then

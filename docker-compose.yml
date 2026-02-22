@@ -125,8 +125,8 @@ services:
     environment:
       STUDIO_PG_META_URL: http://meta:8080
       POSTGRES_PASSWORD: postgres
-      DEFAULT_ORGANIZATION_NAME: CodeActivity
-      DEFAULT_PROJECT_NAME: CodeActivity
+      DEFAULT_ORGANIZATION_NAME: JumBud
+      DEFAULT_PROJECT_NAME: JumBud
       SUPABASE_URL: http://kong:8000
       SUPABASE_PUBLIC_URL: http://localhost:10002
       NEXT_PUBLIC_SUPABASE_URL: http://localhost:10002

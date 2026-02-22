@@ -6,7 +6,7 @@ const API = "http://localhost:10000";
 
 function App() {
   const [session, setSession] = useState<Session | null>(null);
-  const [email, setEmail] = useState("professor@codeactivity.test");
+  const [email, setEmail] = useState("professor@jumbud.test");
   const [password, setPassword] = useState("testpass123");
   const [error, setError] = useState("");
 
@@ -93,7 +93,7 @@ function App() {
   if (!session) {
     return (
       <div style={{ padding: "2rem", fontFamily: "system-ui, sans-serif", maxWidth: 400 }}>
-        <h1>CodeActivity</h1>
+        <h1>JumBud</h1>
         <p>Sign in to continue</p>
         <form onSubmit={handleLogin}>
           <div style={{ marginBottom: "0.5rem" }}>
@@ -125,7 +125,7 @@ function App() {
 
   return (
     <div style={{ padding: "2rem", fontFamily: "system-ui, sans-serif", maxWidth: 600 }}>
-      <h1>CodeActivity</h1>
+      <h1>JumBud</h1>
       <p>
         Signed in as: <strong>{session.user.email}</strong>{" "}
         <button onClick={handleLogout} style={{ marginLeft: "0.5rem" }}>

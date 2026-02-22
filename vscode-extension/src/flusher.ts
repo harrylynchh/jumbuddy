@@ -1,6 +1,7 @@
 import { FlushPayload } from "./types";
 import { getServerUrl, readConfig } from "./config";
 import { httpPost } from "./http";
+import { setPushing, flashSuccess, flashError } from "./statusbar";
 
 const queue: FlushPayload[] = [];
 const DEBOUNCE_THRESHOLD = 2;
@@ -11,11 +12,11 @@ const DEBOUNCE_THRESHOLD = 2;
 export async function enqueueFlush(flush: FlushPayload): Promise<void> {
   queue.push(flush);
   console.log(
-    `[CodeActivity] Flush queued: file=${flush.file_path} trigger=${flush.trigger} queue_size=${queue.length}/${DEBOUNCE_THRESHOLD}`,
+    `[JumBud] Flush queued: file=${flush.file_path} trigger=${flush.trigger} queue_size=${queue.length}/${DEBOUNCE_THRESHOLD}`,
   );
 
   if (queue.length >= DEBOUNCE_THRESHOLD) {
-    console.log("[CodeActivity] Queue threshold reached, pushing...");
+    console.log("[JumBud] Queue threshold reached, pushing...");
     await pushFlushes();
   }
 }
@@ -25,13 +26,13 @@ export async function enqueueFlush(flush: FlushPayload): Promise<void> {
  */
 export async function pushFlushes(): Promise<void> {
   if (queue.length === 0) {
-    console.log("[CodeActivity] pushFlushes called but queue is empty");
+    console.log("[JumBud] pushFlushes called but queue is empty");
     return;
   }
 
   const config = readConfig();
   if (!config) {
-    console.warn("[CodeActivity] pushFlushes: no config found, skipping");
+    console.warn("[JumBud] pushFlushes: no config found, skipping");
     return;
   }
 
@@ -39,8 +40,10 @@ export async function pushFlushes(): Promise<void> {
   const url = `${getServerUrl()}/api/extensions/flushes`;
 
   console.log(
-    `[CodeActivity] Pushing ${batch.length} flushes to ${url}`,
+    `[JumBud] Pushing ${batch.length} flushes to ${url}`,
   );
+
+  setPushing();
 
   try {
     const response = await httpPost(url, {
@@ -51,16 +54,19 @@ export async function pushFlushes(): Promise<void> {
     if (!response.ok) {
       queue.unshift(...batch);
       console.error(
-        `[CodeActivity] Push FAILED (${response.status}): ${response.data}`,
+        `[JumBud] Push FAILED (${response.status}): ${response.data}`,
       );
+      flashError();
     } else {
       console.log(
-        `[CodeActivity] Push OK: ${response.data}`,
+        `[JumBud] Push OK: ${response.data}`,
       );
+      flashSuccess();
     }
   } catch (err) {
     queue.unshift(...batch);
-    console.error("[CodeActivity] Push ERROR:", err);
+    console.error("[JumBud] Push ERROR:", err);
+    flashError();
   }
 }
 

@@ -3,7 +3,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 
-echo "=== CodeActivity Restart ==="
+echo "=== JumBud Restart ==="
 
 # 1. Stop everything and wipe volumes (fresh DB every time)
 echo ""
@@ -78,4 +78,4 @@ echo "PostgreSQL:       localhost:10005"
 
 echo ""
 echo "=== Restart complete ==="
-echo "Login with: professor@codeactivity.test / testpass123"
+echo "Login with: professor@jumbud.test / testpass123"
