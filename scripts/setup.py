@@ -32,7 +32,7 @@ def venv_pip():
 
 
 def main():
-    print("=== JumBud Setup ===\n")
+    print("=== JumBuddy Setup ===\n")
 
     # .env
     env_file = os.path.join(ROOT, ".env")

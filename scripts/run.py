@@ -64,7 +64,7 @@ def venv_pip():
 
 
 def main():
-    print("=== JumBud Run ===\n")
+    print("=== JumBuddy Run ===\n")
 
     # 1. Stop + wipe volumes (fresh DB every time)
     print("--- Stopping Docker services + wiping DB volume ---")
@@ -131,7 +131,7 @@ def main():
     print("Supabase Studio:  http://localhost:10003")
     print("PostgreSQL:       localhost:10005")
     print("\n=== Run complete ===")
-    print("Login with: professor@jumbud.test / testpass123")
+    print("Login with: professor@jumbuddy.test / testpass123")
 
 
 if __name__ == "__main__":
