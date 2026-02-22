@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/diff": "^8.0.0"
   }
 }

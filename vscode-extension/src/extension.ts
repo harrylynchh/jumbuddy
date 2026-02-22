@@ -1,77 +1,64 @@
+// Must be set before any imports that might trigger network code
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 import * as vscode from "vscode";
 import * as http from "http";
-import fetch from "node-fetch";
 import { jumbudExists, readConfig } from "./config";
 import { runInit } from "./init";
 import { startTracking, stopTracking } from "./tracker";
 import { pushFlushes } from "./flusher";
-import { httpGet } from "./http";
+
+const BASE_URL = "http://127.0.0.1:10000";
+
+function rawHttpGet(url: string): Promise<{ status: number; body: string }> {
+  return new Promise((resolve, reject) => {
+    const req = http.get(url, { agent: false }, (res) => {
+      let body = "";
+      res.on("data", (chunk) => (body += chunk));
+      res.on("end", () => resolve({ status: res.statusCode ?? 0, body }));
+      res.on("error", reject);
+    });
+    req.on("error", (err) => {
+      // Log full error details to Extension Host output
+      const details = JSON.stringify(err, Object.getOwnPropertyNames(err));
+      console.error("[CodeActivity] http.get error:", details);
+      reject(err);
+    });
+    req.setTimeout(5000, () => {
+      req.destroy(new Error("Request timed out after 5s"));
+    });
+    req.end();
+  });
+}
 
 export async function activate(context: vscode.ExtensionContext) {
-  console.log("CodeActivity Logger activating...");
+  console.log("[CodeActivity] Activating extension...");
+  console.log("[CodeActivity] Node version:", process.version);
+  console.log("[CodeActivity] HTTP_PROXY:", process.env.HTTP_PROXY ?? "(none)");
+  console.log("[CodeActivity] HTTPS_PROXY:", process.env.HTTPS_PROXY ?? "(none)");
 
-  // Register test ping command
   const pingCmd = vscode.commands.registerCommand(
     "codeactivity.ping",
     async () => {
-      // Diagnostic: show env vars and try both localhost and 0.0.0.0
-      const proxy = process.env.HTTP_PROXY || process.env.http_proxy || "(none)";
-      const httpsProxy = process.env.HTTPS_PROXY || process.env.https_proxy || "(none)";
-      vscode.window.showInformationMessage(
-        `ENV: HTTP_PROXY=${proxy} | HTTPS_PROXY=${httpsProxy}`,
-      );
+      const url = `${BASE_URL}/api/profiles/me`;
+      console.log("[CodeActivity] Pinging:", url);
 
-      const url = "http://0.0.0.0:10000/api/profiles/me";
-
-      // Method 1: our httpGet helper (agent: false)
       try {
-        const res = await httpGet(url);
-        vscode.window.showInformationMessage(
-          `httpGet 0.0.0.0: status=${res.status} data=${res.data.substring(0, 100)}`,
-        );
+        const { status, body } = await rawHttpGet(url);
+        const msg = `status=${status} body=${body.substring(0, 100)}`;
+        console.log("[CodeActivity] Ping success:", msg);
+        vscode.window.showInformationMessage(`Ping OK: ${msg}`);
       } catch (err: any) {
+        const details = JSON.stringify(err, Object.getOwnPropertyNames(err));
+        console.error("[CodeActivity] Ping failed:", details);
         vscode.window.showErrorMessage(
-          `httpGet 0.0.0.0 FAILED: ${err?.message ?? err}`,
-        );
-      }
-
-      // Method 2: raw http.get with agent:false
-      try {
-        const data = await new Promise<string>((resolve, reject) => {
-          http
-            .get(url, { agent: false }, (res) => {
-              let body = "";
-              res.on("data", (chunk) => (body += chunk));
-              res.on("end", () => resolve(`status=${res.statusCode} body=${body.substring(0, 100)}`));
-            })
-            .on("error", reject);
-        });
-        vscode.window.showInformationMessage(`raw http.get 0.0.0.0: ${data}`);
-      } catch (err: any) {
-        vscode.window.showErrorMessage(
-          `raw http.get 0.0.0.0 FAILED: ${err?.message ?? err}`,
-        );
-      }
-
-      // Method 3: node-fetch
-      try {
-        const res = await fetch(url);
-        const text = await res.text();
-        vscode.window.showInformationMessage(
-          `node-fetch 0.0.0.0: status=${res.status} data=${text.substring(0, 100)}`,
-        );
-      } catch (err: any) {
-        vscode.window.showErrorMessage(
-          `node-fetch 0.0.0.0 FAILED: ${err?.message ?? err}`,
+          `Ping FAILED: ${err?.message ?? err} | code=${err?.code} | cause=${err?.cause?.message ?? "(none)"}`,
         );
       }
     },
   );
   context.subscriptions.push(pingCmd);
 
-  // Register init command
   const initCmd = vscode.commands.registerCommand(
     "codeactivity.init",
     async () => {
@@ -80,14 +67,11 @@ export async function activate(context: vscode.ExtensionContext) {
   );
   context.subscriptions.push(initCmd);
 
-  // If .jumbud/ already exists, resume tracking
   if (jumbudExists()) {
     const config = readConfig();
     if (config) {
       startTracking();
-      vscode.window.showInformationMessage(
-        "CodeActivity: Resumed tracking.",
-      );
+      vscode.window.showInformationMessage("CodeActivity: Resumed tracking.");
     }
   }
 }
