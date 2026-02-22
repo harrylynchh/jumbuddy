@@ -1,0 +1,10 @@
+PORTS
+=====
+
+10000  Flask API server
+10001  React/Vite web
+10002  Supabase API (Kong gateway)
+10003  Supabase Studio
+10005  PostgreSQL
+
+All services run locally in Docker.

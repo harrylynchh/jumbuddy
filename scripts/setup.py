@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
-"""Cross-platform setup script. Creates venv, installs deps, runs smoke test."""
+"""
+Cross-platform setup script.
+Ensures .env exists, creates venv, installs all dependencies.
+"""
 
 import os
 import sys
 import shutil
 import subprocess
 
-ROOT = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 VENV_DIR = os.path.join(ROOT, "server", "venv")
 REQUIREMENTS = os.path.join(ROOT, "server", "requirements.txt")
 
@@ -38,8 +41,12 @@ def main():
         shutil.copy2(env_example, env_file)
         print("Created .env from .env.example")
 
+    # Docker check
+    if not shutil.which("docker"):
+        print("WARNING: Docker not found. Install from https://docker.com")
+
     # Python venv + deps
-    print("\n--- Python dependencies ---")
+    print("--- Python dependencies ---")
     py = venv_python()
     if not os.path.exists(py):
         print("  Creating virtualenv...")
@@ -71,7 +78,7 @@ def main():
         print("  Smoke test failed — check server/app for import errors.")
 
     print("\n=== Setup complete ===")
-    print("Next: python restart.py")
+    print("Next: python scripts/run.py")
 
 
 if __name__ == "__main__":

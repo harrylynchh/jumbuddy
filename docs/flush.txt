@@ -1,0 +1,132 @@
+FLUSH SYSTEM
+============
+
+A flush captures what changed in a single file over a window of time.
+It contains a unified diff (old state vs current state), timestamps,
+the code symbol the cursor was in, and computed metrics.
+
+
+WHAT FILES ARE TRACKED
+----------------------
+Only C/C++ source files and Makefiles. The specific extensions and
+filenames are defined in TRACKED_EXTENSIONS and TRACKED_FILENAMES
+in config.ts. Anything inside the .jumbud/ directory is ignored.
+
+
+THE MIRROR
+----------
+Every tracked file has a mirror copy stored in .jumbud/mirror/.
+The mirror is the file's content as of the last flush. When a flush
+happens, the diff is computed between the mirror and the current
+editor buffer, then the mirror is overwritten with the current content.
+
+This means each flush's diff is a delta from the previous flush.
+Chain them together starting from init and you can reconstruct
+the full file at any point in time.
+
+
+FLUSH TRIGGERS
+--------------
+Six events cause a flush. Each one calls flushFile() in tracker.ts
+with a trigger label:
+
+  init
+    Fires once when the extension activates. Every tracked file in
+    the workspace gets an init flush -- the diff is from empty string
+    to the full file content.
+
+  timeout
+    After a file is edited, a debounce timer starts (DEBOUNCE_TIME
+    in config.ts). If no further edits happen before it expires, the
+    flush fires. This is the most common trigger. Each new edit
+    resets this timer.
+
+  max_duration
+    A separate timer (MAX_DEBOUNCE_TIME in config.ts) starts when
+    a file first becomes active. It fires regardless of continued
+    editing, acting as a ceiling so no window gets too long. It is
+    not reset by new edits.
+
+  file_switch
+    When the user switches to a different editor tab, all other
+    active files are flushed. Detected via
+    onDidChangeActiveTextEditor.
+
+  symbol_change
+    When the cursor moves into a different code symbol (a different
+    function, struct, etc.) within the same file. Uses VS Code's
+    DocumentSymbolProvider to resolve the current symbol. Only fires
+    if there was a previous symbol (not on first cursor placement).
+
+  deactivate
+    The extension is shutting down. All active files are flushed
+    immediately, then the queue is force-pushed to the server.
+
+
+HOW THE TIMERS INTERACT
+-----------------------
+When a file is first edited:
+  - A FileState is created with both timers started.
+  - The debounce timer (DEBOUNCE_TIME) resets on every subsequent edit.
+  - The max timer (MAX_DEBOUNCE_TIME) does NOT reset.
+  - Whichever fires first triggers the flush and clears both timers.
+
+If an external event (file_switch, symbol_change, deactivate) fires
+before either timer, it also clears both timers and flushes.
+
+
+WHAT A FLUSH CONTAINS
+---------------------
+  - file_path: relative path from workspace root
+  - trigger: one of the six labels above
+  - start_timestamp: when the file became active (ISO 8601)
+  - end_timestamp: when the flush fired (ISO 8601)
+  - diffs: unified diff string (mirror -> current buffer)
+  - active_symbol: the code symbol at the cursor, or null
+  - metrics: computed stats about the diff (see METRICS below)
+
+
+METRICS
+-------
+Computed extension-side from the diff, file content, and timestamps.
+See metrics.ts for the full implementation.
+
+  chars_inserted / chars_deleted
+    Character counts from + and - lines in the diff hunks.
+
+  rewrite_ratio
+    Fraction of total churn that was deletion. Null if no changes.
+
+  edit_velocity
+    Total chars changed divided by window duration in seconds.
+
+  lines_touched
+    Count of unique line numbers affected, parsed from hunk headers.
+
+  thrash
+    Detects lines that appear as both added and removed with the same
+    content. Returns a score (thrashing lines / lines touched) and
+    the list of thrashing line contents.
+
+  error_churn
+    Counts lines matching error-like patterns (TODO, FIXME, HACK,
+    assert, etc.) in old vs new content. Reports how many were
+    introduced, resolved, or persisting.
+
+  delete_rewrite
+    Non-null when a large block was deleted and a large block was
+    inserted in roughly equal proportion. Thresholds are hardcoded
+    in metrics.ts.
+
+  cursor_reads
+    Symbol visit counts from cursor movement during the flush window.
+
+
+DELIVERY
+--------
+Flushes are queued in memory. The queue auto-pushes when it reaches
+DEBOUNCE_THRESHOLD (in flusher.ts). On deactivate, the queue is
+force-pushed regardless of size.
+
+Pushes go to POST /api/extensions/flushes with the assignment key.
+On failure, flushes are put back in the queue for the next push.
