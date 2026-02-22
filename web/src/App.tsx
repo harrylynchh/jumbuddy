@@ -33,43 +33,51 @@ function Navbar({
   onSignOut,
   theme,
   onToggleTheme,
+  collapsed,
+  onToggleCollapsed,
 }: {
   courses: CourseWithRole[];
   onSignOut: () => Promise<void>;
   theme: ThemeMode;
   onToggleTheme: () => void;
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
 }) {
   const location = useLocation();
 
-  // Book icon for courses
-  const courseIcon = (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-  // Question mark icon
-  const faqIcon = (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M9.8 9.2a2.4 2.4 0 1 1 4.2 1.6c-.8.8-1.7 1.2-1.7 2.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <circle cx="12" cy="16.8" r="1" fill="currentColor" />
-    </svg>
-  );
-  // Info icon
-  const aboutIcon = (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M12 10.6V16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <circle cx="12" cy="7.5" r="1" fill="currentColor" />
-    </svg>
-  );
-  // User icon
-  const accountIcon = (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="8.2" r="3.2" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M5 19.2c1.7-2.8 4-4.2 7-4.2s5.3 1.4 7 4.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  );
+  const bottomItems = [
+    { label: "About Our Product", to: "/about", icon: "about" as NavIconName },
+    { label: "FAQ", to: "/faq", icon: "faq" as NavIconName },
+    { label: "Account", to: "/account", icon: "account" as NavIconName },
+  ];
+
+  function renderNavIcon(icon: NavIconName) {
+    if (icon === "faq") {
+      return (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M9.8 9.2a2.4 2.4 0 1 1 4.2 1.6c-.8.8-1.7 1.2-1.7 2.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          <circle cx="12" cy="16.8" r="1" fill="currentColor" />
+        </svg>
+      );
+    }
+    if (icon === "about") {
+      return (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M12 10.6V16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          <circle cx="12" cy="7.5" r="1" fill="currentColor" />
+        </svg>
+      );
+    }
+    return (
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="8.2" r="3.2" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M5 19.2c1.7-2.8 4-4.2 7-4.2s5.3 1.4 7 4.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
   return (
     <aside className="sidebar">
       {/* Header */}
@@ -149,6 +157,14 @@ function Navbar({
           <span className="signout-mini">⎋</span>
         </button>
       </div>
+      <button
+        className="sidebar-toggle-rail"
+        onClick={onToggleCollapsed}
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        {collapsed ? "›" : "‹"}
+      </button>
     </aside>
   );
 }
@@ -1510,6 +1526,142 @@ function GenericPage({ title, body }: { title: string; body: string }) {
   );
 }
 
+function FaqPage() {
+  const faqItems = [
+    {
+      question: "What is JumBuddy?",
+      answer:
+        "A tool for Professors and TAs that reveals the process that students use to implement their Computer Science homeworks/projects.",
+    },
+    {
+      question: "Why JumBuddy?",
+      answer:
+        "There is a lack of information for the specifics of how students actually implement their code while doing their work. By being able to see the specifics of student workflow, JumBuddy , is able to send Professors and TAs an individualized account of students implementation process, time spent per function, and a summary containing specific areas of need, while also being able to see the larger picture of the needs of the class at large.",
+    },
+    {
+      question: "What does JumBuddy do?",
+      answer: "It contains information for both individual students and the class:",
+      bullets: [
+        "The total amount of time spent on the project.",
+        "The time spent in individual functions",
+        "AI overview of each student.",
+        "A replay of student implementation of their code.",
+      ],
+    },
+    {
+      question: "How can JumBuddy help?",
+      answer:
+        "By being able to see individual student’s process, instructors can properly gauge what topics may need more attention during class periods, lab sessions, and office hours. JumBuddy can also aid the professor by giving a truly holistic view of the student body’s average completion time for specific files and functions.",
+    },
+    {
+      question: "Does JumBuddy detect cheating?",
+      answer:
+        "Not entirely. With an issue as complicated as cheating, this program is unable to give a definitive yes or no. However, many of the tools may be able to help give information on whether or not a student is cheating. By being able to see the time it actually takes a student to complete an assignment, compared to the class, and the actual process that a student implements their code, JumBuddy can be an important tool for determining if a student did or didn’t violate academic integrity policies.",
+    },
+  ];
+
+  return (
+    <main style={{ maxWidth: 980, margin: "0 auto", padding: "1.5rem 1.1rem 2rem" }}>
+      <div style={{ border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", padding: "1.5rem 1.75rem" }}>
+        <h1 style={{ marginTop: 0, marginBottom: "1.25rem" }}>FAQ</h1>
+
+        <section style={{ display: "grid", gap: "0.9rem" }}>
+          {faqItems.map((item) => (
+            <article
+              key={item.question}
+              style={{
+                border: "1px solid var(--border-soft)",
+                background: "var(--surface-muted)",
+                borderRadius: 10,
+                padding: "0.95rem 1rem",
+              }}
+            >
+              <h2 style={{ margin: "0 0 0.45rem", fontSize: 20 }}>{item.question}</h2>
+              <p style={{ margin: 0, color: "var(--text-muted)", lineHeight: 1.65 }}>{item.answer}</p>
+              {item.bullets && (
+                <ul style={{ margin: "0.65rem 0 0", color: "var(--text-muted)", lineHeight: 1.65, paddingLeft: "1.15rem" }}>
+                  {item.bullets.map((bullet) => (
+                    <li key={bullet}>{bullet}</li>
+                  ))}
+                </ul>
+              )}
+            </article>
+          ))}
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function AboutPage() {
+  const aboutItems = [
+    {
+      title: (
+        <>
+          View full file history <strong>exactly</strong> as the student created it.
+        </>
+      ),
+      body:
+        "Replay a student's development process step by step, including incremental edits, deletions, and rewrites. This provides instructors with insight into problem-solving strategies rather than just the final submitted solution.",
+    },
+    {
+      title: (
+        <>
+          <strong>Generate</strong> LLM-assisted qualitative insights from student metrics.
+        </>
+      ),
+      body:
+        "Translate raw editing patterns into readable summaries that highlight confusion, iteration cycles, or stalled progress. These insights help instructors quickly interpret behavioral data without manually parsing logs.",
+    },
+    {
+      title: (
+        <>
+          <strong>Understand</strong> classwide trends in implementation struggles by specific function, file, or concept.
+        </>
+      ),
+      body:
+        "Combine editing data to reveal patterns across the class. Professors can see which topics students struggle with most and adjust their teaching accordingly.",
+    },
+    {
+      title: (
+        <>
+          <strong>Provide</strong> a jumping-off point for TA assistance in office hours.
+        </>
+      ),
+      body:
+        "Like a nurse taking vitals before the doctor arrives, JumBuddy can give TAs a quick snapshot of a student's coding “symptoms” before the conversation begins. This helps them diagnose the real issue faster and spend more time treating the root problem instead of gathering background information.",
+    },
+  ];
+
+  return (
+    <main style={{ maxWidth: 980, margin: "0 auto", padding: "1.5rem 1.1rem 2rem" }}>
+      <div style={{ border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", padding: "1.5rem 1.75rem" }}>
+        <h1 style={{ marginTop: 0, marginBottom: "0.4rem" }}>About Our Product</h1>
+        <p style={{ color: "var(--text-muted)", lineHeight: 1.65, marginTop: 0, marginBottom: "1.25rem" }}>
+          There’s a gap between CS instructors and fully understanding students’ struggles. JumBuddy looks at raw student IDE input and analyzes the files and functions edited and the frequency and fluidity of the edits in order to quantify and create metrics so professors can evaluate the effectiveness of their teaching methods. for understanding.
+        </p>
+
+        <section style={{ display: "grid", gap: "0.9rem" }}>
+          {aboutItems.map((item, idx) => (
+            <article
+              key={idx}
+              style={{
+                border: "1px solid var(--border-soft)",
+                background: "var(--surface-muted)",
+                borderRadius: 10,
+                padding: "0.95rem 1rem",
+              }}
+            >
+              <h2 style={{ margin: "0 0 0.45rem", fontSize: 20 }}>{item.title}</h2>
+              <p style={{ margin: 0, color: "var(--text-muted)", lineHeight: 1.65 }}>{item.body}</p>
+            </article>
+          ))}
+        </section>
+      </div>
+    </main>
+  );
+}
+
 function NotFoundPage() {
   return (
     <main style={{ maxWidth: 900, margin: "0 auto", padding: "1.5rem 1.1rem 2rem" }}>
@@ -1534,6 +1686,7 @@ function AuthedApp({
   onToggleTheme: () => void;
 }) {
   const [courses, setCourses] = useState<CourseWithRole[]>([]);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => localStorage.getItem("jumbuddy-sidebar-collapsed") === "true");
 
   useEffect(() => {
     apiFetch<CourseWithRole[]>("/courses/my")
@@ -1541,21 +1694,27 @@ function AuthedApp({
       .catch(() => setCourses([]));
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem("jumbuddy-sidebar-collapsed", String(sidebarCollapsed));
+  }, [sidebarCollapsed]);
+
   const firstCode = courses[0]?.course.code;
 
   return (
-    <div style={appShellStyle} className="app-shell">
+    <div style={appShellStyle} className={`app-shell ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
       <Navbar
         courses={courses}
         onSignOut={onSignOut}
         theme={theme}
         onToggleTheme={onToggleTheme}
+        collapsed={sidebarCollapsed}
+        onToggleCollapsed={() => setSidebarCollapsed((prev) => !prev)}
       />
       <div className="content-shell">
         <Routes>
           <Route path="/" element={firstCode ? <Navigate to={`/${firstCode}`} replace /> : <main style={{ padding: "2rem" }}><p style={{ color: "var(--text-muted)" }}>No courses found. Contact your administrator.</p></main>} />
-          <Route path="/faq" element={<GenericPage title="FAQ / How To Use" body="Use the sidebar to choose a course, click into assignments, then open Details on a student for replay-based progress analysis." />} />
-          <Route path="/about" element={<GenericPage title="About Our Product" body="JumBuddy helps instructors identify where students struggle by combining assignment analytics, replay-based development traces, and AI-assisted interpretation of learning behaviors." />} />
+          <Route path="/faq" element={<FaqPage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="/account" element={<GenericPage title="Account" body="Account settings can be connected here. Current demo includes authentication via Supabase and role-aware course navigation." />} />
           <Route path="/:courseCode" element={<CoursePage courses={courses} />} />
           <Route path="/:courseCode/:assignmentId" element={<AssignmentPage courses={courses} />} />
