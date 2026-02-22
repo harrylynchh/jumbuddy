@@ -45,13 +45,16 @@ function Navbar({
 }) {
   const location = useLocation();
 
-  const bottomItems = [
-    { label: "About Our Product", to: "/about", icon: "about" as NavIconName },
-    { label: "FAQ", to: "/faq", icon: "faq" as NavIconName },
-    { label: "Account", to: "/account", icon: "account" as NavIconName },
-  ];
+  type NavIconName = "faq" | "about" | "account" | "course";
 
   function renderNavIcon(icon: NavIconName) {
+    if (icon === "course") {
+      return (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+    }
     if (icon === "faq") {
       return (
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -108,7 +111,7 @@ function Navbar({
                   data-tooltip={c.course.name}
                   aria-label={c.course.name}
                 >
-                  <span className="nav-icon">{courseIcon}</span>
+                  <span className="nav-icon">{renderNavIcon("course")}</span>
                   <span className="nav-label">{code}</span>
                 </Link>
               );
@@ -121,15 +124,15 @@ function Navbar({
 
         {/* Section: Help */}
         <Link to="/faq" className={`nav-link ${location.pathname === "/faq" ? "nav-link--active" : ""}`} data-tooltip="FAQ / How To Use" aria-label="FAQ / How To Use">
-          <span className="nav-icon">{faqIcon}</span>
+          <span className="nav-icon">{renderNavIcon("faq")}</span>
           <span className="nav-label">FAQ</span>
         </Link>
         <Link to="/about" className={`nav-link ${location.pathname === "/about" ? "nav-link--active" : ""}`} data-tooltip="About Our Product" aria-label="About Our Product">
-          <span className="nav-icon">{aboutIcon}</span>
+          <span className="nav-icon">{renderNavIcon("about")}</span>
           <span className="nav-label">About</span>
         </Link>
         <Link to="/account" className={`nav-link ${location.pathname === "/account" ? "nav-link--active" : ""}`} data-tooltip="Account" aria-label="Account">
-          <span className="nav-icon">{accountIcon}</span>
+          <span className="nav-icon">{renderNavIcon("account")}</span>
           <span className="nav-label">Account</span>
         </Link>
       </nav>
@@ -176,7 +179,7 @@ function LoginPage({ onLogin }: { onLogin: (email: string, password: string) => 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:10000";
+  const BASE_URL = import.meta.env.VITE_API_URL ?? "https://10000.sethlupo.com";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -996,7 +999,7 @@ function ChatPanel({
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:10000";
+  const BASE_URL = import.meta.env.VITE_API_URL ?? "https://10000.sethlupo.com";
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

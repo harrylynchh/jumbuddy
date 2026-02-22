@@ -24,7 +24,8 @@ services:
     ports:
       - "10001:10001"
     environment:
-      VITE_SUPABASE_URL: http://localhost:10002
+      VITE_API_URL: https://10000.sethlupo.com
+      VITE_SUPABASE_URL: https://10002.sethlupo.com
       VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
     volumes:
       - ./web:/app
@@ -59,10 +60,10 @@ services:
     environment:
       GOTRUE_API_HOST: 0.0.0.0
       GOTRUE_API_PORT: 9999
-      API_EXTERNAL_URL: http://localhost:10002
+      API_EXTERNAL_URL: https://10002.sethlupo.com
       GOTRUE_DB_DRIVER: postgres
       GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:postgres@db:5432/postgres
-      GOTRUE_SITE_URL: http://localhost:10001
+      GOTRUE_SITE_URL: https://10001.sethlupo.com
       GOTRUE_JWT_ADMIN_ROLES: service_role
       GOTRUE_JWT_AUD: authenticated
       GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
@@ -129,8 +130,8 @@ services:
       DEFAULT_ORGANIZATION_NAME: JumBud
       DEFAULT_PROJECT_NAME: JumBud
       SUPABASE_URL: http://kong:8000
-      SUPABASE_PUBLIC_URL: http://localhost:10002
-      NEXT_PUBLIC_SUPABASE_URL: http://localhost:10002
+      SUPABASE_PUBLIC_URL: https://10002.sethlupo.com
+      NEXT_PUBLIC_SUPABASE_URL: https://10002.sethlupo.com
       SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
       SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
 
