@@ -68,6 +68,13 @@ def main():
     docker_compose("up --build -d")
 
     # 3. Wait for Supabase
+    print("\n---  Waiting for Kong ---")
+    wait_for_url(
+    "http://localhost:10002",
+    "Kong",
+    headers={"apikey": ANON_KEY},
+    max_attempts=30,
+    )
     print("\n--- Waiting for Supabase ---")
     auth_ok = wait_for_url(
         "http://localhost:10002/auth/v1/health",

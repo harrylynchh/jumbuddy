@@ -1,43 +1,47 @@
 {
-  "name": "code-activity-logger",
-  "displayName": "CodeActivity Logger",
-  "description": "Tracks coding activity and sends edit flushes to CodeActivity server",
-  "version": "0.2.0",
-  "engines": {
-    "vscode": "^1.85.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "onStartupFinished"
-  ],
-  "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "codeactivity.ping",
-        "title": "CodeActivity: Ping Server"
-      },
-      {
-        "command": "codeactivity.init",
-        "title": "CodeActivity: Initialize Tracking"
-      }
-    ]
-  },
-  "scripts": {
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./"
-  },
-  "dependencies": {
-    "diff": "^7.0.0",
-    "node-fetch": "^2.7.0"
-  },
-  "devDependencies": {
-    "@types/diff": "^6.0.0",
-    "@types/node": "^25.3.0",
-    "@types/node-fetch": "^2.6.13",
-    "@types/vscode": "^1.85.0",
-    "typescript": "^5.7.2"
-  }
+	"name": "code-activity-logger",
+	"displayName": "CodeActivity Logger",
+	"description": "Tracks coding activity and sends edit flushes to CodeActivity server",
+	"version": "0.2.0",
+	"engines": {
+		"vscode": "^1.85.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onStartupFinished"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "codeactivity.ping",
+				"title": "CodeActivity: Ping Server"
+			},
+			{
+				"command": "codeactivity.init",
+				"title": "CodeActivity: Initialize Tracking"
+			},
+			{
+				"command": "codeactivity.setUtln",
+				"title": "CodeActivity: Set UTLN"
+			}
+		]
+	},
+	"scripts": {
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./"
+	},
+	"dependencies": {
+		"diff": "^7.0.0",
+		"node-fetch": "^2.7.0"
+	},
+	"devDependencies": {
+		"@types/diff": "^6.0.0",
+		"@types/node": "^25.3.0",
+		"@types/node-fetch": "^2.6.13",
+		"@types/vscode": "^1.85.0",
+		"typescript": "^5.7.2"
+	}
 }

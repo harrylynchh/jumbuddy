@@ -1,12 +1,30 @@
 import functools
+import os
 import jwt
 from flask import request, g, jsonify
+from .services.supabase_client import get_supabase
 
+INTERNAL_API_KEY = os.environ.get("INTERNAL_API_KEY", "vscode-dev-key")
 
 def require_auth(f):
-    """Middleware decorator that extracts the Supabase user from the JWT."""
     @functools.wraps(f)
     def decorated(*args, **kwargs):
+        # Allow internal VS Code extension requests
+        if request.headers.get("X-Internal-Key") == INTERNAL_API_KEY:
+            utln = request.headers.get("X-User-UTLN")
+            if not utln:
+                return jsonify({"error": "Missing X-User-UTLN header"}), 401
+            
+            sb = get_supabase()
+            result = sb.table("profiles").select("id, email").eq("utln", utln).single().execute()
+            if not result.data:
+                return jsonify({"error": f"No user found for utln: {utln}"}), 404
+            
+            g.user_id = result.data["id"]
+            g.user_email = result.data.get("email")
+            return f(*args, **kwargs)
+
+        # existing JWT auth
         auth_header = request.headers.get("Authorization", "")
         if not auth_header.startswith("Bearer "):
             return jsonify({"error": "Missing or invalid Authorization header"}), 401
