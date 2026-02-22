@@ -32,6 +32,11 @@ def run(cmd, **kwargs):
 
 
 def docker_compose(args):
+    # If COMPOSE_FILE env is set (e.g. by run.sh --staging), let docker compose use it;
+    # otherwise fall back to our default compose file.
+    compose_env = os.environ.get("COMPOSE_FILE")
+    if compose_env:
+        return run(f'docker compose {args}')
     return run(f'docker compose -f "{COMPOSE_FILE}" {args}')
 
 

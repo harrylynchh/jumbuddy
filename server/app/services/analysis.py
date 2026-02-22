@@ -58,45 +58,77 @@ class ClassSymbolScore:
 
 
 def parse_diff_stats(diff_text: str) -> list[HunkStat]:
-    """Parse unified diff, return list of per-hunk stats."""
+    """Parse diff text, return list of per-hunk stats.
+
+    Supports two formats:
+    1. Unified diff with @@ headers
+    2. Simple +/- line diffs (no headers) as produced by seed generators
+    """
     hunks: list[HunkStat] = []
     if not diff_text:
         return hunks
 
-    hunk_pattern = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@", re.MULTILINE)
     lines = diff_text.split("\n")
-    hunk_starts: list[int] = []
+    hunk_pattern = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
 
-    for i, line in enumerate(lines):
-        if hunk_pattern.match(line):
-            hunk_starts.append(i)
+    has_hunk_headers = any(hunk_pattern.match(l) for l in lines)
 
-    for hi, start_line_idx in enumerate(hunk_starts):
-        m = hunk_pattern.match(lines[start_line_idx])
-        if not m:
-            continue
-        new_start = int(m.group(1))
-        end_idx = hunk_starts[hi + 1] if hi + 1 < len(hunk_starts) else len(lines)
+    if has_hunk_headers:
+        # Unified diff format
+        hunk_starts: list[int] = []
+        for i, line in enumerate(lines):
+            if hunk_pattern.match(line):
+                hunk_starts.append(i)
 
+        for hi, start_line_idx in enumerate(hunk_starts):
+            m = hunk_pattern.match(lines[start_line_idx])
+            if not m:
+                continue
+            new_start = int(m.group(1))
+            end_idx = hunk_starts[hi + 1] if hi + 1 < len(hunk_starts) else len(lines)
+
+            inserted = 0
+            deleted = 0
+            max_line = new_start
+            for li in range(start_line_idx + 1, end_idx):
+                line = lines[li]
+                if line.startswith("+"):
+                    inserted += len(line) - 1
+                    max_line += 1
+                elif line.startswith("-"):
+                    deleted += len(line) - 1
+                elif line.startswith(" "):
+                    max_line += 1
+
+            hunks.append(HunkStat(
+                line_start=new_start,
+                line_end=max_line,
+                inserted=inserted,
+                deleted=deleted,
+            ))
+    else:
+        # Simple +/- format: treat entire diff as one hunk
         inserted = 0
         deleted = 0
-        max_line = new_start
-        for li in range(start_line_idx + 1, end_idx):
-            line = lines[li]
+        line_num = 1
+        max_line = 1
+        for line in lines:
             if line.startswith("+"):
-                inserted += len(line) - 1  # exclude the '+' prefix
-                max_line += 1
+                inserted += len(line) - 1
+                max_line = max(max_line, line_num)
+                line_num += 1
             elif line.startswith("-"):
                 deleted += len(line) - 1
-            elif line.startswith(" "):
-                max_line += 1
+            else:
+                line_num += 1
 
-        hunks.append(HunkStat(
-            line_start=new_start,
-            line_end=max_line,
-            inserted=inserted,
-            deleted=deleted,
-        ))
+        if inserted > 0 or deleted > 0:
+            hunks.append(HunkStat(
+                line_start=1,
+                line_end=max_line,
+                inserted=inserted,
+                deleted=deleted,
+            ))
 
     return hunks
 

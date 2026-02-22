@@ -1,0 +1,1294 @@
+{
+  "style": "C++ arithmetic implementation - varying struggle profiles",
+  "description": "Paul Smith: 161 flushes, 62.5 min total time",
+  "flushes": [
+    {
+      "file_path": "bitpack.h",
+      "diffs": "+#ifndef BITPACK_H\n+#define BITPACK_H\n+#include <cstdint>\n+#include <stdexcept>\n+\n+bool Bitpack_fitsu(uint64_t n, unsigned width);\n+bool Bitpack_fitss(int64_t n, unsigned width);\n+uint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb);\n+int64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb);\n+uint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value);\n+uint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value);\n+\n+#endif",
+      "content": "#ifndef BITPACK_H\n#define BITPACK_H\n\n#include <cstdint>\n#include <stdexcept>\n\nbool Bitpack_fitsu(uint64_t n, unsigned width);\nbool Bitpack_fitss(int64_t n, unsigned width);\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb);\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb);\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value);\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value);\n\n#endif",
+      "active_symbol": "bitpack",
+      "trigger": "init",
+      "window_duration": 2.0
+    },
+    {
+      "file_path": "colorspace.h",
+      "diffs": "+#ifndef COLORSPACE_H\n+#define COLORSPACE_H\n+struct ComponentVideo {\n+    float y, pb, pr;\n+};\n+\n+struct RGB {\n+    unsigned r, g, b;\n+};\n+\n+ComponentVideo rgb_to_component(RGB pixel);\n+RGB component_to_rgb(ComponentVideo cv);\n+float clamp(float val, float lo, float hi);\n+\n+#endif",
+      "content": "#ifndef COLORSPACE_H\n#define COLORSPACE_H\n\nstruct ComponentVideo {\n    float y, pb, pr;\n};\n\nstruct RGB {\n    unsigned r, g, b;\n};\n\nComponentVideo rgb_to_component(RGB pixel);\nRGB component_to_rgb(ComponentVideo cv);\nfloat clamp(float val, float lo, float hi);\n\n#endif",
+      "active_symbol": "colorspace",
+      "trigger": "init",
+      "window_duration": 3.5
+    },
+    {
+      "file_path": "dct.h",
+      "diffs": "+#ifndef DCT_H\n+#define DCT_H\n+struct DCTCoeffs {\n+    float a, b, c, d;\n+};\n+\n+DCTCoeffs forward_dct(float y1, float y2, float y3, float y4);\n+void inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4);\n+int quantize(float val, float scale);\n+\n+#endif",
+      "content": "#ifndef DCT_H\n#define DCT_H\n\nstruct DCTCoeffs {\n    float a, b, c, d;\n};\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4);\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4);\nint quantize(float val, float scale);\n\n#endif",
+      "active_symbol": "dct",
+      "trigger": "init",
+      "window_duration": 2.3
+    },
+    {
+      "file_path": "compress40.h",
+      "diffs": "+#ifndef COMPRESS40_H\n+#define COMPRESS40_H\n+#include <cstdint>\n+\n+struct CompressedBlock {\n+    uint64_t word;\n+};\n+\n+CompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d);\n+void unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d);\n+void compress(const char *filename);\n+void decompress(const char *filename);\n+\n+#endif",
+      "content": "#ifndef COMPRESS40_H\n#define COMPRESS40_H\n\n#include <cstdint>\n\nstruct CompressedBlock {\n    uint64_t word;\n};\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d);\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d);\nvoid compress(const char *filename);\nvoid decompress(const char *filename);\n\n#endif",
+      "active_symbol": "compress40",
+      "trigger": "init",
+      "window_duration": 1.8
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+#include \"bitpack.h\"\n+bool Bitpack_fitsu(uint64_t n, unsigned width) {\n+  // TODO\n+}\n+\n+bool Bitpack_fitss(int64_t n, unsigned width) {\n+  // TODO\n+}\n+\n+uint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n+  // TODO\n+}\n+\n+int64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n+  // TODO\n+}\n+\n+uint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n+  // TODO\n+}\n+\n+uint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n+  // TODO\n+}\n+",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  // TODO\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  // TODO\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "fitsu",
+      "trigger": "init",
+      "window_duration": 2.5
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "-  // TODO\n+  if (width >= 64) return true;\n+// newu",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  // TODO\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\n// newu\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "fitsu",
+      "trigger": "timeout",
+      "window_duration": 7.6
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+  return n < ((uint64_t)1 << width);\n-// newu",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  // TODO\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "fitsu",
+      "trigger": "timeout",
+      "window_duration": 8.8
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+  std::cout << \"DEBUG n=\" << n << std::endl;",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  std::cout << \"DEBUG n=\" << n << std::endl;\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  // TODO\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "fitsu",
+      "trigger": "timeout",
+      "window_duration": 9.6
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "-  std::cout << \"DEBUG n=\" << n << std::endl;",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  // TODO\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "fitsu",
+      "trigger": "timeout",
+      "window_duration": 26.5
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "-  // TODO\n+  if (width >= 64) return true;\n+// newu",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\n// newu\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "fitss",
+      "trigger": "timeout",
+      "window_duration": 5.4
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n+  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n-// newu",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "fitss",
+      "trigger": "timeout",
+      "window_duration": 22.7
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+  return n >= lo && n <= hi;\n+// getu",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\n// getu\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "fitss",
+      "trigger": "timeout",
+      "window_duration": 19.2
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+  std::cout << \"DEBUG result=\" << result << std::endl;\n-// getu",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  std::cout << \"DEBUG result=\" << result << std::endl;\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "fitss",
+      "trigger": "timeout",
+      "window_duration": 6.8
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+// fitss\n-  std::cout << \"DEBUG result=\" << result << std::endl;",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\n// fitss\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "fitss",
+      "trigger": "timeout",
+      "window_duration": 11.5
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "-// fitss\n-  // TODO\n+  uint64_t m = ((uint64_t)1 << width) - 1;",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "getu",
+      "trigger": "timeout",
+      "window_duration": 6.6
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "-  uint64_t m = ((uint64_t)1 << width) - 1;\n+  uint64_t m = ((uint64_t)0 << width) - 0;",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)0 << width) - 0;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "getu",
+      "trigger": "timeout",
+      "window_duration": 37.6
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+// getu",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\n// getu\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)0 << width) - 0;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "getu",
+      "trigger": "timeout",
+      "window_duration": 32.6
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "-// getu\n-  uint64_t m = ((uint64_t)0 << width) - 0;\n+  uint64_t m = ((uint64_t)1 << width) ;\n+// news",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) ;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\n// news\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "getu",
+      "trigger": "timeout",
+      "window_duration": 15.5
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "-  uint64_t m = ((uint64_t)1 << width) ;\n+  // uint64_t m = ((uint64_t)1 << width) - 1;\n-// news",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  // uint64_t m = ((uint64_t)1 << width) - 1;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "getu",
+      "trigger": "timeout",
+      "window_duration": 37.9
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "-  // uint64_t m = ((uint64_t)1 << width) - 1;\n+  uint64_t m = ((uint64_t)1 << width) - 1;",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "getu",
+      "trigger": "timeout",
+      "window_duration": 23.0
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+  return (word >> lsb) & m;",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  // TODO\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "getu",
+      "trigger": "timeout",
+      "window_duration": 17.5
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "-  // TODO\n+  uint64_t value = Bitpack_getu(word, width, lsb);\n+  uint64_t sign_bit = value >> (width - 1);",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  uint64_t sign_bit = value >> (width - 1);\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "gets",
+      "trigger": "timeout",
+      "window_duration": 43.3
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+// gets\n-  uint64_t sign_bit = value >> (width - 1);\n+  // uint64_t sign_bit = value >> (width - 1);",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\n// gets\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  // uint64_t sign_bit = value >> (width - 1);\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "gets",
+      "trigger": "timeout",
+      "window_duration": 19.5
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "-// gets",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  // uint64_t sign_bit = value >> (width - 1);\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "gets",
+      "trigger": "timeout",
+      "window_duration": 39.4
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+// newu",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  // uint64_t sign_bit = value >> (width - 1);\n}\n\n// newu\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "gets",
+      "trigger": "timeout",
+      "window_duration": 6.5
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+// getu\n-  // uint64_t sign_bit = value >> (width - 1);\n+  uint64_t sign_bit = value >> (width - 1);\n-// newu",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\n// getu\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  uint64_t sign_bit = value >> (width - 1);\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "gets",
+      "trigger": "timeout",
+      "window_duration": 16.1
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "-// getu\n+  if (sign_bit) {\n+    value = value | ~(((uint64_t)1 << width) - 1);",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  uint64_t sign_bit = value >> (width - 1);\n  if (sign_bit) {\n    value = value | ~(((uint64_t)1 << width) - 1);\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "gets",
+      "trigger": "timeout",
+      "window_duration": 41.6
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+// fitsu\n+// fitss\n+  }\n+  return (int64_t)value;",
+      "content": "#include \"bitpack.h\"\n\n// fitsu\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\n// fitss\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  uint64_t sign_bit = value >> (width - 1);\n  if (sign_bit) {\n    value = value | ~(((uint64_t)1 << width) - 1);\n  }\n  return (int64_t)value;\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "gets",
+      "trigger": "timeout",
+      "window_duration": 28.4
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "-// fitsu\n-// fitss\n-  return (int64_t)value;\n+  return value;",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  uint64_t sign_bit = value >> (width - 1);\n  if (sign_bit) {\n    value = value | ~(((uint64_t)1 << width) - 1);\n  }\n  return value;\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "gets",
+      "trigger": "timeout",
+      "window_duration": 24.6
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+// fitss\n+  return value;",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\n// fitss\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  uint64_t sign_bit = value >> (width - 1);\n  if (sign_bit) {\n    value = value | ~(((uint64_t)1 << width) - 1);\n  }\n  return value;\n  return value;\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "gets",
+      "trigger": "timeout",
+      "window_duration": 42.2
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "-// fitss\n+// getu\n+  return value;",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\n// getu\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  uint64_t sign_bit = value >> (width - 1);\n  if (sign_bit) {\n    value = value | ~(((uint64_t)1 << width) - 1);\n  }\n  return value;\n  return value;\n  return value;\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "gets",
+      "trigger": "timeout",
+      "window_duration": 28.2
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "-// getu\n+  return value;",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  uint64_t sign_bit = value >> (width - 1);\n  if (sign_bit) {\n    value = value | ~(((uint64_t)1 << width) - 1);\n  }\n  return value;\n  return value;\n  return value;\n  return value;\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "gets",
+      "trigger": "timeout",
+      "window_duration": 32.0
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "-  return value;\n-  return value;\n-  return value;\n-  return value;",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  uint64_t sign_bit = value >> (width - 1);\n  if (sign_bit) {\n    value = value | ~(((uint64_t)1 << width) - 1);\n  }\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "gets",
+      "trigger": "timeout",
+      "window_duration": 44.3
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+  return (int64_t)value;",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  uint64_t sign_bit = value >> (width - 1);\n  if (sign_bit) {\n    value = value | ~(((uint64_t)1 << width) - 1);\n  }\n  return (int64_t)value;\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  // TODO\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "gets",
+      "trigger": "timeout",
+      "window_duration": 39.7
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "-  // TODO\n+  if (!Bitpack_fitsu(value, width)) throw std::overflow_error(\"overflow\");\n+  uint64_t m = ((uint64_t)1 << width) - 1;",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  uint64_t sign_bit = value >> (width - 1);\n  if (sign_bit) {\n    value = value | ~(((uint64_t)1 << width) - 1);\n  }\n  return (int64_t)value;\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  if (!Bitpack_fitsu(value, width)) throw std::overflow_error(\"overflow\");\n  uint64_t m = ((uint64_t)1 << width) - 1;\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "newu",
+      "trigger": "timeout",
+      "window_duration": 23.6
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+  word = word & ~(m << lsb);\n+  word = word | ((value & m) << lsb);",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  uint64_t sign_bit = value >> (width - 1);\n  if (sign_bit) {\n    value = value | ~(((uint64_t)1 << width) - 1);\n  }\n  return (int64_t)value;\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  if (!Bitpack_fitsu(value, width)) throw std::overflow_error(\"overflow\");\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  word = word & ~(m << lsb);\n  word = word | ((value & m) << lsb);\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "newu",
+      "trigger": "timeout",
+      "window_duration": 35.9
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+  return word;",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  uint64_t sign_bit = value >> (width - 1);\n  if (sign_bit) {\n    value = value | ~(((uint64_t)1 << width) - 1);\n  }\n  return (int64_t)value;\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  if (!Bitpack_fitsu(value, width)) throw std::overflow_error(\"overflow\");\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  word = word & ~(m << lsb);\n  word = word | ((value & m) << lsb);\n  return word;\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  // TODO\n}\n",
+      "active_symbol": "newu",
+      "trigger": "timeout",
+      "window_duration": 41.8
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "-  // TODO\n+  if (!Bitpack_fitss(value, width)) throw std::overflow_error(\"overflow\");",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  uint64_t sign_bit = value >> (width - 1);\n  if (sign_bit) {\n    value = value | ~(((uint64_t)1 << width) - 1);\n  }\n  return (int64_t)value;\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  if (!Bitpack_fitsu(value, width)) throw std::overflow_error(\"overflow\");\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  word = word & ~(m << lsb);\n  word = word | ((value & m) << lsb);\n  return word;\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  if (!Bitpack_fitss(value, width)) throw std::overflow_error(\"overflow\");\n}\n",
+      "active_symbol": "news",
+      "trigger": "timeout",
+      "window_duration": 17.0
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+  uint64_t uval = (uint64_t)value & (((uint64_t)1 << width) - 1);\n+  return Bitpack_newu(word, width, lsb, uval);",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  uint64_t sign_bit = value >> (width - 1);\n  if (sign_bit) {\n    value = value | ~(((uint64_t)1 << width) - 1);\n  }\n  return (int64_t)value;\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  if (!Bitpack_fitsu(value, width)) throw std::overflow_error(\"overflow\");\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  word = word & ~(m << lsb);\n  word = word | ((value & m) << lsb);\n  return word;\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  if (!Bitpack_fitss(value, width)) throw std::overflow_error(\"overflow\");\n  uint64_t uval = (uint64_t)value & (((uint64_t)1 << width) - 1);\n  return Bitpack_newu(word, width, lsb, uval);\n}\n",
+      "active_symbol": "news",
+      "trigger": "timeout",
+      "window_duration": 38.7
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+  std::cout << \"DEBUG value=\" << value << std::endl;",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  uint64_t sign_bit = value >> (width - 1);\n  if (sign_bit) {\n    value = value | ~(((uint64_t)1 << width) - 1);\n  }\n  return (int64_t)value;\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  if (!Bitpack_fitsu(value, width)) throw std::overflow_error(\"overflow\");\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  word = word & ~(m << lsb);\n  word = word | ((value & m) << lsb);\n  return word;\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  std::cout << \"DEBUG value=\" << value << std::endl;\n  if (!Bitpack_fitss(value, width)) throw std::overflow_error(\"overflow\");\n  uint64_t uval = (uint64_t)value & (((uint64_t)1 << width) - 1);\n  return Bitpack_newu(word, width, lsb, uval);\n}\n",
+      "active_symbol": "news",
+      "trigger": "timeout",
+      "window_duration": 41.5
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "+  std::cerr << \"sign_bit=\" << sign_bit << \"\\n\";",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  uint64_t sign_bit = value >> (width - 1);\n  if (sign_bit) {\n    value = value | ~(((uint64_t)1 << width) - 1);\n  }\n  return (int64_t)value;\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  if (!Bitpack_fitsu(value, width)) throw std::overflow_error(\"overflow\");\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  word = word & ~(m << lsb);\n  word = word | ((value & m) << lsb);\n  return word;\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  std::cout << \"DEBUG value=\" << value << std::endl;\n  std::cerr << \"sign_bit=\" << sign_bit << \"\\n\";\n  if (!Bitpack_fitss(value, width)) throw std::overflow_error(\"overflow\");\n  uint64_t uval = (uint64_t)value & (((uint64_t)1 << width) - 1);\n  return Bitpack_newu(word, width, lsb, uval);\n}\n",
+      "active_symbol": "news",
+      "trigger": "timeout",
+      "window_duration": 36.7
+    },
+    {
+      "file_path": "bitpack.cpp",
+      "diffs": "-  std::cout << \"DEBUG value=\" << value << std::endl;\n-  std::cerr << \"sign_bit=\" << sign_bit << \"\\n\";",
+      "content": "#include \"bitpack.h\"\n\nbool Bitpack_fitsu(uint64_t n, unsigned width) {\n  if (width >= 64) return true;\n  return n < ((uint64_t)1 << width);\n}\n\nbool Bitpack_fitss(int64_t n, unsigned width) {\n  if (width >= 64) return true;\n  int64_t lo = -(int64_t)((uint64_t)1 << (width - 1));\n  int64_t hi = ((int64_t)1 << (width - 1)) - 1;\n  return n >= lo && n <= hi;\n}\n\nuint64_t Bitpack_getu(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  return (word >> lsb) & m;\n}\n\nint64_t Bitpack_gets(uint64_t word, unsigned width, unsigned lsb) {\n  uint64_t value = Bitpack_getu(word, width, lsb);\n  uint64_t sign_bit = value >> (width - 1);\n  if (sign_bit) {\n    value = value | ~(((uint64_t)1 << width) - 1);\n  }\n  return (int64_t)value;\n}\n\nuint64_t Bitpack_newu(uint64_t word, unsigned width, unsigned lsb, uint64_t value) {\n  if (!Bitpack_fitsu(value, width)) throw std::overflow_error(\"overflow\");\n  uint64_t m = ((uint64_t)1 << width) - 1;\n  word = word & ~(m << lsb);\n  word = word | ((value & m) << lsb);\n  return word;\n}\n\nuint64_t Bitpack_news(uint64_t word, unsigned width, unsigned lsb, int64_t value) {\n  if (!Bitpack_fitss(value, width)) throw std::overflow_error(\"overflow\");\n  uint64_t uval = (uint64_t)value & (((uint64_t)1 << width) - 1);\n  return Bitpack_newu(word, width, lsb, uval);\n}\n",
+      "active_symbol": "news",
+      "trigger": "timeout",
+      "window_duration": 32.8
+    },
+    {
+      "file_path": "colorspace.cpp",
+      "diffs": "+#include \"colorspace.h\"\n+ComponentVideo rgb_to_component(RGB pixel) {\n+  // TODO\n+}\n+\n+RGB component_to_rgb(ComponentVideo cv) {\n+  // TODO\n+}\n+\n+float clamp(float val, float lo, float hi) {\n+  // TODO\n+}\n+",
+      "content": "#include \"colorspace.h\"\n\nComponentVideo rgb_to_component(RGB pixel) {\n  // TODO\n}\n\nRGB component_to_rgb(ComponentVideo cv) {\n  // TODO\n}\n\nfloat clamp(float val, float lo, float hi) {\n  // TODO\n}\n",
+      "active_symbol": "rgb_to_component",
+      "trigger": "init",
+      "window_duration": 4.4
+    },
+    {
+      "file_path": "colorspace.cpp",
+      "diffs": "-  // TODO\n+  ComponentVideo cv;",
+      "content": "#include \"colorspace.h\"\n\nComponentVideo rgb_to_component(RGB pixel) {\n  ComponentVideo cv;\n}\n\nRGB component_to_rgb(ComponentVideo cv) {\n  // TODO\n}\n\nfloat clamp(float val, float lo, float hi) {\n  // TODO\n}\n",
+      "active_symbol": "rgb_to_component",
+      "trigger": "timeout",
+      "window_duration": 21.1
+    },
+    {
+      "file_path": "colorspace.cpp",
+      "diffs": "+  cv.y  = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;",
+      "content": "#include \"colorspace.h\"\n\nComponentVideo rgb_to_component(RGB pixel) {\n  ComponentVideo cv;\n  cv.y  = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;\n}\n\nRGB component_to_rgb(ComponentVideo cv) {\n  // TODO\n}\n\nfloat clamp(float val, float lo, float hi) {\n  // TODO\n}\n",
+      "active_symbol": "rgb_to_component",
+      "trigger": "timeout",
+      "window_duration": 18.6
+    },
+    {
+      "file_path": "colorspace.cpp",
+      "diffs": "+  cv.pb = -0.168736f * pixel.r - 0.331264f * pixel.g + 0.5f * pixel.b;",
+      "content": "#include \"colorspace.h\"\n\nComponentVideo rgb_to_component(RGB pixel) {\n  ComponentVideo cv;\n  cv.y  = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;\n  cv.pb = -0.168736f * pixel.r - 0.331264f * pixel.g + 0.5f * pixel.b;\n}\n\nRGB component_to_rgb(ComponentVideo cv) {\n  // TODO\n}\n\nfloat clamp(float val, float lo, float hi) {\n  // TODO\n}\n",
+      "active_symbol": "rgb_to_component",
+      "trigger": "timeout",
+      "window_duration": 6.0
+    },
+    {
+      "file_path": "colorspace.cpp",
+      "diffs": "+  cv.pr = 0.5f * pixel.r - 0.418688f * pixel.g - 0.081312f * pixel.b;\n+  return cv;",
+      "content": "#include \"colorspace.h\"\n\nComponentVideo rgb_to_component(RGB pixel) {\n  ComponentVideo cv;\n  cv.y  = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;\n  cv.pb = -0.168736f * pixel.r - 0.331264f * pixel.g + 0.5f * pixel.b;\n  cv.pr = 0.5f * pixel.r - 0.418688f * pixel.g - 0.081312f * pixel.b;\n  return cv;\n}\n\nRGB component_to_rgb(ComponentVideo cv) {\n  // TODO\n}\n\nfloat clamp(float val, float lo, float hi) {\n  // TODO\n}\n",
+      "active_symbol": "rgb_to_component",
+      "trigger": "timeout",
+      "window_duration": 29.3
+    },
+    {
+      "file_path": "colorspace.cpp",
+      "diffs": "-  // TODO\n+  RGB rgb;\n+  float r = cv.y + 1.402f * cv.pr;",
+      "content": "#include \"colorspace.h\"\n\nComponentVideo rgb_to_component(RGB pixel) {\n  ComponentVideo cv;\n  cv.y  = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;\n  cv.pb = -0.168736f * pixel.r - 0.331264f * pixel.g + 0.5f * pixel.b;\n  cv.pr = 0.5f * pixel.r - 0.418688f * pixel.g - 0.081312f * pixel.b;\n  return cv;\n}\n\nRGB component_to_rgb(ComponentVideo cv) {\n  RGB rgb;\n  float r = cv.y + 1.402f * cv.pr;\n}\n\nfloat clamp(float val, float lo, float hi) {\n  // TODO\n}\n",
+      "active_symbol": "component_to_rgb",
+      "trigger": "timeout",
+      "window_duration": 37.0
+    },
+    {
+      "file_path": "colorspace.cpp",
+      "diffs": "+  std::cout << \"DEBUG result=\" << result << std::endl;",
+      "content": "#include \"colorspace.h\"\n\nComponentVideo rgb_to_component(RGB pixel) {\n  ComponentVideo cv;\n  cv.y  = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;\n  cv.pb = -0.168736f * pixel.r - 0.331264f * pixel.g + 0.5f * pixel.b;\n  cv.pr = 0.5f * pixel.r - 0.418688f * pixel.g - 0.081312f * pixel.b;\n  return cv;\n}\n\nRGB component_to_rgb(ComponentVideo cv) {\n  RGB rgb;\n  std::cout << \"DEBUG result=\" << result << std::endl;\n  float r = cv.y + 1.402f * cv.pr;\n}\n\nfloat clamp(float val, float lo, float hi) {\n  // TODO\n}\n",
+      "active_symbol": "component_to_rgb",
+      "trigger": "timeout",
+      "window_duration": 26.2
+    },
+    {
+      "file_path": "colorspace.cpp",
+      "diffs": "+  std::cerr << \"sign_bit=\" << sign_bit << \"\\n\";",
+      "content": "#include \"colorspace.h\"\n\nComponentVideo rgb_to_component(RGB pixel) {\n  ComponentVideo cv;\n  cv.y  = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;\n  cv.pb = -0.168736f * pixel.r - 0.331264f * pixel.g + 0.5f * pixel.b;\n  cv.pr = 0.5f * pixel.r - 0.418688f * pixel.g - 0.081312f * pixel.b;\n  return cv;\n}\n\nRGB component_to_rgb(ComponentVideo cv) {\n  RGB rgb;\n  std::cout << \"DEBUG result=\" << result << std::endl;\n  std::cerr << \"sign_bit=\" << sign_bit << \"\\n\";\n  float r = cv.y + 1.402f * cv.pr;\n}\n\nfloat clamp(float val, float lo, float hi) {\n  // TODO\n}\n",
+      "active_symbol": "component_to_rgb",
+      "trigger": "timeout",
+      "window_duration": 17.1
+    },
+    {
+      "file_path": "colorspace.cpp",
+      "diffs": "-  std::cout << \"DEBUG result=\" << result << std::endl;\n-  std::cerr << \"sign_bit=\" << sign_bit << \"\\n\";",
+      "content": "#include \"colorspace.h\"\n\nComponentVideo rgb_to_component(RGB pixel) {\n  ComponentVideo cv;\n  cv.y  = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;\n  cv.pb = -0.168736f * pixel.r - 0.331264f * pixel.g + 0.5f * pixel.b;\n  cv.pr = 0.5f * pixel.r - 0.418688f * pixel.g - 0.081312f * pixel.b;\n  return cv;\n}\n\nRGB component_to_rgb(ComponentVideo cv) {\n  RGB rgb;\n  float r = cv.y + 1.402f * cv.pr;\n}\n\nfloat clamp(float val, float lo, float hi) {\n  // TODO\n}\n",
+      "active_symbol": "component_to_rgb",
+      "trigger": "timeout",
+      "window_duration": 6.3
+    },
+    {
+      "file_path": "colorspace.cpp",
+      "diffs": "+  float g = cv.y - 0.344136f * cv.pb - 0.714136f * cv.pr;\n+  float b = cv.y + 1.772f * cv.pb;",
+      "content": "#include \"colorspace.h\"\n\nComponentVideo rgb_to_component(RGB pixel) {\n  ComponentVideo cv;\n  cv.y  = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;\n  cv.pb = -0.168736f * pixel.r - 0.331264f * pixel.g + 0.5f * pixel.b;\n  cv.pr = 0.5f * pixel.r - 0.418688f * pixel.g - 0.081312f * pixel.b;\n  return cv;\n}\n\nRGB component_to_rgb(ComponentVideo cv) {\n  RGB rgb;\n  float r = cv.y + 1.402f * cv.pr;\n  float g = cv.y - 0.344136f * cv.pb - 0.714136f * cv.pr;\n  float b = cv.y + 1.772f * cv.pb;\n}\n\nfloat clamp(float val, float lo, float hi) {\n  // TODO\n}\n",
+      "active_symbol": "component_to_rgb",
+      "trigger": "timeout",
+      "window_duration": 16.3
+    },
+    {
+      "file_path": "colorspace.cpp",
+      "diffs": "+  rgb.r = (unsigned)clamp(r, 0, 255);\n+  rgb.g = (unsigned)clamp(g, 0, 255);",
+      "content": "#include \"colorspace.h\"\n\nComponentVideo rgb_to_component(RGB pixel) {\n  ComponentVideo cv;\n  cv.y  = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;\n  cv.pb = -0.168736f * pixel.r - 0.331264f * pixel.g + 0.5f * pixel.b;\n  cv.pr = 0.5f * pixel.r - 0.418688f * pixel.g - 0.081312f * pixel.b;\n  return cv;\n}\n\nRGB component_to_rgb(ComponentVideo cv) {\n  RGB rgb;\n  float r = cv.y + 1.402f * cv.pr;\n  float g = cv.y - 0.344136f * cv.pb - 0.714136f * cv.pr;\n  float b = cv.y + 1.772f * cv.pb;\n  rgb.r = (unsigned)clamp(r, 0, 255);\n  rgb.g = (unsigned)clamp(g, 0, 255);\n}\n\nfloat clamp(float val, float lo, float hi) {\n  // TODO\n}\n",
+      "active_symbol": "component_to_rgb",
+      "trigger": "timeout",
+      "window_duration": 26.2
+    },
+    {
+      "file_path": "colorspace.cpp",
+      "diffs": "+// rgb_to_component\n-  rgb.g = (unsigned)clamp(g, 0, 255);\n+  // rgb.g = (unsigned)clamp(g, 0, 255);",
+      "content": "#include \"colorspace.h\"\n\n// rgb_to_component\nComponentVideo rgb_to_component(RGB pixel) {\n  ComponentVideo cv;\n  cv.y  = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;\n  cv.pb = -0.168736f * pixel.r - 0.331264f * pixel.g + 0.5f * pixel.b;\n  cv.pr = 0.5f * pixel.r - 0.418688f * pixel.g - 0.081312f * pixel.b;\n  return cv;\n}\n\nRGB component_to_rgb(ComponentVideo cv) {\n  RGB rgb;\n  float r = cv.y + 1.402f * cv.pr;\n  float g = cv.y - 0.344136f * cv.pb - 0.714136f * cv.pr;\n  float b = cv.y + 1.772f * cv.pb;\n  rgb.r = (unsigned)clamp(r, 0, 255);\n  // rgb.g = (unsigned)clamp(g, 0, 255);\n}\n\nfloat clamp(float val, float lo, float hi) {\n  // TODO\n}\n",
+      "active_symbol": "component_to_rgb",
+      "trigger": "timeout",
+      "window_duration": 30.1
+    },
+    {
+      "file_path": "colorspace.cpp",
+      "diffs": "-// rgb_to_component",
+      "content": "#include \"colorspace.h\"\n\nComponentVideo rgb_to_component(RGB pixel) {\n  ComponentVideo cv;\n  cv.y  = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;\n  cv.pb = -0.168736f * pixel.r - 0.331264f * pixel.g + 0.5f * pixel.b;\n  cv.pr = 0.5f * pixel.r - 0.418688f * pixel.g - 0.081312f * pixel.b;\n  return cv;\n}\n\nRGB component_to_rgb(ComponentVideo cv) {\n  RGB rgb;\n  float r = cv.y + 1.402f * cv.pr;\n  float g = cv.y - 0.344136f * cv.pb - 0.714136f * cv.pr;\n  float b = cv.y + 1.772f * cv.pb;\n  rgb.r = (unsigned)clamp(r, 0, 255);\n  // rgb.g = (unsigned)clamp(g, 0, 255);\n}\n\nfloat clamp(float val, float lo, float hi) {\n  // TODO\n}\n",
+      "active_symbol": "component_to_rgb",
+      "trigger": "timeout",
+      "window_duration": 5.9
+    },
+    {
+      "file_path": "colorspace.cpp",
+      "diffs": "-  // rgb.g = (unsigned)clamp(g, 0, 255);\n+  rgb.g = (unsigned)clamp(g, 0, 255);",
+      "content": "#include \"colorspace.h\"\n\nComponentVideo rgb_to_component(RGB pixel) {\n  ComponentVideo cv;\n  cv.y  = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;\n  cv.pb = -0.168736f * pixel.r - 0.331264f * pixel.g + 0.5f * pixel.b;\n  cv.pr = 0.5f * pixel.r - 0.418688f * pixel.g - 0.081312f * pixel.b;\n  return cv;\n}\n\nRGB component_to_rgb(ComponentVideo cv) {\n  RGB rgb;\n  float r = cv.y + 1.402f * cv.pr;\n  float g = cv.y - 0.344136f * cv.pb - 0.714136f * cv.pr;\n  float b = cv.y + 1.772f * cv.pb;\n  rgb.r = (unsigned)clamp(r, 0, 255);\n  rgb.g = (unsigned)clamp(g, 0, 255);\n}\n\nfloat clamp(float val, float lo, float hi) {\n  // TODO\n}\n",
+      "active_symbol": "component_to_rgb",
+      "trigger": "timeout",
+      "window_duration": 25.6
+    },
+    {
+      "file_path": "colorspace.cpp",
+      "diffs": "+  rgb.b = (unsigned)clamp(b, 0, 255);",
+      "content": "#include \"colorspace.h\"\n\nComponentVideo rgb_to_component(RGB pixel) {\n  ComponentVideo cv;\n  cv.y  = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;\n  cv.pb = -0.168736f * pixel.r - 0.331264f * pixel.g + 0.5f * pixel.b;\n  cv.pr = 0.5f * pixel.r - 0.418688f * pixel.g - 0.081312f * pixel.b;\n  return cv;\n}\n\nRGB component_to_rgb(ComponentVideo cv) {\n  RGB rgb;\n  float r = cv.y + 1.402f * cv.pr;\n  float g = cv.y - 0.344136f * cv.pb - 0.714136f * cv.pr;\n  float b = cv.y + 1.772f * cv.pb;\n  rgb.r = (unsigned)clamp(r, 0, 255);\n  rgb.g = (unsigned)clamp(g, 0, 255);\n  rgb.b = (unsigned)clamp(b, 0, 255);\n}\n\nfloat clamp(float val, float lo, float hi) {\n  // TODO\n}\n",
+      "active_symbol": "component_to_rgb",
+      "trigger": "timeout",
+      "window_duration": 32.0
+    },
+    {
+      "file_path": "colorspace.cpp",
+      "diffs": "+  return rgb;",
+      "content": "#include \"colorspace.h\"\n\nComponentVideo rgb_to_component(RGB pixel) {\n  ComponentVideo cv;\n  cv.y  = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;\n  cv.pb = -0.168736f * pixel.r - 0.331264f * pixel.g + 0.5f * pixel.b;\n  cv.pr = 0.5f * pixel.r - 0.418688f * pixel.g - 0.081312f * pixel.b;\n  return cv;\n}\n\nRGB component_to_rgb(ComponentVideo cv) {\n  RGB rgb;\n  float r = cv.y + 1.402f * cv.pr;\n  float g = cv.y - 0.344136f * cv.pb - 0.714136f * cv.pr;\n  float b = cv.y + 1.772f * cv.pb;\n  rgb.r = (unsigned)clamp(r, 0, 255);\n  rgb.g = (unsigned)clamp(g, 0, 255);\n  rgb.b = (unsigned)clamp(b, 0, 255);\n  return rgb;\n}\n\nfloat clamp(float val, float lo, float hi) {\n  // TODO\n}\n",
+      "active_symbol": "component_to_rgb",
+      "trigger": "timeout",
+      "window_duration": 20.1
+    },
+    {
+      "file_path": "colorspace.cpp",
+      "diffs": "-  // TODO\n+  if (value < lo) return lo;\n+  if (value > hi) return hi;",
+      "content": "#include \"colorspace.h\"\n\nComponentVideo rgb_to_component(RGB pixel) {\n  ComponentVideo cv;\n  cv.y  = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;\n  cv.pb = -0.168736f * pixel.r - 0.331264f * pixel.g + 0.5f * pixel.b;\n  cv.pr = 0.5f * pixel.r - 0.418688f * pixel.g - 0.081312f * pixel.b;\n  return cv;\n}\n\nRGB component_to_rgb(ComponentVideo cv) {\n  RGB rgb;\n  float r = cv.y + 1.402f * cv.pr;\n  float g = cv.y - 0.344136f * cv.pb - 0.714136f * cv.pr;\n  float b = cv.y + 1.772f * cv.pb;\n  rgb.r = (unsigned)clamp(r, 0, 255);\n  rgb.g = (unsigned)clamp(g, 0, 255);\n  rgb.b = (unsigned)clamp(b, 0, 255);\n  return rgb;\n}\n\nfloat clamp(float val, float lo, float hi) {\n  if (value < lo) return lo;\n  if (value > hi) return hi;\n}\n",
+      "active_symbol": "clamp",
+      "trigger": "timeout",
+      "window_duration": 8.2
+    },
+    {
+      "file_path": "colorspace.cpp",
+      "diffs": "+  return value;",
+      "content": "#include \"colorspace.h\"\n\nComponentVideo rgb_to_component(RGB pixel) {\n  ComponentVideo cv;\n  cv.y  = 0.299f * pixel.r + 0.587f * pixel.g + 0.114f * pixel.b;\n  cv.pb = -0.168736f * pixel.r - 0.331264f * pixel.g + 0.5f * pixel.b;\n  cv.pr = 0.5f * pixel.r - 0.418688f * pixel.g - 0.081312f * pixel.b;\n  return cv;\n}\n\nRGB component_to_rgb(ComponentVideo cv) {\n  RGB rgb;\n  float r = cv.y + 1.402f * cv.pr;\n  float g = cv.y - 0.344136f * cv.pb - 0.714136f * cv.pr;\n  float b = cv.y + 1.772f * cv.pb;\n  rgb.r = (unsigned)clamp(r, 0, 255);\n  rgb.g = (unsigned)clamp(g, 0, 255);\n  rgb.b = (unsigned)clamp(b, 0, 255);\n  return rgb;\n}\n\nfloat clamp(float val, float lo, float hi) {\n  if (value < lo) return lo;\n  if (value > hi) return hi;\n  return value;\n}\n",
+      "active_symbol": "clamp",
+      "trigger": "timeout",
+      "window_duration": 17.9
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "+#include \"dct.h\"\n+DCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n+  // TODO\n+}\n+\n+void inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n+  // TODO\n+}\n+\n+int quantize(float val, float scale) {\n+  // TODO\n+}\n+",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  // TODO\n}\n\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  // TODO\n}\n\nint quantize(float val, float scale) {\n  // TODO\n}\n",
+      "active_symbol": "forward_dct",
+      "trigger": "init",
+      "window_duration": 3.3
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "-  // TODO\n+  DCTCoeffs c;",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  DCTCoeffs c;\n}\n\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  // TODO\n}\n\nint quantize(float val, float scale) {\n  // TODO\n}\n",
+      "active_symbol": "forward_dct",
+      "trigger": "timeout",
+      "window_duration": 18.3
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "+  c.a = (y4 + y3 + y2 + y1) / 4.0f;",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  DCTCoeffs c;\n  c.a = (y4 + y3 + y2 + y1) / 4.0f;\n}\n\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  // TODO\n}\n\nint quantize(float val, float scale) {\n  // TODO\n}\n",
+      "active_symbol": "forward_dct",
+      "trigger": "timeout",
+      "window_duration": 26.5
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "+  std::cout << \"DEBUG value=\" << value << std::endl;",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  std::cout << \"DEBUG value=\" << value << std::endl;\n  DCTCoeffs c;\n  c.a = (y4 + y3 + y2 + y1) / 4.0f;\n}\n\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  // TODO\n}\n\nint quantize(float val, float scale) {\n  // TODO\n}\n",
+      "active_symbol": "forward_dct",
+      "trigger": "timeout",
+      "window_duration": 27.8
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "+  std::cerr << \"i=\" << i << \"\\n\";",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  std::cout << \"DEBUG value=\" << value << std::endl;\n  std::cerr << \"i=\" << i << \"\\n\";\n  DCTCoeffs c;\n  c.a = (y4 + y3 + y2 + y1) / 4.0f;\n}\n\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  // TODO\n}\n\nint quantize(float val, float scale) {\n  // TODO\n}\n",
+      "active_symbol": "forward_dct",
+      "trigger": "timeout",
+      "window_duration": 6.9
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "-  std::cout << \"DEBUG value=\" << value << std::endl;\n-  std::cerr << \"i=\" << i << \"\\n\";",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  DCTCoeffs c;\n  c.a = (y4 + y3 + y2 + y1) / 4.0f;\n}\n\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  // TODO\n}\n\nint quantize(float val, float scale) {\n  // TODO\n}\n",
+      "active_symbol": "forward_dct",
+      "trigger": "timeout",
+      "window_duration": 28.6
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "+  c.b = (y4 + y3 - y2 - y1) / 4.0f;",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  DCTCoeffs c;\n  c.a = (y4 + y3 + y2 + y1) / 4.0f;\n  c.b = (y4 + y3 - y2 - y1) / 4.0f;\n}\n\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  // TODO\n}\n\nint quantize(float val, float scale) {\n  // TODO\n}\n",
+      "active_symbol": "forward_dct",
+      "trigger": "timeout",
+      "window_duration": 17.5
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "+  c.c = (y4 - y3 + y2 - y1) / 4.0f;\n+  c.d = (y4 - y3 - y2 + y1) / 4.0f;\n+// inverse_dct",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  DCTCoeffs c;\n  c.a = (y4 + y3 + y2 + y1) / 4.0f;\n  c.b = (y4 + y3 - y2 - y1) / 4.0f;\n  c.c = (y4 - y3 + y2 - y1) / 4.0f;\n  c.d = (y4 - y3 - y2 + y1) / 4.0f;\n}\n\n// inverse_dct\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  // TODO\n}\n\nint quantize(float val, float scale) {\n  // TODO\n}\n",
+      "active_symbol": "forward_dct",
+      "trigger": "timeout",
+      "window_duration": 16.5
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "+  return c;\n-// inverse_dct",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  DCTCoeffs c;\n  c.a = (y4 + y3 + y2 + y1) / 4.0f;\n  c.b = (y4 + y3 - y2 - y1) / 4.0f;\n  c.c = (y4 - y3 + y2 - y1) / 4.0f;\n  c.d = (y4 - y3 - y2 + y1) / 4.0f;\n  return c;\n}\n\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  // TODO\n}\n\nint quantize(float val, float scale) {\n  // TODO\n}\n",
+      "active_symbol": "forward_dct",
+      "trigger": "timeout",
+      "window_duration": 37.9
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "-  // TODO\n+  y1 = coeffs.a - coeffs.b - coeffs.c + coeffs.d;\n+  y2 = coeffs.a - coeffs.b + coeffs.c - coeffs.d;",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  DCTCoeffs c;\n  c.a = (y4 + y3 + y2 + y1) / 4.0f;\n  c.b = (y4 + y3 - y2 - y1) / 4.0f;\n  c.c = (y4 - y3 + y2 - y1) / 4.0f;\n  c.d = (y4 - y3 - y2 + y1) / 4.0f;\n  return c;\n}\n\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  y1 = coeffs.a - coeffs.b - coeffs.c + coeffs.d;\n  y2 = coeffs.a - coeffs.b + coeffs.c - coeffs.d;\n}\n\nint quantize(float val, float scale) {\n  // TODO\n}\n",
+      "active_symbol": "inverse_dct",
+      "trigger": "timeout",
+      "window_duration": 16.3
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "+  y3 = coeffs.a + coeffs.b - coeffs.c - coeffs.d;\n+  y4 = coeffs.a + coeffs.b + coeffs.c + coeffs.d;",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  DCTCoeffs c;\n  c.a = (y4 + y3 + y2 + y1) / 4.0f;\n  c.b = (y4 + y3 - y2 - y1) / 4.0f;\n  c.c = (y4 - y3 + y2 - y1) / 4.0f;\n  c.d = (y4 - y3 - y2 + y1) / 4.0f;\n  return c;\n}\n\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  y1 = coeffs.a - coeffs.b - coeffs.c + coeffs.d;\n  y2 = coeffs.a - coeffs.b + coeffs.c - coeffs.d;\n  y3 = coeffs.a + coeffs.b - coeffs.c - coeffs.d;\n  y4 = coeffs.a + coeffs.b + coeffs.c + coeffs.d;\n}\n\nint quantize(float val, float scale) {\n  // TODO\n}\n",
+      "active_symbol": "inverse_dct",
+      "trigger": "timeout",
+      "window_duration": 22.6
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "-  y4 = coeffs.a + coeffs.b + coeffs.c + coeffs.d;\n+  // y4 = coeffs.a + coeffs.b + coeffs.c + coeffs.d;",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  DCTCoeffs c;\n  c.a = (y4 + y3 + y2 + y1) / 4.0f;\n  c.b = (y4 + y3 - y2 - y1) / 4.0f;\n  c.c = (y4 - y3 + y2 - y1) / 4.0f;\n  c.d = (y4 - y3 - y2 + y1) / 4.0f;\n  return c;\n}\n\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  y1 = coeffs.a - coeffs.b - coeffs.c + coeffs.d;\n  y2 = coeffs.a - coeffs.b + coeffs.c - coeffs.d;\n  y3 = coeffs.a + coeffs.b - coeffs.c - coeffs.d;\n  // y4 = coeffs.a + coeffs.b + coeffs.c + coeffs.d;\n}\n\nint quantize(float val, float scale) {\n  // TODO\n}\n",
+      "active_symbol": "inverse_dct",
+      "trigger": "timeout",
+      "window_duration": 26.9
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "-  // y4 = coeffs.a + coeffs.b + coeffs.c + coeffs.d;\n+  y4 = coeffs.a + coeffs.b + coeffs.c + coeffs.d;",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  DCTCoeffs c;\n  c.a = (y4 + y3 + y2 + y1) / 4.0f;\n  c.b = (y4 + y3 - y2 - y1) / 4.0f;\n  c.c = (y4 - y3 + y2 - y1) / 4.0f;\n  c.d = (y4 - y3 - y2 + y1) / 4.0f;\n  return c;\n}\n\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  y1 = coeffs.a - coeffs.b - coeffs.c + coeffs.d;\n  y2 = coeffs.a - coeffs.b + coeffs.c - coeffs.d;\n  y3 = coeffs.a + coeffs.b - coeffs.c - coeffs.d;\n  y4 = coeffs.a + coeffs.b + coeffs.c + coeffs.d;\n}\n\nint quantize(float val, float scale) {\n  // TODO\n}\n",
+      "active_symbol": "inverse_dct",
+      "trigger": "timeout",
+      "window_duration": 6.7
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "-  // TODO\n+  int q = (int)(value / scale);",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  DCTCoeffs c;\n  c.a = (y4 + y3 + y2 + y1) / 4.0f;\n  c.b = (y4 + y3 - y2 - y1) / 4.0f;\n  c.c = (y4 - y3 + y2 - y1) / 4.0f;\n  c.d = (y4 - y3 - y2 + y1) / 4.0f;\n  return c;\n}\n\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  y1 = coeffs.a - coeffs.b - coeffs.c + coeffs.d;\n  y2 = coeffs.a - coeffs.b + coeffs.c - coeffs.d;\n  y3 = coeffs.a + coeffs.b - coeffs.c - coeffs.d;\n  y4 = coeffs.a + coeffs.b + coeffs.c + coeffs.d;\n}\n\nint quantize(float val, float scale) {\n  int q = (int)(value / scale);\n}\n",
+      "active_symbol": "quantize",
+      "trigger": "timeout",
+      "window_duration": 35.7
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "+  if (q > 31) q = 31;",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  DCTCoeffs c;\n  c.a = (y4 + y3 + y2 + y1) / 4.0f;\n  c.b = (y4 + y3 - y2 - y1) / 4.0f;\n  c.c = (y4 - y3 + y2 - y1) / 4.0f;\n  c.d = (y4 - y3 - y2 + y1) / 4.0f;\n  return c;\n}\n\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  y1 = coeffs.a - coeffs.b - coeffs.c + coeffs.d;\n  y2 = coeffs.a - coeffs.b + coeffs.c - coeffs.d;\n  y3 = coeffs.a + coeffs.b - coeffs.c - coeffs.d;\n  y4 = coeffs.a + coeffs.b + coeffs.c + coeffs.d;\n}\n\nint quantize(float val, float scale) {\n  int q = (int)(value / scale);\n  if (q > 31) q = 31;\n}\n",
+      "active_symbol": "quantize",
+      "trigger": "timeout",
+      "window_duration": 10.2
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "+  std::cout << \"DEBUG width=\" << width << std::endl;",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  DCTCoeffs c;\n  c.a = (y4 + y3 + y2 + y1) / 4.0f;\n  c.b = (y4 + y3 - y2 - y1) / 4.0f;\n  c.c = (y4 - y3 + y2 - y1) / 4.0f;\n  c.d = (y4 - y3 - y2 + y1) / 4.0f;\n  return c;\n}\n\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  y1 = coeffs.a - coeffs.b - coeffs.c + coeffs.d;\n  y2 = coeffs.a - coeffs.b + coeffs.c - coeffs.d;\n  y3 = coeffs.a + coeffs.b - coeffs.c - coeffs.d;\n  y4 = coeffs.a + coeffs.b + coeffs.c + coeffs.d;\n}\n\nint quantize(float val, float scale) {\n  int q = (int)(value / scale);\n  std::cout << \"DEBUG width=\" << width << std::endl;\n  if (q > 31) q = 31;\n}\n",
+      "active_symbol": "quantize",
+      "trigger": "timeout",
+      "window_duration": 18.2
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "-  std::cout << \"DEBUG width=\" << width << std::endl;",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  DCTCoeffs c;\n  c.a = (y4 + y3 + y2 + y1) / 4.0f;\n  c.b = (y4 + y3 - y2 - y1) / 4.0f;\n  c.c = (y4 - y3 + y2 - y1) / 4.0f;\n  c.d = (y4 - y3 - y2 + y1) / 4.0f;\n  return c;\n}\n\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  y1 = coeffs.a - coeffs.b - coeffs.c + coeffs.d;\n  y2 = coeffs.a - coeffs.b + coeffs.c - coeffs.d;\n  y3 = coeffs.a + coeffs.b - coeffs.c - coeffs.d;\n  y4 = coeffs.a + coeffs.b + coeffs.c + coeffs.d;\n}\n\nint quantize(float val, float scale) {\n  int q = (int)(value / scale);\n  if (q > 31) q = 31;\n}\n",
+      "active_symbol": "quantize",
+      "trigger": "timeout",
+      "window_duration": 33.4
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "+  if (q < -31) q = -31;",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  DCTCoeffs c;\n  c.a = (y4 + y3 + y2 + y1) / 4.0f;\n  c.b = (y4 + y3 - y2 - y1) / 4.0f;\n  c.c = (y4 - y3 + y2 - y1) / 4.0f;\n  c.d = (y4 - y3 - y2 + y1) / 4.0f;\n  return c;\n}\n\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  y1 = coeffs.a - coeffs.b - coeffs.c + coeffs.d;\n  y2 = coeffs.a - coeffs.b + coeffs.c - coeffs.d;\n  y3 = coeffs.a + coeffs.b - coeffs.c - coeffs.d;\n  y4 = coeffs.a + coeffs.b + coeffs.c + coeffs.d;\n}\n\nint quantize(float val, float scale) {\n  int q = (int)(value / scale);\n  if (q > 31) q = 31;\n  if (q < -31) q = -31;\n}\n",
+      "active_symbol": "quantize",
+      "trigger": "timeout",
+      "window_duration": 35.4
+    },
+    {
+      "file_path": "dct.cpp",
+      "diffs": "+  return q;",
+      "content": "#include \"dct.h\"\n\nDCTCoeffs forward_dct(float y1, float y2, float y3, float y4) {\n  DCTCoeffs c;\n  c.a = (y4 + y3 + y2 + y1) / 4.0f;\n  c.b = (y4 + y3 - y2 - y1) / 4.0f;\n  c.c = (y4 - y3 + y2 - y1) / 4.0f;\n  c.d = (y4 - y3 - y2 + y1) / 4.0f;\n  return c;\n}\n\nvoid inverse_dct(DCTCoeffs coeffs, float &y1, float &y2, float &y3, float &y4) {\n  y1 = coeffs.a - coeffs.b - coeffs.c + coeffs.d;\n  y2 = coeffs.a - coeffs.b + coeffs.c - coeffs.d;\n  y3 = coeffs.a + coeffs.b - coeffs.c - coeffs.d;\n  y4 = coeffs.a + coeffs.b + coeffs.c + coeffs.d;\n}\n\nint quantize(float val, float scale) {\n  int q = (int)(value / scale);\n  if (q > 31) q = 31;\n  if (q < -31) q = -31;\n  return q;\n}\n",
+      "active_symbol": "quantize",
+      "trigger": "timeout",
+      "window_duration": 35.9
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+#include \"compress40.h\"\n+#include \"bitpack.h\"\n+#include \"colorspace.h\"\n+#include \"dct.h\"\n+CompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n+  // TODO\n+}\n+\n+void unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n+  // TODO\n+}\n+\n+// compress\n+void compress(const char *filename) {\n+  // TODO\n+}\n+\n+void decompress(const char *filename) {\n+  // TODO\n+}\n+",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  // TODO\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\n// compress\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "init",
+      "window_duration": 2.2
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-  // TODO\n+  CompressedBlock block;\n+  block.word = 0;\n-// compress",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 39.7
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-  block.word = 0;\n+  // block.word = 0;",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  // block.word = 0;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 15.7
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+// compress",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  // block.word = 0;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\n// compress\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 10.3
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-// compress",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  // block.word = 0;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 40.0
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+// compress",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  // block.word = 0;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\n// compress\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 45.6
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-  // block.word = 0;\n+  block.word = 0;\n-// compress",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 44.5
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 16.0
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  std::cout << \"DEBUG result=\" << result << std::endl;",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  std::cout << \"DEBUG result=\" << result << std::endl;\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 26.7
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-  std::cout << \"DEBUG result=\" << result << std::endl;",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 42.4
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 39.0
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n+  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 5.9
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 46.8
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n-  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n+// compress",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\n// compress\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 24.9
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n-// compress",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 28.9
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  unsigned aq = (unsigned)(a / 1.0f * 511);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 21.0
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-  unsigned aq = (unsigned)(a / 1.0f * 511);\n+  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n+// compress",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\n// compress\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 46.3
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n-// compress",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 26.9
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n-  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 25.3
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  unsigned aq = (unsigned)(a / 1.0f * 511);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 25.2
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  int bq = quantize(b, 0.03f);\n+  int cq = quantize(c, 0.03f);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 22.0
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-  int cq = quantize(c, 0.03f);\n+  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 13.1
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 19.8
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n+// decompress",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\n// decompress\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 9.8
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n-// decompress",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 19.0
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n-  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n-  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n-  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 28.4
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  int cq = quantize(c, 0.03f);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 33.5
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  int dq = quantize(d, 0.03f);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 27.8
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+// pack_block\n+  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\n// pack_block\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 21.8
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-// pack_block\n-  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n+  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 11.3
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 16.7
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 17.7
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 33.0
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n-  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n-  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);\n-  block.word = Bitpack_newu(block.word, 4, 0, pb_idx);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 45.6
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 11.9
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n+  block.word = Bitpack_news(block.word, 6, 8, dq);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 35.2
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  std::cout << \"DEBUG word=\" << word << std::endl;",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  std::cout << \"DEBUG word=\" << word << std::endl;\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 38.1
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  std::cerr << \"churn=\" << churn << \"\\n\";",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  std::cout << \"DEBUG word=\" << word << std::endl;\n  std::cerr << \"churn=\" << churn << \"\\n\";\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 12.2
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+// pack_block\n-  std::cout << \"DEBUG word=\" << word << std::endl;\n-  std::cerr << \"churn=\" << churn << \"\\n\";",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\n// pack_block\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 19.7
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-// pack_block\n+  block.word = Bitpack_news(block.word, 6, 14, cq);\n+  block.word = Bitpack_news(block.word, 6, 20, bq);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 28.7
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  block.word = Bitpack_newu(block.word, 9, 26, aq);",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 14.3
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  return block;",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  // TODO\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "pack_block",
+      "trigger": "timeout",
+      "window_duration": 45.9
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-  // TODO\n+  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n+  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "unpack_block",
+      "trigger": "timeout",
+      "window_duration": 44.8
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n+  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "unpack_block",
+      "trigger": "timeout",
+      "window_duration": 28.3
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n+  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  // TODO\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "unpack_block",
+      "trigger": "timeout",
+      "window_duration": 32.8
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-  // TODO\n+  (void)filename;\n+  // Read PPM image",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "compress",
+      "trigger": "timeout",
+      "window_duration": 39.6
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  // For each 2x2 block of pixels:",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "compress",
+      "trigger": "timeout",
+      "window_duration": 25.9
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  //   Convert RGB to component video",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "compress",
+      "trigger": "timeout",
+      "window_duration": 11.3
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  std::cout << \"DEBUG value=\" << value << std::endl;",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  std::cout << \"DEBUG value=\" << value << std::endl;\n  //   Convert RGB to component video\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "compress",
+      "trigger": "timeout",
+      "window_duration": 31.0
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-  std::cout << \"DEBUG value=\" << value << std::endl;",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "compress",
+      "trigger": "timeout",
+      "window_duration": 23.0
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+// compress\n+  //   Apply forward DCT on Y values\n+// decompress",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\n// compress\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n  //   Apply forward DCT on Y values\n}\n\n// decompress\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "compress",
+      "trigger": "timeout",
+      "window_duration": 19.9
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-// compress\n+  //   Quantize and pack into 32-bit word\n-// decompress",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n  //   Apply forward DCT on Y values\n  //   Quantize and pack into 32-bit word\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "compress",
+      "trigger": "timeout",
+      "window_duration": 25.7
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-  //   Quantize and pack into 32-bit word\n+  // //   Quantize and pack into 32-bit word",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n  //   Apply forward DCT on Y values\n  // //   Quantize and pack into 32-bit word\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "compress",
+      "trigger": "timeout",
+      "window_duration": 27.9
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-  // //   Quantize and pack into 32-bit word\n+  //   Quantize and pack into 32-bit word",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n  //   Apply forward DCT on Y values\n  //   Quantize and pack into 32-bit word\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "compress",
+      "trigger": "timeout",
+      "window_duration": 25.7
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  //   Write word to stdout in big-endian order",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n  //   Apply forward DCT on Y values\n  //   Quantize and pack into 32-bit word\n  //   Write word to stdout in big-endian order\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "compress",
+      "trigger": "timeout",
+      "window_duration": 34.1
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+// pack_block\n-  //   Write word to stdout in big-endian order\n+  // //   Write word to stdout in big-endian order",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\n// pack_block\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n  //   Apply forward DCT on Y values\n  //   Quantize and pack into 32-bit word\n  // //   Write word to stdout in big-endian order\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "compress",
+      "trigger": "timeout",
+      "window_duration": 17.4
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-// pack_block",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n  //   Apply forward DCT on Y values\n  //   Quantize and pack into 32-bit word\n  // //   Write word to stdout in big-endian order\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "compress",
+      "trigger": "timeout",
+      "window_duration": 17.8
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+// compress\n-  // //   Write word to stdout in big-endian order\n+  //   Write word to stdout in b",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\n// compress\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n  //   Apply forward DCT on Y values\n  //   Quantize and pack into 32-bit word\n  //   Write word to stdout in b\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "compress",
+      "trigger": "timeout",
+      "window_duration": 27.2
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-// compress\n-  //   Write word to stdout in b\n+  // //   Write word to stdout in big-endian order",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n  //   Apply forward DCT on Y values\n  //   Quantize and pack into 32-bit word\n  // //   Write word to stdout in big-endian order\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "compress",
+      "trigger": "timeout",
+      "window_duration": 9.0
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-  // //   Write word to stdout in big-endian order\n+  //   Write word to stdout in big-endian order",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n  //   Apply forward DCT on Y values\n  //   Quantize and pack into 32-bit word\n  //   Write word to stdout in big-endian order\n}\n\nvoid decompress(const char *filename) {\n  // TODO\n}\n",
+      "active_symbol": "compress",
+      "trigger": "timeout",
+      "window_duration": 13.9
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-  // TODO\n+  (void)filename;\n+  // Read compressed data from stdin",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n  //   Apply forward DCT on Y values\n  //   Quantize and pack into 32-bit word\n  //   Write word to stdout in big-endian order\n}\n\nvoid decompress(const char *filename) {\n  (void)filename;\n  // Read compressed data from stdin\n}\n",
+      "active_symbol": "decompress",
+      "trigger": "timeout",
+      "window_duration": 29.9
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  // For each 32-bit word:\n+  //   Unpack block components",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n  //   Apply forward DCT on Y values\n  //   Quantize and pack into 32-bit word\n  //   Write word to stdout in big-endian order\n}\n\nvoid decompress(const char *filename) {\n  (void)filename;\n  // Read compressed data from stdin\n  // For each 32-bit word:\n  //   Unpack block components\n}\n",
+      "active_symbol": "decompress",
+      "trigger": "timeout",
+      "window_duration": 31.0
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+  //   Apply inverse DCT\n+  //   Convert component video to RGB",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n  //   Apply forward DCT on Y values\n  //   Quantize and pack into 32-bit word\n  //   Write word to stdout in big-endian order\n}\n\nvoid decompress(const char *filename) {\n  (void)filename;\n  // Read compressed data from stdin\n  // For each 32-bit word:\n  //   Unpack block components\n  //   Apply inverse DCT\n  //   Convert component video to RGB\n}\n",
+      "active_symbol": "decompress",
+      "trigger": "timeout",
+      "window_duration": 7.4
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+// compress\n+  //   Store pixel in output image\n+  // Write PPM to stdout",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\n// compress\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n  //   Apply forward DCT on Y values\n  //   Quantize and pack into 32-bit word\n  //   Write word to stdout in big-endian order\n}\n\nvoid decompress(const char *filename) {\n  (void)filename;\n  // Read compressed data from stdin\n  // For each 32-bit word:\n  //   Unpack block components\n  //   Apply inverse DCT\n  //   Convert component video to RGB\n  //   Store pixel in output image\n  // Write PPM to stdout\n}\n",
+      "active_symbol": "decompress",
+      "trigger": "timeout",
+      "window_duration": 28.5
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-// compress\n-  // Write PPM to stdout\n+  // // Write PPM to stdout",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n  //   Apply forward DCT on Y values\n  //   Quantize and pack into 32-bit word\n  //   Write word to stdout in big-endian order\n}\n\nvoid decompress(const char *filename) {\n  (void)filename;\n  // Read compressed data from stdin\n  // For each 32-bit word:\n  //   Unpack block components\n  //   Apply inverse DCT\n  //   Convert component video to RGB\n  //   Store pixel in output image\n  // // Write PPM to stdout\n}\n",
+      "active_symbol": "decompress",
+      "trigger": "timeout",
+      "window_duration": 24.4
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "+// unpack_block",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\n// unpack_block\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n  //   Apply forward DCT on Y values\n  //   Quantize and pack into 32-bit word\n  //   Write word to stdout in big-endian order\n}\n\nvoid decompress(const char *filename) {\n  (void)filename;\n  // Read compressed data from stdin\n  // For each 32-bit word:\n  //   Unpack block components\n  //   Apply inverse DCT\n  //   Convert component video to RGB\n  //   Store pixel in output image\n  // // Write PPM to stdout\n}\n",
+      "active_symbol": "decompress",
+      "trigger": "timeout",
+      "window_duration": 25.7
+    },
+    {
+      "file_path": "compress40.cpp",
+      "diffs": "-// unpack_block\n-  // // Write PPM to stdout\n+  // Write PPM to stdout",
+      "content": "#include \"compress40.h\"\n#include \"bitpack.h\"\n#include \"colorspace.h\"\n#include \"dct.h\"\n\nCompressedBlock pack_block(float pb_avg, float pr_avg, float a, float b, float c, float d) {\n  CompressedBlock block;\n  block.word = 0;\n  unsigned pb_idx = (unsigned)((pb_avg + 0.5f) / 1.0f * 15);\n  unsigned pr_idx = (unsigned)((pr_avg + 0.5f) / 1.0f * 15);\n  unsigned aq = (unsigned)(a / 1.0f * 511);\n  int bq = quantize(b, 0.03f);\n  int cq = quantize(c, 0.03f);\n  int dq = quantize(d, 0.03f);\n  block.word = Bitpack_newu(block.word, 4, 0, pr_idx);\n  block.word = Bitpack_newu(block.word, 4, 4, pb_idx);\n  block.word = Bitpack_news(block.word, 6, 8, dq);\n  block.word = Bitpack_news(block.word, 6, 14, cq);\n  block.word = Bitpack_news(block.word, 6, 20, bq);\n  block.word = Bitpack_newu(block.word, 9, 26, aq);\n  return block;\n}\n\nvoid unpack_block(CompressedBlock block, float &pb_avg, float &pr_avg, float &a, float &b, float &c, float &d) {\n  pr_avg = ((float)Bitpack_getu(block.word, 4, 0) / 15.0f) - 0.5f;\n  pb_avg = ((float)Bitpack_getu(block.word, 4, 4) / 15.0f) - 0.5f;\n  d = (float)Bitpack_gets(block.word, 6, 8) * 0.03f;\n  c = (float)Bitpack_gets(block.word, 6, 14) * 0.03f;\n  b = (float)Bitpack_gets(block.word, 6, 20) * 0.03f;\n  a = (float)Bitpack_getu(block.word, 9, 26) / 511.0f;\n}\n\nvoid compress(const char *filename) {\n  (void)filename;\n  // Read PPM image\n  // For each 2x2 block of pixels:\n  //   Convert RGB to component video\n  //   Apply forward DCT on Y values\n  //   Quantize and pack into 32-bit word\n  //   Write word to stdout in big-endian order\n}\n\nvoid decompress(const char *filename) {\n  (void)filename;\n  // Read compressed data from stdin\n  // For each 32-bit word:\n  //   Unpack block components\n  //   Apply inverse DCT\n  //   Convert component video to RGB\n  //   Store pixel in output image\n  // Write PPM to stdout\n}\n",
+      "active_symbol": "decompress",
+      "trigger": "timeout",
+      "window_duration": 23.0
+    },
+    {
+      "file_path": "main.cpp",
+      "diffs": "+#include <iostream>\n+#include <string>\n+#include \"compress40.h\"\n+int main(int argc, char *argv[]) {\n+  // TODO\n+}\n+",
+      "content": "#include <iostream>\n#include <string>\n#include \"compress40.h\"\n\nint main(int argc, char *argv[]) {\n  // TODO\n}\n",
+      "active_symbol": "main",
+      "trigger": "init",
+      "window_duration": 4.9
+    },
+    {
+      "file_path": "main.cpp",
+      "diffs": "-  // TODO\n+  if (argc < 3) {\n+    std::cerr << \"Usage: \" << argv[0] << \" -c|-d filename\" << std::endl;",
+      "content": "#include <iostream>\n#include <string>\n#include \"compress40.h\"\n\nint main(int argc, char *argv[]) {\n  if (argc < 3) {\n    std::cerr << \"Usage: \" << argv[0] << \" -c|-d filename\" << std::endl;\n}\n",
+      "active_symbol": "main",
+      "trigger": "timeout",
+      "window_duration": 24.1
+    },
+    {
+      "file_path": "main.cpp",
+      "diffs": "+    return 1;",
+      "content": "#include <iostream>\n#include <string>\n#include \"compress40.h\"\n\nint main(int argc, char *argv[]) {\n  if (argc < 3) {\n    std::cerr << \"Usage: \" << argv[0] << \" -c|-d filename\" << std::endl;\n    return 1;\n}\n",
+      "active_symbol": "main",
+      "trigger": "timeout",
+      "window_duration": 6.1
+    },
+    {
+      "file_path": "main.cpp",
+      "diffs": "+  }",
+      "content": "#include <iostream>\n#include <string>\n#include \"compress40.h\"\n\nint main(int argc, char *argv[]) {\n  if (argc < 3) {\n    std::cerr << \"Usage: \" << argv[0] << \" -c|-d filename\" << std::endl;\n    return 1;\n  }\n}\n",
+      "active_symbol": "main",
+      "trigger": "timeout",
+      "window_duration": 11.3
+    },
+    {
+      "file_path": "main.cpp",
+      "diffs": "-  }\n+  // }",
+      "content": "#include <iostream>\n#include <string>\n#include \"compress40.h\"\n\nint main(int argc, char *argv[]) {\n  if (argc < 3) {\n    std::cerr << \"Usage: \" << argv[0] << \" -c|-d filename\" << std::endl;\n    return 1;\n  // }\n}\n",
+      "active_symbol": "main",
+      "trigger": "timeout",
+      "window_duration": 29.2
+    },
+    {
+      "file_path": "main.cpp",
+      "diffs": "-  // }\n+  }",
+      "content": "#include <iostream>\n#include <string>\n#include \"compress40.h\"\n\nint main(int argc, char *argv[]) {\n  if (argc < 3) {\n    std::cerr << \"Usage: \" << argv[0] << \" -c|-d filename\" << std::endl;\n    return 1;\n  }\n}\n",
+      "active_symbol": "main",
+      "trigger": "timeout",
+      "window_duration": 19.6
+    },
+    {
+      "file_path": "main.cpp",
+      "diffs": "+  std::string mode = argv[1];\n+  const char *filename = argv[2];",
+      "content": "#include <iostream>\n#include <string>\n#include \"compress40.h\"\n\nint main(int argc, char *argv[]) {\n  if (argc < 3) {\n    std::cerr << \"Usage: \" << argv[0] << \" -c|-d filename\" << std::endl;\n    return 1;\n  }\n  std::string mode = argv[1];\n  const char *filename = argv[2];\n}\n",
+      "active_symbol": "main",
+      "trigger": "timeout",
+      "window_duration": 14.2
+    },
+    {
+      "file_path": "main.cpp",
+      "diffs": "+  if (mode == \"-c\") {",
+      "content": "#include <iostream>\n#include <string>\n#include \"compress40.h\"\n\nint main(int argc, char *argv[]) {\n  if (argc < 3) {\n    std::cerr << \"Usage: \" << argv[0] << \" -c|-d filename\" << std::endl;\n    return 1;\n  }\n  std::string mode = argv[1];\n  const char *filename = argv[2];\n  if (mode == \"-c\") {\n}\n",
+      "active_symbol": "main",
+      "trigger": "timeout",
+      "window_duration": 25.6
+    },
+    {
+      "file_path": "main.cpp",
+      "diffs": "+    compress(filename);",
+      "content": "#include <iostream>\n#include <string>\n#include \"compress40.h\"\n\nint main(int argc, char *argv[]) {\n  if (argc < 3) {\n    std::cerr << \"Usage: \" << argv[0] << \" -c|-d filename\" << std::endl;\n    return 1;\n  }\n  std::string mode = argv[1];\n  const char *filename = argv[2];\n  if (mode == \"-c\") {\n    compress(filename);\n}\n",
+      "active_symbol": "main",
+      "trigger": "timeout",
+      "window_duration": 25.6
+    },
+    {
+      "file_path": "main.cpp",
+      "diffs": "+  } else if (mode == \"-d\") {\n+    decompress(filename);",
+      "content": "#include <iostream>\n#include <string>\n#include \"compress40.h\"\n\nint main(int argc, char *argv[]) {\n  if (argc < 3) {\n    std::cerr << \"Usage: \" << argv[0] << \" -c|-d filename\" << std::endl;\n    return 1;\n  }\n  std::string mode = argv[1];\n  const char *filename = argv[2];\n  if (mode == \"-c\") {\n    compress(filename);\n  } else if (mode == \"-d\") {\n    decompress(filename);\n}\n",
+      "active_symbol": "main",
+      "trigger": "timeout",
+      "window_duration": 21.3
+    },
+    {
+      "file_path": "main.cpp",
+      "diffs": "+  } else {",
+      "content": "#include <iostream>\n#include <string>\n#include \"compress40.h\"\n\nint main(int argc, char *argv[]) {\n  if (argc < 3) {\n    std::cerr << \"Usage: \" << argv[0] << \" -c|-d filename\" << std::endl;\n    return 1;\n  }\n  std::string mode = argv[1];\n  const char *filename = argv[2];\n  if (mode == \"-c\") {\n    compress(filename);\n  } else if (mode == \"-d\") {\n    decompress(filename);\n  } else {\n}\n",
+      "active_symbol": "main",
+      "trigger": "timeout",
+      "window_duration": 23.4
+    },
+    {
+      "file_path": "main.cpp",
+      "diffs": "+    std::cerr << \"Unknown mode: \" << mode << std::endl;\n+    return 1;",
+      "content": "#include <iostream>\n#include <string>\n#include \"compress40.h\"\n\nint main(int argc, char *argv[]) {\n  if (argc < 3) {\n    std::cerr << \"Usage: \" << argv[0] << \" -c|-d filename\" << std::endl;\n    return 1;\n  }\n  std::string mode = argv[1];\n  const char *filename = argv[2];\n  if (mode == \"-c\") {\n    compress(filename);\n  } else if (mode == \"-d\") {\n    decompress(filename);\n  } else {\n    std::cerr << \"Unknown mode: \" << mode << std::endl;\n    return 1;\n}\n",
+      "active_symbol": "main",
+      "trigger": "timeout",
+      "window_duration": 6.0
+    },
+    {
+      "file_path": "main.cpp",
+      "diffs": "+  }\n+  return 0;",
+      "content": "#include <iostream>\n#include <string>\n#include \"compress40.h\"\n\nint main(int argc, char *argv[]) {\n  if (argc < 3) {\n    std::cerr << \"Usage: \" << argv[0] << \" -c|-d filename\" << std::endl;\n    return 1;\n  }\n  std::string mode = argv[1];\n  const char *filename = argv[2];\n  if (mode == \"-c\") {\n    compress(filename);\n  } else if (mode == \"-d\") {\n    decompress(filename);\n  } else {\n    std::cerr << \"Unknown mode: \" << mode << std::endl;\n    return 1;\n  }\n  return 0;\n}\n",
+      "active_symbol": "main",
+      "trigger": "timeout",
+      "window_duration": 29.3
+    },
+    {
+      "file_path": "main.cpp",
+      "diffs": "+  std::cout << \"DEBUG n=\" << n << std::endl;",
+      "content": "#include <iostream>\n#include <string>\n#include \"compress40.h\"\n\nint main(int argc, char *argv[]) {\n  if (argc < 3) {\n    std::cerr << \"Usage: \" << argv[0] << \" -c|-d filename\" << std::endl;\n    return 1;\n  }\n  std::string mode = argv[1];\n  const char *filename = argv[2];\n  if (mode == \"-c\") {\n    compress(filename);\n  } else if (mode == \"-d\") {\n    decompress(filename);\n  std::cout << \"DEBUG n=\" << n << std::endl;\n  } else {\n    std::cerr << \"Unknown mode: \" << mode << std::endl;\n    return 1;\n  }\n  return 0;\n}\n",
+      "active_symbol": "main",
+      "trigger": "timeout",
+      "window_duration": 25.8
+    },
+    {
+      "file_path": "main.cpp",
+      "diffs": "-  std::cout << \"DEBUG n=\" << n << std::endl;",
+      "content": "#include <iostream>\n#include <string>\n#include \"compress40.h\"\n\nint main(int argc, char *argv[]) {\n  if (argc < 3) {\n    std::cerr << \"Usage: \" << argv[0] << \" -c|-d filename\" << std::endl;\n    return 1;\n  }\n  std::string mode = argv[1];\n  const char *filename = argv[2];\n  if (mode == \"-c\") {\n    compress(filename);\n  } else if (mode == \"-d\") {\n    decompress(filename);\n  } else {\n    std::cerr << \"Unknown mode: \" << mode << std::endl;\n    return 1;\n  }\n  return 0;\n}\n",
+      "active_symbol": "main",
+      "trigger": "timeout",
+      "window_duration": 13.5
+    }
+  ]
+}

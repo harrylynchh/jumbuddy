@@ -1,0 +1,145 @@
+{
+  "description": "Stochastically generated arith assignment data for 20-person class with varying student struggle profiles",
+  "students": [
+    {
+      "utln": "asmi00",
+      "email": "student1@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Alice Smith",
+      "data_file": "asmi00.json"
+    },
+    {
+      "utln": "bjoh01",
+      "email": "student2@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Bob Johnson",
+      "data_file": "bjoh01.json"
+    },
+    {
+      "utln": "cbro02",
+      "email": "student3@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Charlie Brown",
+      "data_file": "cbro02.json"
+    },
+    {
+      "utln": "ddav03",
+      "email": "student4@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Diana Davis",
+      "data_file": "ddav03.json"
+    },
+    {
+      "utln": "emil04",
+      "email": "student5@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Eve Miller",
+      "data_file": "emil04.json"
+    },
+    {
+      "utln": "fwil05",
+      "email": "student6@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Frank Wilson",
+      "data_file": "fwil05.json"
+    },
+    {
+      "utln": "gmoo06",
+      "email": "student7@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Grace Moore",
+      "data_file": "gmoo06.json"
+    },
+    {
+      "utln": "htay07",
+      "email": "student8@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Hank Taylor",
+      "data_file": "htay07.json"
+    },
+    {
+      "utln": "iand08",
+      "email": "student9@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Iris Anderson",
+      "data_file": "iand08.json"
+    },
+    {
+      "utln": "jtho09",
+      "email": "student10@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Jack Thomas",
+      "data_file": "jtho09.json"
+    },
+    {
+      "utln": "kjac10",
+      "email": "student11@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Karen Jackson",
+      "data_file": "kjac10.json"
+    },
+    {
+      "utln": "lwhi11",
+      "email": "student12@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Liam White",
+      "data_file": "lwhi11.json"
+    },
+    {
+      "utln": "mhar12",
+      "email": "student13@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Mina Harris",
+      "data_file": "mhar12.json"
+    },
+    {
+      "utln": "nmar13",
+      "email": "student14@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Noah Martin",
+      "data_file": "nmar13.json"
+    },
+    {
+      "utln": "ogar14",
+      "email": "student15@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Olivia Garcia",
+      "data_file": "ogar14.json"
+    },
+    {
+      "utln": "psmi15",
+      "email": "student16@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Paul Smith",
+      "data_file": "psmi15.json"
+    },
+    {
+      "utln": "qjoh16",
+      "email": "student17@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Quinn Johnson",
+      "data_file": "qjoh16.json"
+    },
+    {
+      "utln": "rbro17",
+      "email": "student18@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Ruby Brown",
+      "data_file": "rbro17.json"
+    },
+    {
+      "utln": "sdav18",
+      "email": "student19@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Sam Davis",
+      "data_file": "sdav18.json"
+    },
+    {
+      "utln": "tmil19",
+      "email": "student20@jumbuddy.test",
+      "password": "testpass123",
+      "display_name": "Tina Miller",
+      "data_file": "tmil19.json"
+    }
+  ]
+}

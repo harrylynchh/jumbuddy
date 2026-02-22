@@ -21,7 +21,6 @@ import { reconstructFileAtStep, dedupFlushes } from "./lib/reconstruct";
 import { tokenizeCode, getTokenColor } from "./lib/highlight";
 
 type ThemeMode = "light" | "dark";
-type NavIconName = "faq" | "about" | "account";
 
 const appShellStyle: React.CSSProperties = {
   minHeight: "100vh",
@@ -42,52 +41,52 @@ function Navbar({
 }) {
   const location = useLocation();
 
-  const bottomItems = [
-    { label: "FAQ / How To Use", to: "/faq", icon: "faq" as NavIconName },
-    { label: "About Our Product", to: "/about", icon: "about" as NavIconName },
-    { label: "Account", to: "/account", icon: "account" as NavIconName },
-  ];
-
-  function renderNavIcon(icon: NavIconName) {
-    if (icon === "faq") {
-      return (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
-          <path d="M9.8 9.2a2.4 2.4 0 1 1 4.2 1.6c-.8.8-1.7 1.2-1.7 2.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-          <circle cx="12" cy="16.8" r="1" fill="currentColor" />
-        </svg>
-      );
-    }
-    if (icon === "about") {
-      return (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
-          <path d="M12 10.6V16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-          <circle cx="12" cy="7.5" r="1" fill="currentColor" />
-        </svg>
-      );
-    }
-    return (
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <circle cx="12" cy="8.2" r="3.2" stroke="currentColor" strokeWidth="1.8" />
-        <path d="M5 19.2c1.7-2.8 4-4.2 7-4.2s5.3 1.4 7 4.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      </svg>
-    );
-  }
-
+  // Book icon for courses
+  const courseIcon = (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+  // Question mark icon
+  const faqIcon = (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M9.8 9.2a2.4 2.4 0 1 1 4.2 1.6c-.8.8-1.7 1.2-1.7 2.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <circle cx="12" cy="16.8" r="1" fill="currentColor" />
+    </svg>
+  );
+  // Info icon
+  const aboutIcon = (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M12 10.6V16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <circle cx="12" cy="7.5" r="1" fill="currentColor" />
+    </svg>
+  );
+  // User icon
+  const accountIcon = (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="8.2" r="3.2" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M5 19.2c1.7-2.8 4-4.2 7-4.2s5.3 1.4 7 4.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
   return (
     <aside className="sidebar">
-      <div style={{ padding: "1rem 0.9rem 0.6rem", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem" }}>
-        <div style={{ fontWeight: 800, letterSpacing: 0.5, fontSize: 30, lineHeight: 1.1 }}>
+      {/* Header */}
+      <div style={{ padding: "0.85rem 0.9rem", borderBottom: "1px solid var(--border)" }}>
+        <div style={{ fontWeight: 800, letterSpacing: 0.5, fontSize: 24, lineHeight: 1.1 }}>
           <span className="brand-label">JumBuddy</span>
           <span className="brand-mini">JB</span>
         </div>
       </div>
-      <nav className="sidebar-nav" style={{ display: "grid", gap: "0.25rem", padding: "0.8rem 0.6rem", alignContent: "start" }}>
+
+      {/* Nav */}
+      <nav className="sidebar-nav" style={{ display: "grid", gap: "0.15rem", padding: "0.6rem", alignContent: "start" }}>
+        {/* Section: Courses */}
         {courses.length > 0 && (
           <>
-            <div className="nav-label" style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "var(--text-muted)", padding: "0.25rem 0.35rem", letterSpacing: 1 }}>
-              Courses
+            <div className="nav-section-label" style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", color: "var(--text-muted)", padding: "0.4rem 0.5rem 0.15rem", letterSpacing: 1.2 }}>
+              <span className="nav-label">Courses</span>
             </div>
             {courses.map((c) => {
               const code = c.course.code;
@@ -100,35 +99,33 @@ function Navbar({
                   data-tooltip={c.course.name}
                   aria-label={c.course.name}
                 >
-                  <span className="nav-icon">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path d="M3 11.5 12 4l9 7.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M6 10.5V20h12v-9.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </span>
+                  <span className="nav-icon">{courseIcon}</span>
                   <span className="nav-label">{code}</span>
                 </Link>
               );
             })}
           </>
         )}
-        <div style={{ marginTop: "1rem" }} />
-        {bottomItems.map((item) => {
-          const active = location.pathname === item.to;
-          return (
-            <Link
-              key={item.to}
-              to={item.to}
-              className={`nav-link ${active ? "nav-link--active" : ""}`}
-              data-tooltip={item.label}
-              aria-label={item.label}
-            >
-              <span className="nav-icon">{renderNavIcon(item.icon)}</span>
-              <span className="nav-label">{item.label}</span>
-            </Link>
-          );
-        })}
+
+        {/* Spacer */}
+        <div style={{ borderTop: "1px solid var(--border)", margin: "0.6rem 0.35rem" }} />
+
+        {/* Section: Help */}
+        <Link to="/faq" className={`nav-link ${location.pathname === "/faq" ? "nav-link--active" : ""}`} data-tooltip="FAQ / How To Use" aria-label="FAQ / How To Use">
+          <span className="nav-icon">{faqIcon}</span>
+          <span className="nav-label">FAQ</span>
+        </Link>
+        <Link to="/about" className={`nav-link ${location.pathname === "/about" ? "nav-link--active" : ""}`} data-tooltip="About Our Product" aria-label="About Our Product">
+          <span className="nav-icon">{aboutIcon}</span>
+          <span className="nav-label">About</span>
+        </Link>
+        <Link to="/account" className={`nav-link ${location.pathname === "/account" ? "nav-link--active" : ""}`} data-tooltip="Account" aria-label="Account">
+          <span className="nav-icon">{accountIcon}</span>
+          <span className="nav-label">Account</span>
+        </Link>
       </nav>
+
+      {/* Footer */}
       <div className="sidebar-footer" style={{ marginTop: "auto", display: "flex", gap: "0.5rem", padding: "0.8rem", borderTop: "1px solid var(--border)" }}>
         <button
           className="btn btn-secondary theme-toggle"
@@ -257,210 +254,191 @@ type AIReport = {
   report: string;
 };
 
-const HEATMAP_CATEGORIES = ["Time Spent", "Error Rate", "Retries", "Idle Gaps"];
-
-function seedHash(str: string): number {
-  let h = 0;
-  for (let i = 0; i < str.length; i++) {
-    h = ((h << 5) - h + str.charCodeAt(i)) | 0;
-  }
-  return Math.abs(h);
-}
-
-function struggleColor(value: number): string {
-  // 0=green, 50=yellow, 100=red via HSL
-  const hue = value <= 50
-    ? 142 - (142 - 45) * (value / 50)
-    : 45 - 45 * ((value - 50) / 50);
-  const sat = 70 + 15 * (value / 100);
-  const light = 48 - 8 * (value / 100);
-  return `hsl(${hue}, ${sat}%, ${light}%)`;
-}
-
-function StruggleHeatmap({
-  students,
-  categories: categoriesProp,
-  values: valuesProp,
-  onCellClick,
-}: {
-  students: StudentEntry[];
-  categories?: string[];
-  values?: number[][];
-  onCellClick: (studentName: string, category: string, value: number) => void;
-}) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const tooltipRef = useRef<HTMLDivElement>(null);
-  const [hover, setHover] = useState<{ row: number; col: number; x: number; y: number } | null>(null);
-
-  const CELL_W = 72;
-  const CELL_H = 36;
-  const GAP = 3;
-  const RADIUS = 6;
-  const LABEL_W = 120;
-  const HEADER_H = 28;
-  const categories = categoriesProp ?? HEATMAP_CATEGORIES;
-
-  // Use provided values or generate deterministic ones
-  const values: number[][] = valuesProp ?? students.map((s) =>
-    categories.map((cat) => seedHash(s.profile_id + cat) % 101)
+/** Hoverable info tooltip */
+function InfoTip({ text }: { text: string }) {
+  const [show, setShow] = useState(false);
+  return (
+    <span
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+      style={{ position: "relative", display: "inline-flex", alignItems: "center", cursor: "help", marginLeft: 4 }}
+    >
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ opacity: 0.45 }}>
+        <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5" />
+        <text x="8" y="12" textAnchor="middle" fill="currentColor" fontSize="10" fontWeight="700">i</text>
+      </svg>
+      {show && (
+        <span style={{
+          position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)",
+          background: "var(--text-primary)", color: "var(--bg-app)", padding: "6px 10px",
+          borderRadius: 6, fontSize: 11, lineHeight: 1.4, fontWeight: 500,
+          whiteSpace: "normal", width: 220, textAlign: "left",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.2)", zIndex: 20, pointerEvents: "none",
+        }}>
+          {text}
+        </span>
+      )}
+    </span>
   );
+}
 
-  const canvasW = LABEL_W + categories.length * (CELL_W + GAP) - GAP;
-  const canvasH = HEADER_H + students.length * (CELL_H + GAP) - GAP;
-
-  const draw = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = canvasW * dpr;
-    canvas.height = canvasH * dpr;
-    canvas.style.width = `${canvasW}px`;
-    canvas.style.height = `${canvasH}px`;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.scale(dpr, dpr);
-
-    // Read theme colors
-    const style = getComputedStyle(document.documentElement);
-    const textColor = style.getPropertyValue("--text-primary").trim() || "#2d2a26";
-    const mutedColor = style.getPropertyValue("--text-muted").trim() || "#6c655d";
-
-    ctx.clearRect(0, 0, canvasW, canvasH);
-
-    // Column headers
-    ctx.font = "600 11px system-ui, -apple-system, sans-serif";
-    ctx.fillStyle = mutedColor;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "bottom";
-    for (let c = 0; c < categories.length; c++) {
-      const x = LABEL_W + c * (CELL_W + GAP) + CELL_W / 2;
-      ctx.fillText(categories[c], x, HEADER_H - 4);
-    }
-
-    // Rows
-    for (let r = 0; r < students.length; r++) {
-      const y = HEADER_H + r * (CELL_H + GAP);
-
-      // Row label
-      ctx.font = "600 12px system-ui, -apple-system, sans-serif";
-      ctx.fillStyle = textColor;
-      ctx.textAlign = "right";
-      ctx.textBaseline = "middle";
-      const name = students[r].display_name ?? students[r].utln;
-      ctx.fillText(name.length > 14 ? name.slice(0, 13) + "..." : name, LABEL_W - 10, y + CELL_H / 2);
-
-      // Cells
-      for (let c = 0; c < categories.length; c++) {
-        const x = LABEL_W + c * (CELL_W + GAP);
-        const val = values[r][c];
-        const isHovered = hover?.row === r && hover?.col === c;
-
-        // Rounded rect
-        ctx.beginPath();
-        ctx.roundRect(x, y, CELL_W, CELL_H, RADIUS);
-        ctx.fillStyle = struggleColor(val);
-        ctx.fill();
-
-        if (isHovered) {
-          ctx.strokeStyle = style.getPropertyValue("--accent").trim() || "#3d5f85";
-          ctx.lineWidth = 2;
-          ctx.stroke();
-          // Brighten overlay
-          ctx.fillStyle = "rgba(255,255,255,0.15)";
-          ctx.fill();
-        }
-
-        // Value text
-        ctx.font = "700 13px system-ui, -apple-system, sans-serif";
-        ctx.fillStyle = val >= 40 ? "#fff" : "rgba(0,0,0,0.8)";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(String(val), x + CELL_W / 2, y + CELL_H / 2);
-      }
-    }
-  }, [students, hover, canvasW, canvasH, values]);
-
-  // Draw on mount and when hover/theme changes
-  useEffect(() => {
-    draw();
-  }, [draw]);
-
-  // Observe theme changes
-  useEffect(() => {
-    const observer = new MutationObserver(() => draw());
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-    return () => observer.disconnect();
-  }, [draw]);
-
-  function hitTest(e: React.MouseEvent): { row: number; col: number } | null {
-    const canvas = canvasRef.current;
-    if (!canvas) return null;
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-
-    for (let r = 0; r < students.length; r++) {
-      for (let c = 0; c < categories.length; c++) {
-        const x = LABEL_W + c * (CELL_W + GAP);
-        const y = HEADER_H + r * (CELL_H + GAP);
-        if (mx >= x && mx <= x + CELL_W && my >= y && my <= y + CELL_H) {
-          return { row: r, col: c };
-        }
-      }
-    }
-    return null;
+/** Continuous color scale: teal (0) → amber (0.5) → hot pink (1.0) */
+function struggleColor(t: number): string {
+  t = Math.max(0, Math.min(t, 1));
+  let r: number, g: number, b: number;
+  if (t < 0.5) {
+    const s = t / 0.5;
+    r = Math.round(15 + s * 230);
+    g = Math.round(180 - s * 5);
+    b = Math.round(170 - s * 125);
+  } else {
+    const s = (t - 0.5) / 0.5;
+    r = Math.round(245 - s * 10);
+    g = Math.round(175 - s * 130);
+    b = Math.round(45 + s * 30);
   }
+  return `rgb(${r}, ${g}, ${b})`;
+}
 
-  function handleMouseMove(e: React.MouseEvent) {
-    const hit = hitTest(e);
-    if (hit) {
-      const canvas = canvasRef.current!;
-      const rect = canvas.getBoundingClientRect();
-      setHover({ ...hit, x: e.clientX - rect.left, y: e.clientY - rect.top });
-    } else {
-      setHover(null);
-    }
-  }
+type ClassSortMetric = "struggle_index" | "avg_dwell_time" | "avg_churn" | "student_count";
+const classSortOptions: { key: ClassSortMetric; label: string }[] = [
+  { key: "struggle_index", label: "Score" },
+  { key: "avg_dwell_time", label: "Time" },
+  { key: "avg_churn", label: "Churn" },
+  { key: "student_count", label: "Students" },
+];
 
-  function handleClick(e: React.MouseEvent) {
-    const hit = hitTest(e);
-    if (hit) {
-      const name = students[hit.row].display_name ?? students[hit.row].utln;
-      onCellClick(name, categories[hit.col], values[hit.row][hit.col]);
-    }
+function StruggleBarChart({
+  topics,
+  onBarClick,
+}: {
+  topics: { symbol: string; struggle_index: number; student_count: number; avg_dwell_time: number; avg_churn: number }[];
+  onBarClick?: (symbol: string) => void;
+}) {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [sortMetric, setSortMetric] = useState<ClassSortMetric>("struggle_index");
+
+  const sorted = [...topics].sort((a, b) => b[sortMetric] - a[sortMetric]);
+  const maxVal = Math.max(1, ...sorted.map((t) => t[sortMetric]));
+  // For color, always use struggle_index ratio
+  const maxScore = Math.max(1, ...sorted.map((t) => t.struggle_index));
+
+  if (sorted.length === 0) {
+    return <p style={{ fontSize: 12, color: "var(--text-muted)", margin: "0.5rem 0" }}>No struggle data yet.</p>;
   }
 
   return (
-    <div style={{ position: "relative", display: "inline-block" }}>
-      <canvas
-        ref={canvasRef}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={() => setHover(null)}
-        onClick={handleClick}
-        style={{ cursor: hover ? "pointer" : "default", display: "block" }}
-      />
-      {hover && (
-        <div
-          ref={tooltipRef}
-          style={{
-            position: "absolute",
-            left: hover.x + 12,
-            top: hover.y - 8,
-            background: "var(--text-primary)",
-            color: "var(--bg-app)",
-            padding: "4px 10px",
-            borderRadius: 6,
-            fontSize: 12,
-            fontWeight: 600,
-            whiteSpace: "nowrap",
-            pointerEvents: "none",
-            zIndex: 10,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
-          }}
-        >
-          {students[hover.row].display_name ?? students[hover.row].utln} — {categories[hover.col]}: {values[hover.row][hover.col]}
-        </div>
-      )}
+    <div>
+      <div style={{ display: "flex", gap: 2, marginBottom: 6 }}>
+        {classSortOptions.map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => setSortMetric(key)}
+            style={{
+              padding: "2px 7px", fontSize: 10, borderRadius: 4, fontWeight: 600,
+              background: sortMetric === key ? "var(--accent)" : "var(--surface-muted)",
+              color: sortMetric === key ? "#fff" : "var(--text-muted)",
+              border: sortMetric === key ? "1px solid var(--accent)" : "1px solid var(--border-soft)",
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+      {sorted.map((topic, i) => {
+        const pct = (topic[sortMetric] / maxVal) * 100;
+        const colorT = topic.struggle_index / maxScore;
+        const bg = struggleColor(colorT);
+        const isHovered = hoveredIdx === i;
+
+        return (
+          <div
+            key={topic.symbol}
+            style={{ display: "flex", alignItems: "center", gap: 8, cursor: onBarClick ? "pointer" : "default" }}
+            onClick={() => onBarClick?.(topic.symbol)}
+            onMouseEnter={() => setHoveredIdx(i)}
+            onMouseLeave={() => setHoveredIdx(null)}
+          >
+            {/* Symbol label */}
+            <span
+              style={{
+                width: 110,
+                fontSize: 12,
+                fontWeight: 600,
+                color: "var(--text-primary)",
+                textAlign: "right",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                flexShrink: 0,
+              }}
+              title={topic.symbol}
+            >
+              {topic.symbol}
+            </span>
+
+            {/* Bar track */}
+            <div
+              style={{
+                flex: 1,
+                height: 24,
+                borderRadius: 6,
+                background: "var(--border)",
+                overflow: "hidden",
+                position: "relative",
+              }}
+            >
+              {/* Filled bar */}
+              <div
+                style={{
+                  width: `${Math.max(pct, 2)}%`,
+                  height: "100%",
+                  borderRadius: 6,
+                  background: `linear-gradient(90deg, ${struggleColor(colorT * 0.6)}, ${bg})`,
+                  transition: "width 0.5s cubic-bezier(0.4, 0, 0.2, 1), filter 0.15s ease",
+                  filter: isHovered ? "brightness(1.18)" : "none",
+                  boxShadow: isHovered ? `0 2px 12px ${bg.replace("rgb", "rgba").replace(")", ",0.4)")}` : "none",
+                }}
+              />
+              {/* Score label inside bar */}
+              <span
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 8,
+                  height: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: pct > 20 ? "rgba(255,255,255,0.95)" : "var(--text-primary)",
+                }}
+              >
+                {sortMetric === "avg_dwell_time" ? formatTime(topic.avg_dwell_time)
+                  : sortMetric === "avg_churn" ? topic.avg_churn.toFixed(1)
+                  : sortMetric === "student_count" ? topic.student_count
+                  : topic.struggle_index.toFixed(1)}
+              </span>
+            </div>
+
+            {/* Meta: student count + avg time */}
+            <span
+              style={{
+                fontSize: 10,
+                color: "var(--text-muted)",
+                whiteSpace: "nowrap",
+                width: 80,
+                flexShrink: 0,
+              }}
+              title={`${topic.student_count} students struggled here, avg ${Math.round(topic.avg_dwell_time)}s editing time, churn rate ${topic.avg_churn.toFixed(1)}`}
+            >
+              {topic.student_count} stu · {Math.round(topic.avg_dwell_time)}s avg
+            </span>
+          </div>
+        );
+      })}
+      </div>
     </div>
   );
 }
@@ -549,57 +527,95 @@ function AssignmentPage({ courses }: { courses: CourseWithRole[] }) {
     : "—";
 
   const studentStats = [
-    { label: "Time on Assignment", value: studentAnalysis ? formatTime(studentAnalysis.total_time_sec) : "—" },
-    { label: "Top Struggle Area", value: topLinger ? `${topLinger.symbol} (${topLinger.linger_score})` : "—" },
-    { label: "Current Focus", value: topFocus ? topFocus.symbol : "—" },
-    { label: "Avg Churn Rate", value: avgChurn },
+    { label: "Time on Assignment", value: studentAnalysis ? formatTime(studentAnalysis.total_time_sec) : "—", tip: "Total active editing time for this assignment." },
+    { label: "Top Struggle Area", value: topLinger ? `${topLinger.symbol} (${topLinger.linger_score})` : "—", tip: "The symbol where this student spent the most time rewriting code. The number is the linger score: dwell time × churn × visits." },
+    { label: "Current Focus", value: topFocus ? topFocus.symbol : "—", tip: "The symbol this student edited most recently, weighted by recency." },
+    { label: "Avg Churn Rate", value: avgChurn, tip: "Average churn across all symbols. Churn = total chars typed / net change. High churn (>3) means lots of rewriting and backtracking." },
   ];
 
-  // Derive heatmap categories from class struggle topics
-  const heatmapSymbols = classAnalysis?.struggle_topics?.slice(0, 6).map((t) => t.symbol) ?? HEATMAP_CATEGORIES;
+  const struggleTopics = classAnalysis?.struggle_topics ?? [];
 
-  // Build per-student values for those symbols from student_lingers
-  const heatmapValues: number[][] = students.map((s) => {
-    const lingers = classAnalysis?.student_lingers?.[s.profile_id] ?? [];
-    return heatmapSymbols.map((sym) => {
-      const match = lingers.find((l) => l.symbol.toLowerCase() === sym.toLowerCase());
-      return match ? Math.min(Math.round(match.linger_score * 10), 100) : 0;
-    });
-  });
+  // Compute per-student struggle score (sum of linger scores)
+  const studentStruggleScores: Record<string, number> = {};
+  if (classAnalysis?.student_lingers) {
+    for (const [pid, lingers] of Object.entries(classAnalysis.student_lingers)) {
+      studentStruggleScores[pid] = lingers.reduce((s, l) => s + l.linger_score, 0);
+    }
+  }
+
+  // Toggle for student struggles table sort metric
+  const [struggleSortMetric, setStruggleSortMetric] = useState<"linger_score" | "dwell_time" | "churn" | "visits">("linger_score");
+
+  const sortedLinger = studentAnalysis
+    ? [...studentAnalysis.linger].sort((a, b) => b[struggleSortMetric] - a[struggleSortMetric]).slice(0, 5)
+    : [];
 
   const classStats = [
     { label: "Students Tracked", value: classAnalysis ? String(classAnalysis.student_count) : "—" },
-    { label: "Total Flushes", value: classAnalysis ? String(classAnalysis.total_flushes) : "—" },
-    { label: "Top Struggle Symbol", value: classAnalysis?.struggle_topics?.[0]?.symbol ?? "—" },
-    { label: "Struggling Students", value: classAnalysis?.struggle_topics?.[0] ? String(classAnalysis.struggle_topics[0].student_count) : "—" },
+    { label: "Total Edits", value: classAnalysis ? String(classAnalysis.total_flushes) : "—" },
+    { label: "Top Struggle Symbol", value: classAnalysis?.struggle_topics?.[0]?.symbol ?? "—", tip: "The symbol where the most students spent excessive time rewriting code." },
   ];
 
   return (
     <main style={{ maxWidth: 1240, margin: "0 auto", padding: "1rem 1.1rem 2rem" }}>
       <h1 style={{ marginBottom: "0.3rem" }}>{assignmentName || "Assignment"}</h1>
-      <p style={{ marginTop: 0, color: "var(--text-muted)" }}>{courseEntry.course.name} • {courseEntry.course.code}</p>
+      <p style={{ marginTop: 0, marginBottom: "1.5rem", color: "var(--text-muted)" }}>{courseEntry.course.name} • {courseEntry.course.code}</p>
 
-      <div style={{ display: "grid", gridTemplateColumns: "260px minmax(380px, 1fr)", gap: "1rem" }}>
+      {/* Class statistics section - full width at top, compact */}
+      <section style={{ border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", padding: "0.75rem 1rem", marginBottom: "1rem" }}>
+        <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", gap: "2rem" }}>
+          {classStats.map((item: { label: string; value: string; tip?: string }) => (
+            <li key={item.label} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <span style={{ fontSize: 12, color: "var(--text-muted)", display: "inline-flex", alignItems: "center" }}>
+                {item.label}:{item.tip && <InfoTip text={item.tip} />}
+              </span>
+              <strong style={{ fontSize: 14 }}>{item.value}</strong>
+            </li>
+          ))}
+        </ul>
+
+        <h3 style={{ marginTop: "0.6rem", marginBottom: "0.5rem", fontSize: 14, display: "flex", alignItems: "center" }}>
+          Symbol Struggle Ranking
+          <InfoTip text="Ranks code symbols (functions, classes) by how much students struggled with them. Higher scores mean more students spent excessive time rewriting code in that area." />
+        </h3>
+
+        <StruggleBarChart
+          topics={struggleTopics}
+          onBarClick={(symbol) => {
+            const topic = struggleTopics.find((t) => t.symbol === symbol);
+            if (topic) {
+              setNarrative(`${symbol}: struggle ${topic.struggle_index.toFixed(1)} across ${topic.student_count} students, avg ${Math.round(topic.avg_dwell_time)}s dwell, churn ${topic.avg_churn.toFixed(2)}`);
+            }
+          }}
+        />
+
+        {narrative && (
+          <p style={{ margin: "0.4rem 0 0", lineHeight: 1.4, fontSize: 12, color: "var(--text-muted)" }}>{narrative}</p>
+        )}
+      </section>
+
+      {/* Student section - sidebar + stats, compact */}
+      <div style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: "0.8rem" }}>
         {/* Student sidebar */}
-        <aside style={{ border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", padding: "0.8rem" }}>
-          <h2 style={{ marginTop: 0, fontSize: 18 }}>Students</h2>
+        <aside style={{ border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", padding: "0.6rem", height: "fit-content" }}>
+          <h2 style={{ marginTop: 0, marginBottom: "0.4rem", fontSize: 14 }}>Students</h2>
           {!loading && students.length > 0 && (
             <input
               value={studentSearch}
               onChange={(e) => setStudentSearch(e.target.value)}
-              placeholder="Search by UTLN..."
-              style={{ width: "100%", padding: "0.45rem 0.6rem", marginBottom: "0.6rem", borderRadius: 6, border: "1px solid var(--border)", fontSize: 13 }}
+              placeholder="Search..."
+              style={{ width: "100%", padding: "0.3rem 0.4rem", marginBottom: "0.4rem", borderRadius: 6, border: "1px solid var(--border)", fontSize: 12 }}
             />
           )}
           {loading ? (
-            <p style={{ color: "var(--text-muted)" }}>Loading...</p>
+            <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 12 }}>Loading...</p>
           ) : students.length === 0 ? (
-            <p style={{ color: "var(--text-muted)" }}>No students enrolled.</p>
+            <p style={{ margin: 0, color: "var(--text-muted)", fontSize: 12 }}>No students.</p>
           ) : (() => {
             const filtered = students.filter((s) =>
               s.utln.toLowerCase().includes(studentSearch.toLowerCase())
             );
-            const MAX_VISIBLE = 8;
+            const MAX_VISIBLE = 12;
             const visible = filtered.slice(0, MAX_VISIBLE);
             const remaining = filtered.length - MAX_VISIBLE;
             return (
@@ -610,426 +626,144 @@ function AssignmentPage({ courses }: { courses: CourseWithRole[] }) {
                     onClick={() => setSelectedStudentId(s.profile_id)}
                     style={{
                       display: "flex", alignItems: "center", justifyContent: "space-between",
-                      padding: "0.4rem 0.5rem", marginBottom: 2, borderRadius: 6, cursor: "pointer",
+                      padding: "0.25rem 0.35rem", marginBottom: 1, borderRadius: 4, cursor: "pointer",
                       background: selectedStudentId === s.profile_id ? "var(--accent-soft)" : "transparent",
+                      fontSize: 12
                     }}
                   >
-                    <span style={{ fontWeight: 600, fontSize: 13 }}>{s.utln}</span>
+                    <span style={{ fontWeight: 500, flex: 1 }}>{s.utln}</span>
+                    {studentStruggleScores[s.profile_id] != null && (
+                      <span style={{ fontSize: 10, color: "var(--text-muted)", fontVariantNumeric: "tabular-nums", marginRight: 4 }}>
+                        {studentStruggleScores[s.profile_id].toFixed(1)}
+                      </span>
+                    )}
                     <Link
                       to={`/${courseCode}/${assignmentId}/${s.profile_id}`}
                       onClick={(e) => e.stopPropagation()}
-                      style={{ fontSize: 12, color: "var(--accent)", fontWeight: 700, textDecoration: "none" }}
+                      style={{ fontSize: 11, color: "var(--accent)", fontWeight: 700, textDecoration: "none" }}
                     >
-                      Replay
+                      →
                     </Link>
                   </div>
                 ))}
                 {remaining > 0 && (
-                  <p style={{ margin: "0.4rem 0 0", fontSize: 12, color: "var(--text-muted)" }}>
-                    +{remaining} more — search to find
+                  <p style={{ margin: "0.25rem 0 0", fontSize: 11, color: "var(--text-muted)" }}>
+                    +{remaining} more
                   </p>
                 )}
                 {filtered.length === 0 && (
-                  <p style={{ margin: "0.4rem 0 0", fontSize: 12, color: "var(--text-muted)" }}>No matches.</p>
+                  <p style={{ margin: "0.25rem 0 0", fontSize: 11, color: "var(--text-muted)" }}>No match</p>
                 )}
               </>
             );
           })()}
         </aside>
 
-        {/* Right content area */}
-        <section style={{ display: "grid", gap: "1rem" }}>
-          {/* Student stats */}
-          <section style={{ border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", padding: "1rem" }}>
-            <h2 style={{ marginTop: 0, marginBottom: "0.3rem" }}>Student Assignment Stats: {selectedStudent?.display_name ?? selectedStudent?.utln ?? "—"}</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "minmax(240px, 1fr) minmax(260px, 1.1fr)", gap: "1rem" }}>
-              <div>
-                <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-                  {studentStats.map((item) => (
-                    <li key={item.label} style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", borderBottom: "1px solid var(--border-soft)" }}>
-                      <span>{item.label}</span>
-                      <strong>{item.value}</strong>
-                    </li>
-                  ))}
-                </ul>
-                {/* Linger breakdown table */}
-                {studentAnalysis && studentAnalysis.linger.length > 0 && (
-                  <div style={{ marginTop: "0.8rem" }}>
-                    <h4 style={{ margin: "0 0 0.3rem", fontSize: 13, color: "var(--text-muted)" }}>Top Struggle Symbols</h4>
-                    <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
-                      <thead>
-                        <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
-                          <th style={{ textAlign: "left", padding: "0.25rem 0" }}>Symbol</th>
-                          <th style={{ textAlign: "right", padding: "0.25rem 0" }}>Time</th>
-                          <th style={{ textAlign: "right", padding: "0.25rem 0" }}>Visits</th>
-                          <th style={{ textAlign: "right", padding: "0.25rem 0" }}>Churn</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {studentAnalysis.linger.slice(0, 5).map((l, i) => (
-                          <tr key={i} style={{ borderBottom: "1px solid var(--border-soft)" }}>
-                            <td style={{ padding: "0.25rem 0", fontFamily: "monospace" }}>{l.symbol}</td>
-                            <td style={{ textAlign: "right", padding: "0.25rem 0" }}>{formatTime(l.dwell_time)}</td>
-                            <td style={{ textAlign: "right", padding: "0.25rem 0" }}>{l.visits}</td>
-                            <td style={{ textAlign: "right", padding: "0.25rem 0" }}>{l.churn}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-              <div style={{ border: "1px solid var(--border-soft)", borderRadius: 8, padding: "0.75rem", background: "var(--surface-muted)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-                  <h3 style={{ margin: 0, fontSize: 16 }}>AI Work Analysis</h3>
-                  <button
-                    className="btn btn-primary"
-                    onClick={generateAIReport}
-                    disabled={!selectedStudentId || reportLoading}
-                    style={{ padding: "0.35rem 0.8rem", fontSize: 13, fontWeight: 600 }}
-                  >
-                    {reportLoading ? "Generating..." : "Generate Report"}
-                  </button>
-                </div>
-                {aiReport ? (
-                  <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 6, padding: "0.6rem", marginTop: "0.5rem" }}>
-                    <p style={{ margin: 0, lineHeight: 1.5, whiteSpace: "pre-wrap", fontSize: 14 }}>{aiReport}</p>
-                  </div>
-                ) : (
-                  <p style={{ margin: 0, color: "var(--text-muted)", lineHeight: 1.35, fontSize: 13 }}>
-                    Click "Generate Report" to analyze this student's workflow, struggles, and productivity based on their actual code changes.
-                  </p>
-                )}
-              </div>
-            </div>
-          </section>
+        {/* Right content area - Student stats only, compact */}
+        <section style={{ border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", padding: "0.75rem" }}>
+          <h2 style={{ marginTop: 0, marginBottom: "0.5rem", fontSize: 14, fontWeight: 600 }}>
+            {selectedStudent?.display_name ?? selectedStudent?.utln ?? "—"}
+          </h2>
 
-          {/* Class stats */}
-          <section style={{ border: "1px solid var(--border)", borderRadius: 12, background: "var(--surface)", padding: "1rem" }}>
-            <h2 style={{ marginTop: 0, marginBottom: "0.35rem" }}>Overall Class Statistics</h2>
-            <ul style={{ listStyle: "none", margin: "0 0 0.8rem", padding: 0 }}>
-              {classStats.map((item) => (
-                <li key={item.label} style={{ display: "flex", justifyContent: "space-between", padding: "0.45rem 0", borderBottom: "1px solid var(--border-soft)" }}>
-                  <span>{item.label}</span>
-                  <strong>{item.value}</strong>
-                </li>
+          <table style={{ width: "100%", fontSize: 13, borderCollapse: "collapse", marginBottom: "0.6rem" }}>
+            <tbody>
+              {studentStats.map((item) => (
+                <tr key={item.label} style={{ borderBottom: "1px solid var(--border-soft)" }}>
+                  <td style={{ padding: "0.35rem 0.5rem 0.35rem 0", color: "var(--text-muted)", width: "70%" }}>
+                    <span style={{ display: "inline-flex", alignItems: "center" }}>
+                      {item.label}
+                      {item.tip && <InfoTip text={item.tip} />}
+                    </span>
+                  </td>
+                  <td style={{ textAlign: "right", padding: "0.35rem 0", fontWeight: 700, whiteSpace: "nowrap" }}>{item.value}</td>
+                </tr>
               ))}
-            </ul>
+            </tbody>
+          </table>
 
-            <h3 style={{ marginTop: "0.8rem", marginBottom: "0.4rem" }}>Function/Symbol Struggle Heatmap</h3>
-            <p style={{ marginTop: 0, marginBottom: "0.6rem", color: "var(--text-muted)" }}>Higher values indicate more struggle. Click a cell for details.</p>
-
-            {students.length > 0 && classAnalysis && (
-              <div style={{ overflowX: "auto", padding: "0.25rem 0" }}>
-                <StruggleHeatmap
-                  students={students}
-                  categories={heatmapSymbols}
-                  values={heatmapValues}
-                  onCellClick={(name, category, value) => {
-                    const studentLingers = classAnalysis?.student_lingers ?? {};
-                    const sid = students.find((s) => (s.display_name ?? s.utln) === name)?.profile_id;
-                    const lingers = sid ? studentLingers[sid] : undefined;
-                    const match = lingers?.find((l) => l.symbol.toLowerCase() === category.toLowerCase());
-                    if (match) {
-                      setNarrative(`${name} visited ${match.symbol} ${match.visits} times over ${formatTime(match.dwell_time)} with churn rate ${match.churn}`);
-                    } else {
-                      setNarrative(`${name} — ${category} (score: ${value}): No significant activity detected.`);
-                    }
-                  }}
-                />
+          {/* Linger breakdown table */}
+          {studentAnalysis && studentAnalysis.linger.length > 0 && (
+            <div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "0.5rem 0 0.4rem" }}>
+                <h3 style={{ margin: 0, fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center" }}>
+                  Top 5 Struggles
+                  <InfoTip text="Symbols ranked by selected metric. Linger score = dwell × churn × visits. Toggle to sort by submetrics." />
+                </h3>
+                <div style={{ display: "flex", gap: 2 }}>
+                  {([
+                    ["linger_score", "Score"],
+                    ["dwell_time", "Time"],
+                    ["churn", "Churn"],
+                    ["visits", "Visits"],
+                  ] as const).map(([key, label]) => (
+                    <button
+                      key={key}
+                      onClick={() => setStruggleSortMetric(key)}
+                      style={{
+                        padding: "2px 7px", fontSize: 10, borderRadius: 4, fontWeight: 600,
+                        background: struggleSortMetric === key ? "var(--accent)" : "var(--surface-muted)",
+                        color: struggleSortMetric === key ? "#fff" : "var(--text-muted)",
+                        border: struggleSortMetric === key ? "1px solid var(--accent)" : "1px solid var(--border-soft)",
+                      }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
               </div>
-            )}
-
-            {students.length > 0 && !classAnalysis && (
-              <div style={{ overflowX: "auto", padding: "0.25rem 0" }}>
-                <StruggleHeatmap
-                  students={students}
-                  onCellClick={(name, category, value) =>
-                    setNarrative(`${name} — ${category} (score: ${value}): Loading analysis...`)
-                  }
-                />
-              </div>
-            )}
-
-            <div style={{ marginTop: "0.8rem", border: "1px solid var(--border-soft)", borderRadius: 8, background: "var(--surface-muted)", padding: "0.75rem" }}>
-              <h4 style={{ marginTop: 0, marginBottom: "0.35rem" }}>Cell Details</h4>
-              <p style={{ margin: 0, lineHeight: 1.4, fontSize: 13 }}>{narrative}</p>
+              <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse", tableLayout: "fixed" }}>
+                <colgroup>
+                  <col style={{ width: "36%" }} />
+                  <col style={{ width: "16%" }} />
+                  <col style={{ width: "16%" }} />
+                  <col style={{ width: "16%" }} />
+                  <col style={{ width: "16%" }} />
+                </colgroup>
+                <thead>
+                  <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
+                    <th style={{ textAlign: "left", padding: "0.3rem 0", fontWeight: 600, color: "var(--text-muted)", fontSize: 11 }}>Symbol</th>
+                    <th style={{ textAlign: "right", padding: "0.3rem 0", fontWeight: 600, color: struggleSortMetric === "linger_score" ? "var(--accent-strong)" : "var(--text-muted)", fontSize: 11 }}>Score</th>
+                    <th style={{ textAlign: "right", padding: "0.3rem 0", fontWeight: 600, color: struggleSortMetric === "dwell_time" ? "var(--accent-strong)" : "var(--text-muted)", fontSize: 11 }}>Time</th>
+                    <th style={{ textAlign: "right", padding: "0.3rem 0", fontWeight: 600, color: struggleSortMetric === "churn" ? "var(--accent-strong)" : "var(--text-muted)", fontSize: 11 }}>Churn</th>
+                    <th style={{ textAlign: "right", padding: "0.3rem 0", fontWeight: 600, color: struggleSortMetric === "visits" ? "var(--accent-strong)" : "var(--text-muted)", fontSize: 11 }}>Visits</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedLinger.map((l, i) => (
+                    <tr key={i} style={{ borderBottom: "1px solid var(--border-soft)" }}>
+                      <td style={{ padding: "0.3rem 0", fontFamily: "monospace", fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{l.symbol}</td>
+                      <td style={{ textAlign: "right", padding: "0.3rem 0", fontSize: 12, fontWeight: struggleSortMetric === "linger_score" ? 700 : 400 }}>{l.linger_score.toFixed(1)}</td>
+                      <td style={{ textAlign: "right", padding: "0.3rem 0", fontSize: 12, fontWeight: struggleSortMetric === "dwell_time" ? 700 : 400 }}>{formatTime(l.dwell_time)}</td>
+                      <td style={{ textAlign: "right", padding: "0.3rem 0", fontSize: 12, fontWeight: struggleSortMetric === "churn" ? 700 : 400 }}>{l.churn.toFixed(1)}</td>
+                      <td style={{ textAlign: "right", padding: "0.3rem 0", fontSize: 12, fontWeight: struggleSortMetric === "visits" ? 700 : 400 }}>{l.visits}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </section>
+          )}
         </section>
       </div>
     </main>
   );
 }
 
-function ReplayTimeline({
-  flushes,
-  stepIndex,
-  onSeek,
-}: {
-  flushes: Flush[];
-  stepIndex: number;
-  onSeek: (idx: number) => void;
-}) {
-  const mainRef = useRef<HTMLCanvasElement>(null);
-  const miniRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [zoom, setZoom] = useState(1);
-  const [panX, setPanX] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-
-  // Compute cumulative positions for each flush (normalized 0..1)
-  const totalDur = flushes.reduce((s, f) => s + Math.max(f.window_duration || 0.5, 0.5), 0);
-  const positions: number[] = [];
-  let cum = 0;
-  for (const f of flushes) {
-    positions.push(cum / totalDur);
-    cum += Math.max(f.window_duration || 0.5, 0.5);
-  }
-
-  // Session detection
-  type Session = { startIdx: number; endIdx: number; label: string };
-  const sessions: Session[] = [];
-  if (flushes.length > 0) {
-    let sStart = 0;
-    for (let i = 1; i < flushes.length; i++) {
-      const gap = new Date(flushes[i].start_timestamp).getTime() - new Date(flushes[i - 1].end_timestamp).getTime();
-      if (gap > 30 * 60 * 1000) {
-        sessions.push({ startIdx: sStart, endIdx: i - 1, label: new Date(flushes[sStart].start_timestamp).toLocaleDateString() });
-        sStart = i;
-      }
+/** Detect session boundaries (>30min gap) and return day labels with flush index positions */
+function detectSessions(flushes: Flush[]): { idx: number; label: string }[] {
+  if (flushes.length === 0) return [];
+  const sessions: { idx: number; label: string }[] = [
+    { idx: 0, label: new Date(flushes[0].start_timestamp).toLocaleDateString(undefined, { month: "short", day: "numeric" }) },
+  ];
+  for (let i = 1; i < flushes.length; i++) {
+    const gap = new Date(flushes[i].start_timestamp).getTime() - new Date(flushes[i - 1].end_timestamp).getTime();
+    if (gap > 30 * 60 * 1000) {
+      sessions.push({
+        idx: i,
+        label: new Date(flushes[i].start_timestamp).toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+      });
     }
-    sessions.push({ startIdx: sStart, endIdx: flushes.length - 1, label: new Date(flushes[sStart].start_timestamp).toLocaleDateString() });
   }
-
-  const MAIN_H = 48;
-  const MINI_H = 12;
-
-  // Hit test: x pixel on main canvas → flush index
-  const xToIdx = useCallback((x: number, canvasW: number): number => {
-    const viewStart = panX;
-    const viewEnd = panX + 1 / zoom;
-    const norm = viewStart + (x / canvasW) * (viewEnd - viewStart);
-    let best = 0;
-    for (let i = 0; i < positions.length; i++) {
-      if (positions[i] <= norm) best = i;
-    }
-    return best;
-  }, [panX, zoom, positions]);
-
-  const drawMain = useCallback(() => {
-    const canvas = mainRef.current;
-    if (!canvas) return;
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    const w = rect.width;
-    canvas.width = w * dpr;
-    canvas.height = MAIN_H * dpr;
-    canvas.style.height = `${MAIN_H}px`;
-    const ctx = canvas.getContext("2d")!;
-    ctx.scale(dpr, dpr);
-
-    const style = getComputedStyle(document.documentElement);
-    const accent = style.getPropertyValue("--accent").trim() || "#3d5f85";
-    const accentSoft = style.getPropertyValue("--accent-soft-2").trim() || "#c8d8e8";
-    const borderCol = style.getPropertyValue("--border").trim() || "#d7d0c4";
-    const mutedText = style.getPropertyValue("--text-muted").trim() || "#6c655d";
-    const surfaceMuted = style.getPropertyValue("--surface-muted").trim() || "#f3f0e8";
-
-    ctx.clearRect(0, 0, w, MAIN_H);
-
-    const viewStart = panX;
-    const viewEnd = panX + 1 / zoom;
-
-    // Draw session backgrounds
-    for (const session of sessions) {
-      const sNorm = positions[session.startIdx];
-      const eFlush = flushes[session.endIdx];
-      const eNorm = (positions[session.endIdx] + Math.max(eFlush.window_duration || 0.5, 0.5) / totalDur);
-      const sx = ((sNorm - viewStart) / (viewEnd - viewStart)) * w;
-      const ex = ((eNorm - viewStart) / (viewEnd - viewStart)) * w;
-      if (ex < 0 || sx > w) continue;
-      ctx.fillStyle = surfaceMuted;
-      ctx.fillRect(Math.max(sx, 0), 0, Math.min(ex, w) - Math.max(sx, 0), MAIN_H);
-      // Session label
-      if (ex - sx > 60) {
-        ctx.font = "600 9px system-ui, sans-serif";
-        ctx.fillStyle = mutedText;
-        ctx.textAlign = "left";
-        ctx.textBaseline = "top";
-        ctx.fillText(session.label, Math.max(sx + 4, 2), 2);
-      }
-    }
-
-    // Draw flush bars
-    for (let i = 0; i < flushes.length; i++) {
-      const f = flushes[i];
-      const dur = Math.max(f.window_duration || 0.5, 0.5);
-      const startN = positions[i];
-      const endN = startN + dur / totalDur;
-      const sx = ((startN - viewStart) / (viewEnd - viewStart)) * w;
-      const ex = ((endN - viewStart) / (viewEnd - viewStart)) * w;
-      if (ex < 0 || sx > w) continue;
-      const barW = Math.max(ex - sx, 2);
-      ctx.fillStyle = i === stepIndex ? accent : accentSoft;
-      ctx.beginPath();
-      ctx.roundRect(Math.max(sx, 0), 14, Math.min(barW, w - Math.max(sx, 0)), MAIN_H - 18, 3);
-      ctx.fill();
-    }
-
-    // Draw playhead
-    if (stepIndex >= 0 && stepIndex < positions.length) {
-      const pN = positions[stepIndex];
-      const px = ((pN - viewStart) / (viewEnd - viewStart)) * w;
-      if (px >= 0 && px <= w) {
-        ctx.strokeStyle = accent;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(px, 0);
-        ctx.lineTo(px, MAIN_H);
-        ctx.stroke();
-        // Playhead triangle
-        ctx.fillStyle = accent;
-        ctx.beginPath();
-        ctx.moveTo(px - 5, 0);
-        ctx.lineTo(px + 5, 0);
-        ctx.lineTo(px, 7);
-        ctx.closePath();
-        ctx.fill();
-      }
-    }
-
-    // Border
-    ctx.strokeStyle = borderCol;
-    ctx.lineWidth = 1;
-    ctx.strokeRect(0.5, 0.5, w - 1, MAIN_H - 1);
-  }, [flushes, stepIndex, panX, zoom, positions, sessions, totalDur]);
-
-  const drawMini = useCallback(() => {
-    const canvas = miniRef.current;
-    if (!canvas) return;
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    const w = rect.width;
-    canvas.width = w * dpr;
-    canvas.height = MINI_H * dpr;
-    canvas.style.height = `${MINI_H}px`;
-    const ctx = canvas.getContext("2d")!;
-    ctx.scale(dpr, dpr);
-
-    const style = getComputedStyle(document.documentElement);
-    const accent = style.getPropertyValue("--accent").trim() || "#3d5f85";
-    const accentSoft = style.getPropertyValue("--accent-soft-2").trim() || "#c8d8e8";
-    const borderCol = style.getPropertyValue("--border").trim() || "#d7d0c4";
-
-    ctx.clearRect(0, 0, w, MINI_H);
-
-    // Draw all flushes as tiny bars
-    for (let i = 0; i < flushes.length; i++) {
-      const f = flushes[i];
-      const dur = Math.max(f.window_duration || 0.5, 0.5);
-      const sx = positions[i] * w;
-      const ex = (positions[i] + dur / totalDur) * w;
-      ctx.fillStyle = i === stepIndex ? accent : accentSoft;
-      ctx.fillRect(sx, 1, Math.max(ex - sx, 1), MINI_H - 2);
-    }
-
-    // Viewport rectangle
-    const vx = panX * w;
-    const vw = (1 / zoom) * w;
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(vx, 0, vw, MINI_H);
-
-    ctx.strokeStyle = borderCol;
-    ctx.lineWidth = 0.5;
-    ctx.strokeRect(0, 0, w, MINI_H);
-  }, [flushes, stepIndex, panX, zoom, positions, totalDur]);
-
-  useEffect(() => { drawMain(); drawMini(); }, [drawMain, drawMini]);
-
-  // Theme observer
-  useEffect(() => {
-    const obs = new MutationObserver(() => { drawMain(); drawMini(); });
-    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-    return () => obs.disconnect();
-  }, [drawMain, drawMini]);
-
-  // Resize observer
-  useEffect(() => {
-    const ro = new ResizeObserver(() => { drawMain(); drawMini(); });
-    if (containerRef.current) ro.observe(containerRef.current);
-    return () => ro.disconnect();
-  }, [drawMain, drawMini]);
-
-  // Mouse handlers for main canvas
-  function handleMainMouseDown(e: React.MouseEvent) {
-    const canvas = mainRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    onSeek(xToIdx(x, rect.width));
-    setIsDragging(true);
-  }
-
-  function handleMainMouseMove(e: React.MouseEvent) {
-    if (!isDragging) return;
-    const canvas = mainRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-    onSeek(xToIdx(x, rect.width));
-  }
-
-  function handleMainMouseUp() {
-    setIsDragging(false);
-  }
-
-  // Wheel zoom
-  function handleWheel(e: React.WheelEvent) {
-    e.preventDefault();
-    const canvas = mainRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const mouseNorm = panX + ((e.clientX - rect.left) / rect.width) * (1 / zoom);
-
-    const factor = e.deltaY < 0 ? 1.3 : 1 / 1.3;
-    const newZoom = Math.max(1, Math.min(zoom * factor, Math.max(flushes.length, 10)));
-    const newPan = Math.max(0, Math.min(mouseNorm - ((e.clientX - rect.left) / rect.width) * (1 / newZoom), 1 - 1 / newZoom));
-    setZoom(newZoom);
-    setPanX(newPan);
-  }
-
-  // Minimap click
-  function handleMiniClick(e: React.MouseEvent) {
-    const canvas = miniRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const clickNorm = (e.clientX - rect.left) / rect.width;
-    const halfView = (1 / zoom) / 2;
-    setPanX(Math.max(0, Math.min(clickNorm - halfView, 1 - 1 / zoom)));
-  }
-
-  return (
-    <div ref={containerRef} style={{ userSelect: "none" }}>
-      {/* Minimap */}
-      <canvas
-        ref={miniRef}
-        onClick={handleMiniClick}
-        style={{ width: "100%", height: MINI_H, cursor: "pointer", display: "block", marginBottom: 4, borderRadius: 4 }}
-      />
-      {/* Main timeline */}
-      <canvas
-        ref={mainRef}
-        onMouseDown={handleMainMouseDown}
-        onMouseMove={handleMainMouseMove}
-        onMouseUp={handleMainMouseUp}
-        onMouseLeave={handleMainMouseUp}
-        onWheel={handleWheel}
-        style={{ width: "100%", height: MAIN_H, cursor: isDragging ? "grabbing" : "pointer", display: "block", borderRadius: 8 }}
-      />
-    </div>
-  );
+  return sessions;
 }
 
 // Visual typing state: code + cursor position + edit region for highlighting
@@ -1189,16 +923,16 @@ function CodeViewer({ state, filePath, timestamp }: { state: TypingState; filePa
   }, [cursorPos, code]);
 
   return (
-    <div style={{ border: "1px solid #1e293b", borderRadius: 8, background: "#1a1a2e", padding: "0.75rem", flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+    <div style={{ border: "1px solid var(--border)", borderRadius: 8, background: "var(--surface)", padding: "0.75rem", flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
       <style>{`@keyframes cursor-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }`}</style>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem", flexShrink: 0 }}>
-        <code style={{ color: "#8892b0", fontSize: 12 }}>{filePath || "—"}</code>
-        <span style={{ color: "#5a6785", fontSize: 11 }}>{timestamp}</span>
+        <code style={{ color: "var(--text-muted)", fontSize: 12 }}>{filePath || "—"}</code>
+        <span style={{ color: "var(--text-muted)", fontSize: 11 }}>{timestamp}</span>
       </div>
       <div
         ref={codeRef}
         style={{
-          margin: 0, color: "#ccd6f6", flex: 1, overflowY: "auto", minHeight: 0,
+          margin: 0, color: "var(--text-primary)", flex: 1, overflowY: "auto", minHeight: 0,
           fontSize: 13, lineHeight: 1.5,
           fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
           whiteSpace: "pre",  // CRITICAL: Preserve all whitespace (spaces, tabs, indentation)
@@ -1206,6 +940,143 @@ function CodeViewer({ state, filePath, timestamp }: { state: TypingState; filePa
       >
         {elements}
       </div>
+    </div>
+  );
+}
+
+type ChatMessage = { role: "user" | "assistant"; content: string };
+
+function ChatPanel({
+  studentId,
+  assignmentId,
+  onClose,
+}: {
+  studentId: string;
+  assignmentId: string;
+  onClose: () => void;
+}) {
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [streaming, setStreaming] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:10000";
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  async function send() {
+    const text = input.trim();
+    if (!text || streaming) return;
+    setInput("");
+
+    const history = messages.map((m) => ({ role: m.role, content: m.content }));
+    setMessages((prev) => [...prev, { role: "user", content: text }, { role: "assistant", content: "" }]);
+    setStreaming(true);
+
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+      const res = await fetch(`${BASE_URL}/api/analysis/chat/${studentId}`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text, assignment_id: assignmentId, history }),
+      });
+
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
+      if (!reader) throw new Error("No reader");
+
+      let buffer = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const payload = line.slice(6);
+          if (payload === "[DONE]") break;
+          setMessages((prev) => {
+            const copy = [...prev];
+            copy[copy.length - 1] = { role: "assistant", content: copy[copy.length - 1].content + payload };
+            return copy;
+          });
+        }
+      }
+    } catch {
+      setMessages((prev) => {
+        const copy = [...prev];
+        copy[copy.length - 1] = { role: "assistant", content: "Failed to get response. Please try again." };
+        return copy;
+      });
+    } finally {
+      setStreaming(false);
+    }
+  }
+
+  return (
+    <div style={{
+      position: "absolute", top: 0, right: 0, bottom: 0, width: 360,
+      background: "var(--surface)", borderLeft: "1px solid var(--border)",
+      display: "flex", flexDirection: "column", zIndex: 10,
+      boxShadow: "-4px 0 20px rgba(0,0,0,0.15)",
+    }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.6rem 0.8rem", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
+        <span style={{ fontWeight: 700, fontSize: 14 }}>AI Chat</span>
+        <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", fontSize: 18, lineHeight: 1 }}>×</button>
+      </div>
+
+      {/* Messages */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "0.6rem", display: "flex", flexDirection: "column", gap: "0.5rem", minHeight: 0 }}>
+        {messages.length === 0 && (
+          <p style={{ color: "var(--text-muted)", fontSize: 12, textAlign: "center", marginTop: "2rem" }}>
+            Ask questions about this student's coding journey.
+          </p>
+        )}
+        {messages.map((m, i) => (
+          <div key={i} style={{
+            alignSelf: m.role === "user" ? "flex-end" : "flex-start",
+            maxWidth: "85%",
+            padding: "0.5rem 0.7rem",
+            borderRadius: 10,
+            fontSize: 13,
+            lineHeight: 1.5,
+            background: m.role === "user" ? "var(--accent)" : "var(--surface-muted)",
+            color: m.role === "user" ? "#fff" : "var(--text-primary)",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+          }}>
+            {m.content || (streaming && i === messages.length - 1 ? "..." : "")}
+          </div>
+        ))}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input */}
+      <form onSubmit={(e) => { e.preventDefault(); send(); }} style={{ display: "flex", gap: "0.4rem", padding: "0.5rem 0.6rem", borderTop: "1px solid var(--border)", flexShrink: 0 }}>
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Ask about this student's work..."
+          disabled={streaming}
+          style={{
+            flex: 1, padding: "0.45rem 0.6rem", borderRadius: 8,
+            border: "1px solid var(--border)", fontSize: 13,
+            background: "var(--bg-app)", color: "var(--text-primary)",
+          }}
+        />
+        <button
+          type="submit"
+          disabled={streaming || !input.trim()}
+          className="btn btn-primary"
+          style={{ padding: "0.45rem 0.7rem", fontSize: 13, borderRadius: 8 }}
+        >
+          Send
+        </button>
+      </form>
     </div>
   );
 }
@@ -1219,80 +1090,6 @@ function formatDuration(ms: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-/** Compute per-flush "density" (how much changed) for the bottom bar gradient */
-function computeDensities(flushes: Flush[]): number[] {
-  if (flushes.length === 0) return [];
-  // Use diff length as a proxy for change density
-  const raw = flushes.map((f) => f.diffs.length);
-  const maxVal = Math.max(...raw, 1);
-  return raw.map((v) => v / maxVal);
-}
-
-/** Density bar: renders a horizontal gradient strip colored by change density */
-function DensityBar({ flushes, stepIndex, onSeek }: { flushes: Flush[]; stepIndex: number; onSeek: (idx: number) => void }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const densities = computeDensities(flushes);
-  const BAR_H = 6;
-
-  const draw = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    const w = rect.width;
-    canvas.width = w * dpr;
-    canvas.height = BAR_H * dpr;
-    canvas.style.height = `${BAR_H}px`;
-    const ctx = canvas.getContext("2d")!;
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, w, BAR_H);
-
-    if (flushes.length === 0) return;
-
-    const segW = w / flushes.length;
-    for (let i = 0; i < flushes.length; i++) {
-      const d = densities[i];
-      // Low density = cool blue, high density = hot orange/red
-      const hue = 220 - d * 200; // 220 (blue) → 20 (red-orange)
-      const sat = 50 + d * 40;
-      const light = 55 - d * 15;
-      ctx.fillStyle = `hsl(${hue}, ${sat}%, ${light}%)`;
-      ctx.fillRect(i * segW, 0, Math.ceil(segW) + 1, BAR_H);
-    }
-
-    // Playhead marker
-    if (stepIndex >= 0 && stepIndex < flushes.length) {
-      const px = (stepIndex + 0.5) * segW;
-      ctx.fillStyle = "#fff";
-      ctx.fillRect(px - 1, 0, 2, BAR_H);
-    }
-  }, [flushes, stepIndex, densities]);
-
-  useEffect(() => { draw(); }, [draw]);
-
-  useEffect(() => {
-    const ro = new ResizeObserver(() => draw());
-    if (canvasRef.current) ro.observe(canvasRef.current);
-    return () => ro.disconnect();
-  }, [draw]);
-
-  function handleClick(e: React.MouseEvent) {
-    const canvas = canvasRef.current;
-    if (!canvas || flushes.length === 0) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const idx = Math.min(Math.floor((x / rect.width) * flushes.length), flushes.length - 1);
-    onSeek(Math.max(0, idx));
-  }
-
-  return (
-    <canvas
-      ref={canvasRef}
-      onClick={handleClick}
-      style={{ width: "100%", height: BAR_H, cursor: "pointer", display: "block", borderRadius: 3 }}
-    />
-  );
-}
 
 /**
  * Pre-compute all file snapshots and a flat timeline of char-level edits.
@@ -1374,6 +1171,7 @@ function buildEditStream(flushes: Flush[], reconstruct: (fs: Flush[], idx: numbe
 
 function ReplayPage() {
   const { courseCode, assignmentId, studentId } = useParams();
+  const navigate = useNavigate();
   const [allFlushes, setAllFlushes] = useState<Flush[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFilePath, setSelectedFilePath] = useState("");
@@ -1382,6 +1180,7 @@ function ReplayPage() {
   const [typingState, setTypingState] = useState<TypingState>({ code: "", cursorPos: -1, editStart: 0, editEnd: 0, phase: "idle" });
   const [playheadMs, setPlayheadMs] = useState(0);
   const [currentFlushIdx, setCurrentFlushIdx] = useState(0);
+  const [chatOpen, setChatOpen] = useState(false);
   const animFrameRef = useRef<number>(0);
   const playStartRef = useRef<{ wallTime: number; streamTime: number }>({ wallTime: 0, streamTime: 0 });
 
@@ -1475,6 +1274,8 @@ function ReplayPage() {
   // Keyboard shortcuts
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
       if (e.key === "[") {
         setSpeed((s) => { const idx = SPEED_OPTIONS.indexOf(s as typeof SPEED_OPTIONS[number]); return idx > 0 ? SPEED_OPTIONS[idx - 1] : s; });
       } else if (e.key === "]") {
@@ -1531,17 +1332,37 @@ function ReplayPage() {
     <main style={{ height: "calc(100vh - 0px)", display: "flex", flexDirection: "column", padding: 0, overflow: "hidden" }}>
       {/* Header bar */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.5rem 1rem", borderBottom: "1px solid var(--border)", flexShrink: 0 }}>
-        <div>
-          <span style={{ fontWeight: 700, fontSize: 15 }}>Progress Replay</span>
-          <span style={{ color: "var(--text-muted)", fontSize: 12, marginLeft: 12 }}>Student: {studentId}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.8rem" }}>
+          <button
+            className="btn btn-secondary"
+            onClick={() => navigate(`/${courseCode}/${assignmentId}`)}
+            style={{ padding: "0.35rem 0.8rem", fontSize: 13, fontWeight: 600 }}
+            title="Back to assignment"
+          >
+            ← Back
+          </button>
+          <div>
+            <span style={{ fontWeight: 700, fontSize: 15 }}>Progress Replay</span>
+            <span style={{ color: "var(--text-muted)", fontSize: 12, marginLeft: 12 }}>Student: {studentId}</span>
+          </div>
         </div>
-        <span style={{ fontSize: 12, color: "var(--text-muted)", fontVariantNumeric: "tabular-nums" }}>
-          {currentTime || "—"}
-        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+          <span style={{ fontSize: 12, color: "var(--text-muted)", fontVariantNumeric: "tabular-nums" }}>
+            {currentTime || "—"}
+          </span>
+          <button
+            className="btn btn-secondary"
+            onClick={() => setChatOpen((v) => !v)}
+            style={{ padding: "0.35rem 0.7rem", fontSize: 12, fontWeight: 600 }}
+            title="Chat with AI about this student"
+          >
+            {chatOpen ? "Close Chat" : "AI Chat"}
+          </button>
+        </div>
       </div>
 
       {/* Main content: file tree + code viewer */}
-      <div style={{ display: "grid", gridTemplateColumns: "180px 1fr", flex: 1, minHeight: 0, overflow: "hidden" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "180px 1fr", flex: 1, minHeight: 0, overflow: "hidden", position: "relative" }}>
         {/* File Tree */}
         <aside style={{ borderRight: "1px solid var(--border)", background: "var(--surface)", padding: "0.5rem", overflowY: "auto" }}>
           <h2 style={{ marginTop: 0, fontSize: 13, marginBottom: "0.4rem", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1 }}>Files</h2>
@@ -1570,15 +1391,69 @@ function ReplayPage() {
         <div style={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
           <CodeViewer state={typingState} filePath={selectedFilePath} timestamp={currentTime} />
         </div>
+
+        {/* Chat panel overlay */}
+        {chatOpen && studentId && assignmentId && (
+          <ChatPanel studentId={studentId} assignmentId={assignmentId} onClose={() => setChatOpen(false)} />
+        )}
       </div>
 
-      {/* Bottom: controls + density bar */}
-      <div style={{ borderTop: "1px solid var(--border)", background: "var(--surface)", padding: "0.4rem 0.75rem 0.3rem", flexShrink: 0 }}>
-        {/* Timeline scrubber */}
-        <ReplayTimeline flushes={currentFlushes} stepIndex={currentFlushIdx} onSeek={seekToFlush} />
+      {/* Bottom: simple progress bar + controls */}
+      <div style={{ borderTop: "1px solid var(--border)", background: "var(--surface)", padding: "0.5rem 0.75rem 0.45rem", flexShrink: 0 }}>
+        {/* Day jump chips */}
+        {(() => {
+          const sessions = detectSessions(currentFlushes);
+          if (sessions.length <= 1) return null;
+          return (
+            <div style={{ display: "flex", gap: 4, marginBottom: 6, flexWrap: "wrap" }}>
+              {sessions.map((s, i) => {
+                const isActive = currentFlushIdx >= s.idx && (i + 1 >= sessions.length || currentFlushIdx < sessions[i + 1].idx);
+                return (
+                  <button
+                    key={i}
+                    onClick={() => seekToFlush(s.idx)}
+                    style={{
+                      padding: "2px 10px",
+                      fontSize: 11,
+                      fontWeight: 600,
+                      border: "1px solid var(--border)",
+                      borderRadius: 999,
+                      background: isActive ? "var(--accent)" : "transparent",
+                      color: isActive ? "#fff" : "var(--text-muted)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    {s.label}
+                  </button>
+                );
+              })}
+            </div>
+          );
+        })()}
+
+        {/* Continuous progress slider */}
+        <input
+          type="range"
+          min={0}
+          max={totalDurationMs || 1}
+          value={playheadMs}
+          onChange={(e) => seekToTime(Number(e.target.value))}
+          style={{
+            width: "100%",
+            height: 6,
+            appearance: "none",
+            WebkitAppearance: "none",
+            background: `linear-gradient(to right, var(--accent) ${totalDurationMs > 0 ? (playheadMs / totalDurationMs) * 100 : 0}%, var(--border) ${totalDurationMs > 0 ? (playheadMs / totalDurationMs) * 100 : 0}%)`,
+            borderRadius: 3,
+            outline: "none",
+            cursor: "pointer",
+            display: "block",
+            margin: "0 0 6px",
+          }}
+        />
 
         {/* Controls row */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "0.35rem" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           {/* Transport controls */}
           <div style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
             <button className="btn-icon" onClick={() => seekToTime(0)} disabled={playheadMs === 0} title="Skip to start" style={{ width: 28, height: 28, display: "grid", placeItems: "center" }}>
@@ -1596,10 +1471,9 @@ function ReplayPage() {
             </button>
           </div>
 
-          {/* Elapsed / total time */}
+          {/* Time display */}
           <span style={{ fontSize: 11, color: "var(--text-muted)", fontVariantNumeric: "tabular-nums", fontFamily: "ui-monospace, monospace" }}>
             {formatDuration(playheadMs)} / {formatDuration(totalDurationMs)}
-            {currentTime && <span style={{ marginLeft: 8, fontFamily: "system-ui, sans-serif" }}>{currentTime}</span>}
           </span>
 
           {/* Speed selector */}
@@ -1619,11 +1493,6 @@ function ReplayPage() {
               </button>
             ))}
           </div>
-        </div>
-
-        {/* Density bar at the very bottom */}
-        <div style={{ marginTop: "0.3rem" }}>
-          <DensityBar flushes={currentFlushes} stepIndex={currentFlushIdx} onSeek={seekToFlush} />
         </div>
       </div>
     </main>

@@ -1,0 +1,110 @@
+{
+  "style": "C++ Binary Search Tree implementation with pointers and recursion",
+  "description": "Charlie Brown: 13 flushes, 79.1 min total time",
+  "flushes": [
+    {
+      "file_path": "node.h",
+      "diffs": "-\n+#ifndef NODE_H\n+#define NODE_H\n+\n+struct Node {\n+    int n_val;\n+    Node* ptr2;\n+    Node* n1;\n+\n+    Node(int val) : n_val(val), ptr2(nullptr), n1(nullptr) {}\n+};\n+\n+#endif\n+",
+      "content": "#ifndef NODE_H\n#define NODE_H\n\nstruct Node {\n    int n_val;\n    Node* ptr2;\n    Node* n1;\n\n    Node(int val) : n_val(val), ptr2(nullptr), n1(nullptr) {}\n};\n\n#endif\n",
+      "active_symbol": "Node",
+      "trigger": "init",
+      "window_duration": 6.045980384162602
+    },
+    {
+      "file_path": "bst.h",
+      "diffs": "-\n+#ifndef BST_H\n+#define BST_H\n+\n+#include \"n1.h\"\n+\n+class BST {\n+public:\n+    BST();\n+    ~BST();\n+\n+    void insert(int n_val);\n+    bool search(int n_val);\n+    void remove(int n_val);\n+\n+    void inorder();\n+    void preorder();\n+    void postorder();\n+\n+    int height();\n+    int nodeCount();\n+    bool isValid();\n+\n+private:\n+    Node* root;\n+\n+    Node* insertHelper(Node* n1, int n_val);\n+    bool searchHelper(Node* n1, int n_val);\n+    Node* removeHelper(Node* n1, int n_val);\n+    Node* findMin(Node* n1);\n+\n+    void inorderHelper(Node* n1);\n+    void preorderHelper(Node* n1);\n+    void postorderHelper(Node* n1);\n+\n+    int heightHelper(Node* n1);\n+    int nodeCountHelper(Node* n1);\n+    bool isValidHelper(Node* n1, int minVal, int maxVal);\n+\n+    void deleteTree(Node* n1);\n+};\n+\n+#endif\n+",
+      "content": "#ifndef BST_H\n#define BST_H\n\n#include \"n1.h\"\n\nclass BST {\npublic:\n    BST();\n    ~BST();\n\n    void insert(int n_val);\n    bool search(int n_val);\n    void remove(int n_val);\n\n    void inorder();\n    void preorder();\n    void postorder();\n\n    int height();\n    int nodeCount();\n    bool isValid();\n\nprivate:\n    Node* root;\n\n    Node* insertHelper(Node* n1, int n_val);\n    bool searchHelper(Node* n1, int n_val);\n    Node* removeHelper(Node* n1, int n_val);\n    Node* findMin(Node* n1);\n\n    void inorderHelper(Node* n1);\n    void preorderHelper(Node* n1);\n    void postorderHelper(Node* n1);\n\n    int heightHelper(Node* n1);\n    int nodeCountHelper(Node* n1);\n    bool isValidHelper(Node* n1, int minVal, int maxVal);\n\n    void deleteTree(Node* n1);\n};\n\n#endif\n",
+      "active_symbol": "BST",
+      "trigger": "init",
+      "window_duration": 4.912780037818212
+    },
+    {
+      "file_path": "bst.cpp",
+      "diffs": "-\n+if (node == nullptr) {\n+        return new Node(value);\n+    }\n+    \n+    if (value < node->value) {\n+        node->left = insertHelper(node->left, value);\n+    } else if (value > node->value) {\n+        node->right = insertHelper(node->right, value);\n+    }\n+    \n+    return node;\n+// ... more methods ...\n+",
+      "content": "#include \"bst.h\"\n\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\n",
+      "active_symbol": "insert",
+      "trigger": "timeout",
+      "window_duration": 987.2354737019602
+    },
+    {
+      "file_path": "bst.cpp",
+      "diffs": "-\n+if (node == nullptr) {\n+        return new Node(value);\n+    }\n+    \n+    if (value < node->value) {\n+        node->left = insertHelper(node->left, value);\n+    } else if (value > node->value) {\n+        node->right = insertHelper(node->right, value);\n+    }\n+    \n+    return node;\n+// ... more methods ...\n+",
+      "content": "#include \"bst.h\"\n\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\n",
+      "active_symbol": "search",
+      "trigger": "timeout",
+      "window_duration": 849.0959885504434
+    },
+    {
+      "file_path": "bst.cpp",
+      "diffs": "-\n+void BST::inorder() {\n+    inorderHelper(root);\n+// ... more methods ...\n+",
+      "content": "#include \"bst.h\"\n\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\nvoid BST::inorder() {\n    inorderHelper(root);\n// ... more methods ...\n",
+      "active_symbol": "traversals",
+      "trigger": "timeout",
+      "window_duration": 471.9334963512695
+    },
+    {
+      "file_path": "bst.cpp",
+      "diffs": "-\n+inorderHelper(node->left);\n+    std::cout << node->value << \" \";\n+    inorderHelper(node->right);\n+// ... more methods ...\n+",
+      "content": "#include \"bst.h\"\n\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\nvoid BST::inorder() {\n    inorderHelper(root);\n// ... more methods ...\ninorderHelper(node->left);\n    std::cout << node->value << \" \";\n    inorderHelper(node->right);\n// ... more methods ...\n",
+      "active_symbol": "traversals",
+      "trigger": "timeout",
+      "window_duration": 472.66856575791957
+    },
+    {
+      "file_path": "bst.cpp",
+      "diffs": "-\n+if (node == nullptr) {\n+// ... more methods ...\n+",
+      "content": "#include \"bst.h\"\n\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\nvoid BST::inorder() {\n    inorderHelper(root);\n// ... more methods ...\ninorderHelper(node->left);\n    std::cout << node->value << \" \";\n    inorderHelper(node->right);\n// ... more methods ...\nif (node == nullptr) {\n// ... more methods ...\n",
+      "active_symbol": "remove",
+      "trigger": "timeout",
+      "window_duration": 296.4444604659751
+    },
+    {
+      "file_path": "bst.cpp",
+      "diffs": "-\n+if (node == nullptr) {\n+        return nullptr;\n+    }\n+    \n+    if (value < node->value) {\n+// ... more methods ...\n+",
+      "content": "#include \"bst.h\"\n\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\nvoid BST::inorder() {\n    inorderHelper(root);\n// ... more methods ...\ninorderHelper(node->left);\n    std::cout << node->value << \" \";\n    inorderHelper(node->right);\n// ... more methods ...\nif (node == nullptr) {\n// ... more methods ...\nif (node == nullptr) {\n        return nullptr;\n    }\n    \n    if (value < node->value) {\n// ... more methods ...\n",
+      "active_symbol": "remove",
+      "trigger": "timeout",
+      "window_duration": 297.7019386989134
+    },
+    {
+      "file_path": "bst.cpp",
+      "diffs": "-\n+if (node == nullptr) {\n+        return nullptr;\n+    }\n+    \n+    if (value < node->value) {\n+        node->left = removeHelper(node->left, value);\n+    } else if (value > node->value) {\n+// ... more methods ...\n+",
+      "content": "#include \"bst.h\"\n\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\nvoid BST::inorder() {\n    inorderHelper(root);\n// ... more methods ...\ninorderHelper(node->left);\n    std::cout << node->value << \" \";\n    inorderHelper(node->right);\n// ... more methods ...\nif (node == nullptr) {\n// ... more methods ...\nif (node == nullptr) {\n        return nullptr;\n    }\n    \n    if (value < node->value) {\n// ... more methods ...\nif (node == nullptr) {\n        return nullptr;\n    }\n    \n    if (value < node->value) {\n        node->left = removeHelper(node->left, value);\n    } else if (value > node->value) {\n// ... more methods ...\n",
+      "active_symbol": "remove",
+      "trigger": "timeout",
+      "window_duration": 295.6784179314863
+    },
+    {
+      "file_path": "bst.cpp",
+      "diffs": "-\n+// Single child case\n+        if (node->left == nullptr) {\n+// ... more methods ...\n+",
+      "content": "#include \"bst.h\"\n\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\nvoid BST::inorder() {\n    inorderHelper(root);\n// ... more methods ...\ninorderHelper(node->left);\n    std::cout << node->value << \" \";\n    inorderHelper(node->right);\n// ... more methods ...\nif (node == nullptr) {\n// ... more methods ...\nif (node == nullptr) {\n        return nullptr;\n    }\n    \n    if (value < node->value) {\n// ... more methods ...\nif (node == nullptr) {\n        return nullptr;\n    }\n    \n    if (value < node->value) {\n        node->left = removeHelper(node->left, value);\n    } else if (value > node->value) {\n// ... more methods ...\n// Single child case\n        if (node->left == nullptr) {\n// ... more methods ...\n",
+      "active_symbol": "remove",
+      "trigger": "timeout",
+      "window_duration": 297.9847243437868
+    },
+    {
+      "file_path": "bst.cpp",
+      "diffs": "-\n+Node* minRight = findMin(node->right);\n+        node->value = minRight->value;\n+        node->right = removeHelper(node->right, minRight->value);\n+// ... more methods ...\n+",
+      "content": "#include \"bst.h\"\n\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\nvoid BST::inorder() {\n    inorderHelper(root);\n// ... more methods ...\ninorderHelper(node->left);\n    std::cout << node->value << \" \";\n    inorderHelper(node->right);\n// ... more methods ...\nif (node == nullptr) {\n// ... more methods ...\nif (node == nullptr) {\n        return nullptr;\n    }\n    \n    if (value < node->value) {\n// ... more methods ...\nif (node == nullptr) {\n        return nullptr;\n    }\n    \n    if (value < node->value) {\n        node->left = removeHelper(node->left, value);\n    } else if (value > node->value) {\n// ... more methods ...\n// Single child case\n        if (node->left == nullptr) {\n// ... more methods ...\nNode* minRight = findMin(node->right);\n        node->value = minRight->value;\n        node->right = removeHelper(node->right, minRight->value);\n// ... more methods ...\n",
+      "active_symbol": "remove",
+      "trigger": "timeout",
+      "window_duration": 295.2685775853455
+    },
+    {
+      "file_path": "bst.cpp",
+      "diffs": "-\n+if (node == nullptr) {\n+        return new Node(value);\n+    }\n+    \n+    if (value < node->value) {\n+        node->left = insertHelper(node->left, value);\n+    } else if (value > node->value) {\n+        node->right = insertHelper(node->right, value);\n+    }\n+    \n+    return node;\n+// ... more methods ...\n+",
+      "content": "#include \"bst.h\"\n\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\nvoid BST::inorder() {\n    inorderHelper(root);\n// ... more methods ...\ninorderHelper(node->left);\n    std::cout << node->value << \" \";\n    inorderHelper(node->right);\n// ... more methods ...\nif (node == nullptr) {\n// ... more methods ...\nif (node == nullptr) {\n        return nullptr;\n    }\n    \n    if (value < node->value) {\n// ... more methods ...\nif (node == nullptr) {\n        return nullptr;\n    }\n    \n    if (value < node->value) {\n        node->left = removeHelper(node->left, value);\n    } else if (value > node->value) {\n// ... more methods ...\n// Single child case\n        if (node->left == nullptr) {\n// ... more methods ...\nNode* minRight = findMin(node->right);\n        node->value = minRight->value;\n        node->right = removeHelper(node->right, minRight->value);\n// ... more methods ...\nif (node == nullptr) {\n        return new Node(value);\n    }\n    \n    if (value < node->value) {\n        node->left = insertHelper(node->left, value);\n    } else if (value > node->value) {\n        node->right = insertHelper(node->right, value);\n    }\n    \n    return node;\n// ... more methods ...\n",
+      "active_symbol": "helper",
+      "trigger": "timeout",
+      "window_duration": 461.33178222776803
+    },
+    {
+      "file_path": "main.cpp",
+      "diffs": "-\n+#include <iostream>\n+#include \"bst.h\"\n+\n+int main() {\n+    BST tree;\n+\n+    // Insert values\n+    int values[] = {50, 30, 70, 20, 40, 60, 80};\n+    for (int val : values) {\n+        tree.insert(val);\n+    }\n+\n+    std::cout << \"Inorder: \";\n+    tree.inorder();\n+\n+    std::cout << \"Height: \" << tree.height() << std::endl;\n+    std::cout << \"Count: \" << tree.nodeCount() << std::endl;\n+\n+    // Search\n+    std::cout << \"Search 40: \" << (tree.search(40) ? \"Found\" : \"Not found\") << std::endl;\n+\n+    // Remove\n+    tree.remove(30);\n+    std::cout << \"After removing 30: \";\n+    tree.inorder();\n+\n+    return 0;\n+}\n+",
+      "content": "#include <iostream>\n#include \"bst.h\"\n\nint main() {\n    BST tree;\n\n    // Insert values\n    int values[] = {50, 30, 70, 20, 40, 60, 80};\n    for (int val : values) {\n        tree.insert(val);\n    }\n\n    std::cout << \"Inorder: \";\n    tree.inorder();\n\n    std::cout << \"Height: \" << tree.height() << std::endl;\n    std::cout << \"Count: \" << tree.nodeCount() << std::endl;\n\n    // Search\n    std::cout << \"Search 40: \" << (tree.search(40) ? \"Found\" : \"Not found\") << std::endl;\n\n    // Remove\n    tree.remove(30);\n    std::cout << \"After removing 30: \";\n    tree.inorder();\n\n    return 0;\n}\n",
+      "active_symbol": "main",
+      "trigger": "timeout",
+      "window_duration": 9.984107265707227
+    }
+  ]
+}

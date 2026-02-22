@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-Seed local Supabase with test data for the full schema.
-Creates: professor, multiple students, 1 TA, 2 courses (CS15, CS40), assignments, and realistic flushes.
-Loads assignment-specific data from external JSON files in seed_data/ directory.
+Seed local Supabase with BST (Binary Search Tree) project data for 20-person class.
+More complex CS project than arithmetic - involves pointers, recursion, tree operations.
 """
 
 import os
@@ -14,7 +13,7 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from supabase import create_client
 
-root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+root = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(root, ".env"))
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "http://localhost:10002")
@@ -69,7 +68,7 @@ def create_flush(profile_id, assignment_id, file_path, diffs, content, active_sy
         "assignment_id": assignment_id,
         "file_path": file_path,
         "client_flush_id": client_flush_id,
-        "sequence_number": 0,  # Will be set by server
+        "sequence_number": 0,
         "content_hash": content_hash,
         "trigger": trigger,
         "start_timestamp": start_ts,
@@ -93,21 +92,21 @@ def create_flush(profile_id, assignment_id, file_path, diffs, content, active_sy
 
 
 def load_assignment_students(assignment_dir):
-    """Load student metadata from students.json in assignment directory."""
+    """Load student metadata from students.json."""
     students_file = os.path.join(assignment_dir, "students.json")
     with open(students_file) as f:
         return json.load(f)["students"]
 
 
 def load_student_flushes(assignment_dir, data_file):
-    """Load flushes for a specific student from their JSON file."""
+    """Load flushes for a specific student."""
     flush_file = os.path.join(assignment_dir, data_file)
     with open(flush_file) as f:
         return json.load(f)["flushes"]
 
 
 def seed():
-    print("Seeding...")
+    print("Seeding BST (Binary Search Tree) project data...")
 
     # --- Users ---
     prof_id = create_user("professor@jumbuddy.test", "testpass123", "mprof01", "Professor Morris")
@@ -115,15 +114,6 @@ def seed():
 
     ta_id = create_user("ta@jumbuddy.test", "testpass123", "jta0102", "Jane TA")
     print(f"  TA: jta0102 ({ta_id})")
-
-    # --- CS15 Course ---
-    course1 = sb.table("courses").insert({
-        "name": "CS 15 - Data Structures",
-        "code": "CS15",
-        "professor_id": prof_id,
-    }).execute()
-    course1_id = course1.data[0]["id"]
-    print(f"  Course: CS15 ({course1_id})")
 
     # --- CS40 Course ---
     course2 = sb.table("courses").insert({
@@ -134,14 +124,23 @@ def seed():
     course2_id = course2.data[0]["id"]
     print(f"  Course: CS40 ({course2_id})")
 
-    # Load arith student data
-    arith_seed_dir = os.path.join(root, "supabase", "seed_data", "arith")
-    arith_students_meta = load_assignment_students(arith_seed_dir)
+    # --- BST Assignment ---
+    assignment_bst = sb.table("assignments").insert({
+        "course_id": course2_id,
+        "name": "bst",
+        "description": "Binary Search Tree implementation with insert, search, remove, and traversals",
+    }).execute()
+    assignment_bst_id = assignment_bst.data[0]["id"]
+    print(f"  Assignment: bst ({assignment_bst_id})")
 
-    # Create all arith students and store their IDs
-    print(f"\n  Creating {len(arith_students_meta)} arith students...")
+    # Load BST student data
+    bst_seed_dir = os.path.join(root, "supabase", "seed_data", "bst")
+    bst_students_meta = load_assignment_students(bst_seed_dir)
+
+    # Create all BST students
+    print(f"\n  Creating {len(bst_students_meta)} BST students...")
     student_profiles = {}
-    for i, student_meta in enumerate(arith_students_meta):
+    for i, student_meta in enumerate(bst_students_meta):
         utln = student_meta["utln"]
         email = student_meta["email"]
         password = student_meta["password"]
@@ -150,82 +149,27 @@ def seed():
         student_id = create_user(email, password, utln, display_name)
         student_profiles[utln] = student_id
         if (i + 1) % 5 == 0:
-            print(f"    Created {i + 1}/{len(arith_students_meta)} students")
+            print(f"    Created {i + 1}/{len(bst_students_meta)} students")
 
-    # --- CS15 Memberships (empty for now) ---
-    # (Can add subset here if desired)
-    print("  Assigned 0 students to CS15 (class uses CS40 only)")
-
-    # --- CS40 Memberships (all arith students) ---
+    # --- CS40 Memberships ---
     enrollment_records = [{"profile_id": pid, "course_id": course2_id} for pid in student_profiles.values()]
     sb.table("enrollments").insert(enrollment_records).execute()
     print(f"  Enrolled {len(student_profiles)} students in CS40")
 
-    sb.table("teaching_assistants").insert({
-        "profile_id": ta_id,
-        "course_id": course1_id,
-    }).execute()
-    sb.table("teaching_assistants").insert({
-        "profile_id": ta_id,
-        "course_id": course2_id,
-    }).execute()
-    print("  Assigned TA to both courses")
-
-    # --- CS15 Assignment ---
-    assignment1 = sb.table("assignments").insert({
-        "course_id": course1_id,
-        "name": "MetroSim",
-        "description": "Simulate a metro transit system",
-    }).execute()
-    assignment1_id = assignment1.data[0]["id"]
-    print(f"  Assignment: MetroSim ({assignment1_id})")
-
-    # --- CS40 Assignments ---
-    assignment2 = sb.table("assignments").insert({
-        "course_id": course2_id,
-        "name": "arith",
-        "description": "Image compressor using arithmetic coding",
-    }).execute()
-    assignment2_id = assignment2.data[0]["id"]
-    print(f"  Assignment: arith ({assignment2_id})")
-
-    assignment3 = sb.table("assignments").insert({
-        "course_id": course2_id,
-        "name": "filesofpix",
-        "description": "Restore corrupted image files from lines of pixels",
-    }).execute()
-    assignment3_id = assignment3.data[0]["id"]
-    print(f"  Assignment: filesofpix ({assignment3_id})")
-
-    # --- Additional CS40 Assignments (empty — no flush data) ---
-    for name, desc in [
-        ("iii", "Interfaces, Implementations, and Images — pixel transformations using polymorphism"),
-        ("locality", "Measure and optimize cache locality in 2D array traversals"),
-        ("bomb", "Binary bomb lab — defuse a binary bomb by reverse-engineering assembly"),
-        ("profiling", "Profile and optimize a rotation/transformation pipeline"),
-        ("um", "Universal Machine — build an emulator for a simple instruction set"),
-    ]:
-        row = sb.table("assignments").insert({
-            "course_id": course2_id,
-            "name": name,
-            "description": desc,
-        }).execute()
-        print(f"  Assignment: {name} ({row.data[0]['id']}) [empty]")
-
-    # --- Generate realistic flushes for arith assignment ---
-    print("\n  Loading and inserting arith flushes for all students...")
+    # --- Load and insert BST flushes ---
+    print("\n  Loading and inserting BST flushes for all students...")
 
     total_flushes_created = 0
-    for i, student_meta in enumerate(arith_students_meta):
+    for i, student_meta in enumerate(bst_students_meta):
         utln = student_meta["utln"]
         data_file = student_meta["data_file"]
         profile_id = student_profiles[utln]
 
-        flushes = load_student_flushes(arith_seed_dir, data_file)
+        flushes = load_student_flushes(bst_seed_dir, data_file)
         for flush_data in flushes:
             create_flush(
                 profile_id,
-                assignment2_id,
+                assignment_bst_id,
                 flush_data["file_path"],
                 flush_data["diffs"],
                 flush_data["content"],
@@ -236,19 +180,17 @@ def seed():
             total_flushes_created += 1
 
         if (i + 1) % 5 == 0:
-            print(f"    Inserted flushes for {i + 1}/{len(arith_students_meta)} students ({total_flushes_created} total flushes)")
+            print(f"    Inserted flushes for {i + 1}/{len(bst_students_meta)} students ({total_flushes_created} total flushes)")
 
-    print("\n  Skipped filesofpix (can be added separately if needed)")
-
-    print(f"\n✓ Seed complete! Created {total_flushes_created} flushes for arith assignment")
+    print(f"\n✓ Seed complete! Created {total_flushes_created} flushes for BST assignment")
     print("\n=== Test Credentials ===")
     print("  Professor:  professor@jumbuddy.test / testpass123  (utln: mprof01)")
     print("  TA:         ta@jumbuddy.test / testpass123         (utln: jta0102)")
-    print(f"\n  {len(arith_students_meta)} CS40 Students (arith assignment):")
-    for i, student in enumerate(arith_students_meta[:5]):
+    print(f"\n  {len(bst_students_meta)} CS40 Students (bst assignment):")
+    for i, student in enumerate(bst_students_meta[:5]):
         print(f"    {student['display_name']:20s} {student['email']:30s} (utln: {student['utln']})")
-    if len(arith_students_meta) > 5:
-        print(f"    ... and {len(arith_students_meta) - 5} more")
+    if len(bst_students_meta) > 5:
+        print(f"    ... and {len(bst_students_meta) - 5} more")
 
 
 if __name__ == "__main__":

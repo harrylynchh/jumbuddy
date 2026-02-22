@@ -1,0 +1,38 @@
+{
+  "style": "Pragmatic, clear code, good comments",
+  "description": "Diana: Pragmatic approach with good documentation, clean code, incremental development",
+  "flushes": [
+    {
+      "file_path": "arith.py",
+      "diffs": "+\"\"\"Basic arithmetic operations.\n+\n+All functions accept two numbers and return result.\n+\"\"\"\n+\n+def add(a, b):\n+    \"\"\"Add two numbers.\"\"\"\n+    return a + b",
+      "content": "\"\"\"Basic arithmetic operations.\n\nAll functions accept two numbers and return result.\n\"\"\"\n\ndef add(a, b):\n    \"\"\"Add two numbers.\"\"\"\n    return a + b\n",
+      "active_symbol": "add",
+      "trigger": "init",
+      "window_duration": 8.0
+    },
+    {
+      "file_path": "arith.py",
+      "diffs": "+def subtract(a, b):\n+    \"\"\"Subtract b from a.\"\"\"\n+    return a - b",
+      "content": "\"\"\"Basic arithmetic operations.\n\nAll functions accept two numbers and return result.\n\"\"\"\n\ndef add(a, b):\n    \"\"\"Add two numbers.\"\"\"\n    return a + b\n\ndef subtract(a, b):\n    \"\"\"Subtract b from a.\"\"\"\n    return a - b\n",
+      "active_symbol": "subtract",
+      "trigger": "timeout",
+      "window_duration": 5.0
+    },
+    {
+      "file_path": "arith.py",
+      "diffs": "+def multiply(a, b):\n+    \"\"\"Multiply two numbers.\"\"\"\n+    return a * b",
+      "content": "\"\"\"Basic arithmetic operations.\n\nAll functions accept two numbers and return result.\n\"\"\"\n\ndef add(a, b):\n    \"\"\"Add two numbers.\"\"\"\n    return a + b\n\ndef subtract(a, b):\n    \"\"\"Subtract b from a.\"\"\"\n    return a - b\n\ndef multiply(a, b):\n    \"\"\"Multiply two numbers.\"\"\"\n    return a * b\n",
+      "active_symbol": "multiply",
+      "trigger": "timeout",
+      "window_duration": 6.0
+    },
+    {
+      "file_path": "test.py",
+      "diffs": "+from arith import add, subtract, multiply\n+\n+def test_basic():\n+    assert add(1, 2) == 3\n+    assert subtract(5, 2) == 3\n+    assert multiply(3, 4) == 12\n+    print('All tests pass!')\n+\n+if __name__ == '__main__':\n+    test_basic()",
+      "content": "from arith import add, subtract, multiply\n\ndef test_basic():\n    assert add(1, 2) == 3\n    assert subtract(5, 2) == 3\n    assert multiply(3, 4) == 12\n    print('All tests pass!')\n\nif __name__ == '__main__':\n    test_basic()\n",
+      "active_symbol": "test_basic",
+      "trigger": "timeout",
+      "window_duration": 10.0
+    }
+  ]
+}

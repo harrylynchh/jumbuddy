@@ -1,0 +1,18 @@
+# Staging overrides: use N.sethlupo.com URLs instead of localhost
+# Services still bind to the same local ports — a separate reverse proxy
+# maps N.sethlupo.com → localhost:N
+services:
+  web:
+    environment:
+      VITE_SUPABASE_URL: https://10002.sethlupo.com
+      VITE_API_URL: https://10000.sethlupo.com
+
+  auth:
+    environment:
+      API_EXTERNAL_URL: https://10002.sethlupo.com
+      GOTRUE_SITE_URL: https://10001.sethlupo.com
+
+  studio:
+    environment:
+      SUPABASE_PUBLIC_URL: https://10002.sethlupo.com
+      NEXT_PUBLIC_SUPABASE_URL: https://10002.sethlupo.com

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "./api/supabase";
 import type { Session } from "@supabase/supabase-js";
 
-const API = "http://localhost:10000";
+const API = import.meta.env.VITE_API_URL ?? "http://localhost:10000";
 
 interface Course {
   id: string;
