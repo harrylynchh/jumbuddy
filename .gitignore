@@ -16,7 +16,6 @@ dist/
 **/node_modules/
 web/dist/
 vscode-extension/out/
-package-lock.json
 *.tsbuildinfo
 
 # IDE
