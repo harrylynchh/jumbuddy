@@ -26,7 +26,7 @@ def get_students_for_assignment(assignment_id):
 
     # Get all students in that course, joining profiles for utln/email/display_name
     result = (
-        sb.table("students")
+        sb.table("enrollments")
         .select("id, enrolled_at, profiles(id, utln, email, display_name)")
         .eq("course_id", course_id)
         .execute()

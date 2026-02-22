@@ -3,7 +3,7 @@ import {
   ThrashResult,
   ErrorChurnResult,
   DeleteRewriteResult,
-} from "./types";
+} from "../utils/types";
 
 /**
  * Compute all flush metrics from diff and context.

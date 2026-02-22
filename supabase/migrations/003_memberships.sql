@@ -1,5 +1,5 @@
--- Students fact table: profile ↔ course membership
-create table public.students (
+-- Enrollments: student enrollments in courses (profile ↔ course)
+create table public.enrollments (
     id uuid primary key default gen_random_uuid(),
     profile_id uuid not null references public.profiles(id) on delete cascade,
     course_id uuid not null references public.courses(id) on delete cascade,
@@ -7,11 +7,11 @@ create table public.students (
     unique(profile_id, course_id)
 );
 
-create index idx_students_profile on public.students(profile_id);
-create index idx_students_course on public.students(course_id);
+create index idx_enrollments_profile on public.enrollments(profile_id);
+create index idx_enrollments_course on public.enrollments(course_id);
 
--- Assistants fact table: profile ↔ course TA membership
-create table public.assistants (
+-- Teaching assistants: TA assignments to courses (profile ↔ course)
+create table public.teaching_assistants (
     id uuid primary key default gen_random_uuid(),
     profile_id uuid not null references public.profiles(id) on delete cascade,
     course_id uuid not null references public.courses(id) on delete cascade,
@@ -19,5 +19,8 @@ create table public.assistants (
     unique(profile_id, course_id)
 );
 
-create index idx_assistants_profile on public.assistants(profile_id);
-create index idx_assistants_course on public.assistants(course_id);
+create index idx_teaching_assistants_profile on public.teaching_assistants(profile_id);
+create index idx_teaching_assistants_course on public.teaching_assistants(course_id);
+
+alter table public.enrollments enable row level security;
+alter table public.teaching_assistants enable row level security;

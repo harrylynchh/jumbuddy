@@ -8,7 +8,7 @@ export function createStatusBar(): vscode.StatusBarItem {
     vscode.StatusBarAlignment.Left,
     0,
   );
-  item.command = "jumbud.init";
+  item.command = "jumbuddy.init";
   setIdle();
   item.show();
   return item;
@@ -19,16 +19,25 @@ export function setTracking(): void {
   if (!item) return;
   clearAnim();
   item.text = "$(whole-word) Tracking";
-  item.tooltip = "JumBud: Tracking edits";
+  item.tooltip = "JumBuddy: Tracking edits";
   item.color = undefined;
+}
+
+/** Not initialized yet */
+export function setUninitialized(): void {
+  if (!item) return;
+  clearAnim();
+  item.text = "$(whole-word) JumBuddy: Not initialized";
+  item.tooltip = "JumBuddy: Click to initialize tracking";
+  item.color = new vscode.ThemeColor("errorForeground");
 }
 
 /** Not connected yet */
 export function setIdle(): void {
   if (!item) return;
   clearAnim();
-  item.text = "$(whole-word) JumBud: Idle";
-  item.tooltip = "JumBud: Click to connect";
+  item.text = "$(whole-word) JumBuddy: Idle";
+  item.tooltip = "JumBuddy: Click to connect";
   item.color = new vscode.ThemeColor("statusBarItem.warningForeground");
 }
 
@@ -37,7 +46,7 @@ export function setPushing(): void {
   if (!item) return;
   clearAnim();
   item.text = "$(sync~spin) Pushing...";
-  item.tooltip = "JumBud: Sending edits to server";
+  item.tooltip = "JumBuddy: Sending edits to server";
   item.color = undefined;
 }
 

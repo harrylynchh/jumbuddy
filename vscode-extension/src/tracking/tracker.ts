@@ -1,18 +1,22 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
+import * as crypto from "crypto";
 import {
   DEBOUNCE_TIME,
   MAX_DEBOUNCE_TIME,
+  SNAPSHOT_INTERVAL,
   getMirrorDir,
   getWorkspaceRoot,
   isTrackedFile,
-} from "./config";
+  getNextSequence,
+} from "../utils/config";
 import { computeDiff } from "./differ";
-import { enqueueFlush, pushFlushes } from "./flusher";
+import { enqueueFlush, pushFlushes } from "../sync/flusher";
 import { computeMetrics } from "./metrics";
 import { getActiveSymbol } from "./symbols";
-import { FlushPayload } from "./types";
+import { FlushPayload } from "../utils/types";
+import { sha256 } from "../utils/hash";
 
 interface FileState {
   timer: ReturnType<typeof setTimeout>;
@@ -26,24 +30,41 @@ const activeFiles = new Map<string, FileState>();
 const disposables: vscode.Disposable[] = [];
 
 export function startTracking(): void {
-  console.log("[JumBud] Tracker: starting file change listeners");
+  console.log("[JumBuddy] Tracker: starting file change listeners");
 
   disposables.push(
     vscode.workspace.onDidChangeTextDocument((e) => {
       const filePath = e.document.uri.fsPath;
       if (e.contentChanges.length === 0) return;
       if (!isTrackedFile(filePath)) return;
-      console.log(`[JumBud] Tracker: text changed in ${path.basename(filePath)}`);
+      console.log(`[JumBuddy] Tracker: text changed in ${path.basename(filePath)}`);
       onFileChanged(filePath);
     }),
   );
+
+  // Watch for new tracked files created in the workspace
+  const workspaceRoot = getWorkspaceRoot();
+  if (workspaceRoot) {
+    const watcher = vscode.workspace.createFileSystemWatcher(
+      new vscode.RelativePattern(workspaceRoot, "**/*"),
+    );
+    disposables.push(watcher);
+    disposables.push(
+      watcher.onDidCreate((uri) => {
+        const filePath = uri.fsPath;
+        if (!isTrackedFile(filePath)) return;
+        console.log(`[JumBuddy] Tracker: new file detected ${path.basename(filePath)}`);
+        initNewFile(filePath);
+      }),
+    );
+  }
 
   disposables.push(
     vscode.window.onDidChangeActiveTextEditor(async (editor) => {
       if (!editor) return;
       for (const [filePath] of activeFiles) {
         if (filePath !== editor.document.uri.fsPath) {
-          console.log(`[JumBud] Tracker: file_switch from ${path.basename(filePath)}`);
+          console.log(`[JumBuddy] Tracker: file_switch from ${path.basename(filePath)}`);
           await flushFile(filePath, "file_switch");
         }
       }
@@ -65,18 +86,18 @@ export function startTracking(): void {
       }
       if (currentSymbol !== state.lastSymbol && state.lastSymbol !== null) {
         console.log(
-          `[JumBud] Tracker: symbol_change ${state.lastSymbol} → ${currentSymbol}`,
+          `[JumBuddy] Tracker: symbol_change ${state.lastSymbol} → ${currentSymbol}`,
         );
         await flushFile(filePath, "symbol_change");
       }
     }),
   );
 
-  console.log("[JumBud] Tracker: listeners registered");
+  console.log("[JumBuddy] Tracker: listeners registered");
 }
 
 export async function stopTracking(): Promise<void> {
-  console.log("[JumBud] Tracker: stopping, flushing %d active files", activeFiles.size);
+  console.log("[JumBuddy] Tracker: stopping, flushing %d active files", activeFiles.size);
   for (const filePath of [...activeFiles.keys()]) {
     await flushFile(filePath, "deactivate");
   }
@@ -86,7 +107,7 @@ export async function stopTracking(): Promise<void> {
     d.dispose();
   }
   disposables.length = 0;
-  console.log("[JumBud] Tracker: stopped");
+  console.log("[JumBuddy] Tracker: stopped");
 }
 
 function onFileChanged(filePath: string): void {
@@ -95,22 +116,22 @@ function onFileChanged(filePath: string): void {
   if (existing) {
     clearTimeout(existing.timer);
     existing.timer = setTimeout(() => {
-      console.log(`[JumBud] Tracker: timeout for ${path.basename(filePath)}`);
+      console.log(`[JumBuddy] Tracker: timeout for ${path.basename(filePath)}`);
       flushFile(filePath, "timeout");
     }, DEBOUNCE_TIME);
   } else {
     const now = new Date().toISOString();
     const editor = vscode.window.activeTextEditor;
 
-    console.log(`[JumBud] Tracker: new active file ${path.basename(filePath)}`);
+    console.log(`[JumBuddy] Tracker: new active file ${path.basename(filePath)}`);
 
     const state: FileState = {
       timer: setTimeout(() => {
-        console.log(`[JumBud] Tracker: timeout for ${path.basename(filePath)}`);
+        console.log(`[JumBuddy] Tracker: timeout for ${path.basename(filePath)}`);
         flushFile(filePath, "timeout");
       }, DEBOUNCE_TIME),
       maxTimer: setTimeout(() => {
-        console.log(`[JumBud] Tracker: max_duration for ${path.basename(filePath)}`);
+        console.log(`[JumBuddy] Tracker: max_duration for ${path.basename(filePath)}`);
         flushFile(filePath, "max_duration");
       }, MAX_DEBOUNCE_TIME),
       startTimestamp: now,
@@ -129,6 +150,53 @@ function onFileChanged(filePath: string): void {
   }
 }
 
+async function initNewFile(filePath: string): Promise<void> {
+  const mirrorDir = getMirrorDir();
+  const workspaceRoot = getWorkspaceRoot();
+  if (!mirrorDir || !workspaceRoot) return;
+
+  const relativePath = path.relative(workspaceRoot, filePath);
+  const mirrorPath = path.join(mirrorDir, relativePath);
+
+  // Skip if mirror already exists (file was already tracked)
+  if (fs.existsSync(mirrorPath)) return;
+
+  let content: string;
+  try {
+    content = fs.readFileSync(filePath, "utf-8");
+  } catch {
+    return;
+  }
+
+  // Create mirror
+  fs.mkdirSync(path.dirname(mirrorPath), { recursive: true });
+  fs.writeFileSync(mirrorPath, content);
+
+  // Generate init flush with sequence and hash
+  const now = new Date().toISOString();
+  const diffs = computeDiff(relativePath, "", content);
+  const metrics = computeMetrics(diffs, "", content, now, now, new Map());
+  const sequence = getNextSequence(relativePath);
+  const hash = sha256(content);
+
+  const flush: FlushPayload = {
+    file_path: relativePath,
+    client_flush_id: crypto.randomUUID(),
+    sequence_number: sequence,
+    content_hash: hash,
+    trigger: "init",
+    start_timestamp: now,
+    end_timestamp: now,
+    diffs,
+    snapshot: content, // Init always includes full snapshot
+    active_symbol: null,
+    metrics,
+  };
+
+  console.log(`[JumBuddy] Tracker: init flush for new file ${relativePath} seq=${sequence} hash=${hash.slice(0, 8)} [snapshot]`);
+  await enqueueFlush(flush);
+}
+
 async function flushFile(
   filePath: string,
   trigger: FlushPayload["trigger"],
@@ -142,7 +210,7 @@ async function flushFile(
 
   const mirrorDir = getMirrorDir();
   const workspaceRoot = getWorkspaceRoot();
-  if (workspaceRoot && filePath.startsWith(path.join(workspaceRoot, ".jumbud"))) {
+  if (workspaceRoot && filePath.startsWith(path.join(workspaceRoot, ".jumbuddy"))) {
     return;
   }
   if (!mirrorDir || !workspaceRoot) return;
@@ -161,7 +229,7 @@ async function flushFile(
     try {
       currentContent = fs.readFileSync(filePath, "utf-8");
     } catch {
-      console.warn(`[JumBud] Tracker: cannot read ${relativePath}, skipping`);
+      console.warn(`[JumBuddy] Tracker: cannot read ${relativePath}, skipping`);
       return;
     }
   }
@@ -174,7 +242,7 @@ async function flushFile(
   }
 
   if (currentContent === mirrorContent) {
-    console.log(`[JumBud] Tracker: no changes in ${relativePath}, skipping flush`);
+    console.log(`[JumBuddy] Tracker: no changes in ${relativePath}, skipping flush`);
     return;
   }
 
@@ -200,18 +268,26 @@ async function flushFile(
     state.cursorReads,
   );
 
+  const sequence = getNextSequence(relativePath);
+  const hash = sha256(currentContent);
+  const includeSnapshot = sequence % SNAPSHOT_INTERVAL === 0;
+
   const flush: FlushPayload = {
     file_path: relativePath,
+    client_flush_id: crypto.randomUUID(),
+    sequence_number: sequence,
+    content_hash: hash,
     trigger,
     start_timestamp: state.startTimestamp,
     end_timestamp: now,
     diffs,
+    snapshot: includeSnapshot ? currentContent : null,
     active_symbol: activeSymbol,
     metrics,
   };
 
   console.log(
-    `[JumBud] Tracker: flushing ${relativePath} trigger=${trigger} symbol=${activeSymbol}`,
+    `[JumBuddy] Tracker: flushing ${relativePath} trigger=${trigger} seq=${sequence} hash=${hash.slice(0, 8)}${includeSnapshot ? " [snapshot]" : ""} symbol=${activeSymbol}`,
   );
 
   await enqueueFlush(flush);

@@ -13,7 +13,7 @@ def get_my_courses():
 
     # Check if they're a student in any courses
     student_rows = (
-        sb.table("students")
+        sb.table("enrollments")
         .select("course_id, enrolled_at, courses(id, name, code)")
         .eq("profile_id", g.user_id)
         .execute()
@@ -21,7 +21,7 @@ def get_my_courses():
 
     # Check if they're an assistant in any courses
     assistant_rows = (
-        sb.table("assistants")
+        sb.table("teaching_assistants")
         .select("course_id, assigned_at, courses(id, name, code)")
         .eq("profile_id", g.user_id)
         .execute()

@@ -13,7 +13,7 @@ def get_flushes_for_student(student_id):
     result = (
         sb.table("flushes")
         .select("*")
-        .eq("user_id", student_id)
+        .eq("profile_id", student_id)
         .order("start_timestamp", desc=False)
         .execute()
     )

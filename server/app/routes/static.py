@@ -5,7 +5,7 @@ static_bp = Blueprint("static", __name__)
 
 @static_bp.route("/")
 def index():
-    return jsonify({"status": "ok", "service": "JumBud API"})
+    return jsonify({"status": "ok", "service": "JumBuddy API"})
 
 
 @static_bp.route("/health")

@@ -28,6 +28,9 @@ export interface FlushMetrics {
 
 export interface FlushPayload {
   file_path: string;
+  client_flush_id: string; // UUID for deduplication
+  sequence_number: number; // Monotonic per (profile, assignment, file_path)
+  content_hash: string; // SHA-256 of file after applying diff
   trigger:
     | "init"
     | "timeout"
@@ -38,11 +41,12 @@ export interface FlushPayload {
   start_timestamp: string; // ISO 8601
   end_timestamp: string;
   diffs: string;
+  snapshot: string | null; // Full file content, populated periodically
   active_symbol: string | null;
   metrics: FlushMetrics;
 }
 
-export interface JumbudConfig {
+export interface JumbuddyConfig {
   utln: string;
   key: string;
   assignment_id: string;

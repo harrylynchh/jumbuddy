@@ -1,15 +1,18 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as crypto from "crypto";
 import {
   getMirrorDir,
-  getJumbudDir,
+  getJumbuddyDir,
   isTrackedFile,
-} from "./config";
+  getNextSequence,
+} from "../utils/config";
 import { computeDiff } from "./differ";
-import { enqueueFlush, pushFlushes } from "./flusher";
+import { enqueueFlush, pushFlushes } from "../sync/flusher";
 import { computeMetrics } from "./metrics";
 import { startTracking } from "./tracker";
-import { FlushPayload } from "./types";
+import { FlushPayload } from "../utils/types";
+import { sha256 } from "../utils/hash";
 
 /**
  * Scan workspace for tracked files, mirror them, generate init flushes, start tracking.
@@ -29,12 +32,19 @@ export async function initializeTracking(workspaceRoot: string): Promise<void> {
 
     const diffs = computeDiff(relativePath, "", content);
     const metrics = computeMetrics(diffs, "", content, now, now, new Map());
+    const sequence = getNextSequence(relativePath);
+    const hash = sha256(content);
+
     const flush: FlushPayload = {
       file_path: relativePath,
+      client_flush_id: crypto.randomUUID(),
+      sequence_number: sequence,
+      content_hash: hash,
       trigger: "init",
       start_timestamp: now,
       end_timestamp: now,
       diffs,
+      snapshot: content, // Init always includes full snapshot
       active_symbol: null,
       metrics,
     };
@@ -47,7 +57,7 @@ export async function initializeTracking(workspaceRoot: string): Promise<void> {
 
 function findTrackedFiles(dir: string): string[] {
   const results: string[] = [];
-  const jumbudDir = getJumbudDir();
+  const jumbuddyDir = getJumbuddyDir();
 
   function walk(current: string): void {
     const entries = fs.readdirSync(current, { withFileTypes: true });
@@ -57,7 +67,7 @@ function findTrackedFiles(dir: string): string[] {
         if (
           entry.name.startsWith(".") ||
           entry.name === "node_modules" ||
-          fullPath === jumbudDir
+          fullPath === jumbuddyDir
         ) {
           continue;
         }

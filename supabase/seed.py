@@ -44,16 +44,16 @@ def seed():
     print("Seeding...")
 
     # --- Users ---
-    prof_id = create_user("professor@jumbud.test", "testpass123", "mprof01", "Professor Morris")
+    prof_id = create_user("professor@jumbuddy.test", "testpass123", "mprof01", "Professor Morris")
     print(f"  Professor: mprof01 ({prof_id})")
 
-    ta_id = create_user("ta@jumbud.test", "testpass123", "jta0102", "Jane TA")
+    ta_id = create_user("ta@jumbuddy.test", "testpass123", "jta0102", "Jane TA")
     print(f"  TA: jta0102 ({ta_id})")
 
-    stu1_id = create_user("student1@jumbud.test", "testpass123", "slupo01", "Seth Lupo")
+    stu1_id = create_user("student1@jumbuddy.test", "testpass123", "slupo01", "Seth Lupo")
     print(f"  Student: slupo01 ({stu1_id})")
 
-    stu2_id = create_user("student2@jumbud.test", "testpass123", "abrow02", "Alice Brown")
+    stu2_id = create_user("student2@jumbuddy.test", "testpass123", "abrow02", "Alice Brown")
     print(f"  Student: abrow02 ({stu2_id})")
 
     # --- Course ---
@@ -66,13 +66,13 @@ def seed():
     print(f"  Course: CS101 ({course_id})")
 
     # --- Memberships ---
-    sb.table("students").insert([
+    sb.table("enrollments").insert([
         {"profile_id": stu1_id, "course_id": course_id},
         {"profile_id": stu2_id, "course_id": course_id},
     ]).execute()
     print("  Enrolled 2 students")
 
-    sb.table("assistants").insert({
+    sb.table("teaching_assistants").insert({
         "profile_id": ta_id,
         "course_id": course_id,
     }).execute()
@@ -89,10 +89,10 @@ def seed():
 
     print("\nSeed done.")
     print("\n=== Test credentials ===")
-    print("  Professor:  professor@jumbud.test / testpass123  (utln: mprof01)")
-    print("  TA:         ta@jumbud.test / testpass123         (utln: jta0102)")
-    print("  Student 1:  student1@jumbud.test / testpass123   (utln: slupo01)")
-    print("  Student 2:  student2@jumbud.test / testpass123   (utln: abrow02)")
+    print("  Professor:  professor@jumbuddy.test / testpass123  (utln: mprof01)")
+    print("  TA:         ta@jumbuddy.test / testpass123         (utln: jta0102)")
+    print("  Student 1:  student1@jumbuddy.test / testpass123   (utln: slupo01)")
+    print("  Student 2:  student2@jumbuddy.test / testpass123   (utln: abrow02)")
     print("\n  Keys and flushes are generated naturally via the VS Code extension.")
 
 

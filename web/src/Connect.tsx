@@ -20,7 +20,7 @@ interface Assignment {
 
 export default function Connect() {
   const [session, setSession] = useState<Session | null>(null);
-  const [email, setEmail] = useState("student1@jumbud.test");
+  const [email, setEmail] = useState("student1@jumbuddy.test");
   const [password, setPassword] = useState("testpass123");
   const [error, setError] = useState("");
 
@@ -30,6 +30,9 @@ export default function Connect() {
   const [selectedCourse, setSelectedCourse] = useState<string>("");
   const [connecting, setConnecting] = useState(false);
   const [done, setDone] = useState(false);
+
+  // Workspace path passed from VS Code so callback returns to the right window
+  const workspace = new URLSearchParams(window.location.search).get("workspace") ?? "";
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
@@ -45,7 +48,6 @@ export default function Connect() {
       headers: { Authorization: `Bearer ${session.access_token}` },
     });
     if (!res.ok) {
-      // Token is stale (DB was wiped) — sign out so user re-authenticates
       console.error("connect-info failed:", res.status);
       await supabase.auth.signOut();
       setError("Session expired. Please sign in again.");
@@ -78,7 +80,6 @@ export default function Connect() {
     if (!session) return;
     setConnecting(true);
 
-    // Generate/get the assignment key
     const res = await fetch(`${API}/api/extensions/generate-key`, {
       method: "POST",
       headers: {
@@ -96,20 +97,22 @@ export default function Connect() {
 
     const { key } = await res.json();
 
-    // Find assignment and course details
     const assignment = assignments.find((a) => a.id === assignmentId);
     const course = courses.find((c) => c.id === assignment?.course_id);
 
-    // Build the vscode:// callback URI
-    const params = new URLSearchParams({
+    const callbackParams: Record<string, string> = {
       key,
       utln,
       assignment_id: assignmentId,
       course_id: course?.id ?? "",
       server_url: API,
-    });
+    };
+    if (workspace) {
+      callbackParams.workspace = workspace;
+    }
+    const params = new URLSearchParams(callbackParams);
 
-    const vscodeUri = `vscode://jumbud.jumbud/callback?${params.toString()}`;
+    const vscodeUri = `vscode://jumbuddy.jumbuddy/callback?${params.toString()}`;
     window.location.href = vscodeUri;
     setDone(true);
     setConnecting(false);
@@ -119,113 +122,221 @@ export default function Connect() {
     (a) => a.course_id === selectedCourse,
   );
 
+  // Login state
   if (!session) {
     return (
-      <div style={{ padding: "2rem", fontFamily: "system-ui, sans-serif", maxWidth: 400, margin: "0 auto" }}>
-        <h1>Connect to JumBud</h1>
-        <p>Sign in to link your VS Code extension.</p>
-        <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: "0.5rem" }}>
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "grid",
+          placeItems: "center",
+          background: "var(--bg-page)",
+          padding: "1rem",
+        }}
+      >
+        <div
+          style={{
+            width: "min(420px, 100%)",
+            border: "1px solid var(--border)",
+            borderRadius: 12,
+            background: "var(--surface)",
+            padding: "2rem",
+          }}
+        >
+          <h1 style={{ marginTop: 0 }}>Connect to JumBuddy</h1>
+          <p style={{ color: "var(--text-muted)", marginTop: 0 }}>
+            Sign in to link your VS Code extension.
+          </p>
+          <form onSubmit={handleLogin}>
+            <label style={{ display: "block", marginBottom: "0.35rem", fontWeight: 600 }}>
+              Email
+            </label>
             <input
               type="email"
-              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              style={{ width: "100%", padding: "0.5rem" }}
+              style={{
+                width: "100%",
+                padding: "0.7rem",
+                borderRadius: 8,
+                border: "1px solid var(--border)",
+                marginBottom: "0.8rem",
+              }}
             />
-          </div>
-          <div style={{ marginBottom: "0.5rem" }}>
+            <label style={{ display: "block", marginBottom: "0.35rem", fontWeight: 600 }}>
+              Password
+            </label>
             <input
               type="password"
-              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              style={{ width: "100%", padding: "0.5rem" }}
+              style={{
+                width: "100%",
+                padding: "0.7rem",
+                borderRadius: 8,
+                border: "1px solid var(--border)",
+                marginBottom: "0.8rem",
+              }}
             />
-          </div>
-          {error && <p style={{ color: "red" }}>{error}</p>}
-          <button type="submit" style={{ padding: "0.5rem 1rem" }}>
-            Sign In
-          </button>
-        </form>
+            {error && (
+              <p style={{ color: "var(--danger)", marginTop: 0 }}>{error}</p>
+            )}
+            <button
+              type="submit"
+              className="btn btn-primary"
+              style={{
+                width: "100%",
+                padding: "0.75rem",
+                border: "none",
+                borderRadius: 8,
+                fontWeight: 700,
+              }}
+            >
+              Sign In
+            </button>
+          </form>
+        </div>
       </div>
     );
   }
 
+  // Success state
   if (done) {
     return (
-      <div style={{ padding: "2rem", fontFamily: "system-ui, sans-serif", maxWidth: 500, margin: "0 auto", textAlign: "center" }}>
-        <h1>Connected!</h1>
-        <p>VS Code should now be tracking your edits. You can close this tab.</p>
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "grid",
+          placeItems: "center",
+          background: "var(--bg-page)",
+          padding: "1rem",
+        }}
+      >
+        <div
+          style={{
+            width: "min(480px, 100%)",
+            border: "1px solid var(--border)",
+            borderRadius: 12,
+            background: "var(--surface)",
+            padding: "2rem",
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 999,
+              background: "var(--success)",
+              display: "grid",
+              placeItems: "center",
+              margin: "0 auto 1rem",
+            }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 13l4 4L19 7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <h1 style={{ marginTop: 0 }}>Connected!</h1>
+          <p style={{ color: "var(--text-muted)", marginBottom: 0 }}>
+            VS Code should now be tracking your edits. You can close this tab.
+          </p>
+        </div>
       </div>
     );
   }
 
+  // Assignment picker state
   return (
-    <div style={{ padding: "2rem", fontFamily: "system-ui, sans-serif", maxWidth: 500, margin: "0 auto" }}>
-      <h1>Connect to JumBud</h1>
-      <p>
-        Signed in as <strong>{session.user.email}</strong> (utln: {utln})
-      </p>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "grid",
+        placeItems: "center",
+        background: "var(--bg-page)",
+        padding: "1rem",
+      }}
+    >
+      <div
+        style={{
+          width: "min(500px, 100%)",
+          border: "1px solid var(--border)",
+          borderRadius: 12,
+          background: "var(--surface)",
+          padding: "2rem",
+        }}
+      >
+        <h1 style={{ marginTop: 0 }}>Connect to JumBuddy</h1>
+        <p style={{ color: "var(--text-muted)", marginTop: 0 }}>
+          Signed in as <strong>{session.user.email}</strong> (utln: {utln})
+        </p>
 
-      {courses.length === 0 ? (
-        <p>No courses found for your account.</p>
-      ) : (
-        <>
-          <div style={{ marginBottom: "1rem" }}>
-            <label style={{ display: "block", marginBottom: "0.25rem", fontWeight: "bold" }}>
-              Course
-            </label>
-            <select
-              value={selectedCourse}
-              onChange={(e) => setSelectedCourse(e.target.value)}
-              style={{ width: "100%", padding: "0.5rem" }}
-            >
-              {courses.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.code} — {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label style={{ display: "block", marginBottom: "0.25rem", fontWeight: "bold" }}>
-              Assignment
-            </label>
-            {filteredAssignments.length === 0 ? (
-              <p style={{ color: "#888" }}>No assignments for this course.</p>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                {filteredAssignments.map((a) => (
-                  <button
-                    key={a.id}
-                    onClick={() => handleConnect(a.id)}
-                    disabled={connecting}
-                    style={{
-                      padding: "0.75rem 1rem",
-                      textAlign: "left",
-                      border: "1px solid #ccc",
-                      borderRadius: 4,
-                      cursor: connecting ? "wait" : "pointer",
-                      background: "#f9f9f9",
-                    }}
-                  >
-                    <strong>{a.name}</strong>
-                    {a.due_date && (
-                      <span style={{ marginLeft: "0.5rem", color: "#888" }}>
-                        Due: {new Date(a.due_date).toLocaleDateString()}
-                      </span>
-                    )}
-                  </button>
+        {courses.length === 0 ? (
+          <p style={{ color: "var(--text-muted)" }}>No courses found for your account.</p>
+        ) : (
+          <>
+            <div style={{ marginBottom: "1.25rem" }}>
+              <label style={{ display: "block", marginBottom: "0.35rem", fontWeight: 600 }}>
+                Course
+              </label>
+              <select
+                value={selectedCourse}
+                onChange={(e) => setSelectedCourse(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "0.6rem",
+                  borderRadius: 8,
+                  border: "1px solid var(--border)",
+                }}
+              >
+                {courses.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.code} — {c.name}
+                  </option>
                 ))}
-              </div>
-            )}
-          </div>
-        </>
-      )}
+              </select>
+            </div>
 
-      {error && <p style={{ color: "red", marginTop: "1rem" }}>{error}</p>}
+            <div>
+              <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: 600 }}>
+                Assignment
+              </label>
+              {filteredAssignments.length === 0 ? (
+                <p style={{ color: "var(--text-muted)" }}>No assignments for this course.</p>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                  {filteredAssignments.map((a) => (
+                    <button
+                      key={a.id}
+                      onClick={() => handleConnect(a.id)}
+                      disabled={connecting}
+                      style={{
+                        padding: "0.75rem 1rem",
+                        textAlign: "left",
+                        border: "1px solid var(--border)",
+                        borderRadius: 8,
+                        cursor: connecting ? "wait" : "pointer",
+                        background: "var(--surface-muted)",
+                      }}
+                    >
+                      <strong>{a.name}</strong>
+                      {a.due_date && (
+                        <span style={{ marginLeft: "0.5rem", color: "var(--text-muted)" }}>
+                          Due: {new Date(a.due_date).toLocaleDateString()}
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {error && (
+          <p style={{ color: "var(--danger)", marginTop: "1rem" }}>{error}</p>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,19 +1,18 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 import * as vscode from "vscode";
-import { jumbudExists, readConfig, writeConfig, getWorkspaceRoot } from "./config";
-
-import { initializeTracking } from "./init";
-import { startTracking, stopTracking } from "./tracker";
-import { pushFlushes } from "./flusher";
-import { JumbudConfig } from "./types";
-import { createStatusBar, setTracking, setIdle, dispose as disposeStatusBar } from "./statusbar";
+import { jumbuddyExists, readConfig, writeConfig, getWorkspaceRoot } from "../utils/config";
+import { initializeTracking } from "../tracking/init";
+import { startTracking, stopTracking } from "../tracking/tracker";
+import { pushFlushes } from "../sync/flusher";
+import { JumbuddyConfig } from "../utils/types";
+import { createStatusBar, setTracking, setIdle, setUninitialized, dispose as disposeStatusBar } from "../ui/statusbar";
 
 const DEFAULT_SERVER_URL = "http://localhost:10000";
 const WEB_URL = "http://localhost:10001";
 
 export async function activate(context: vscode.ExtensionContext) {
-  console.log("[JumBud] Activating extension...");
+  console.log("[JumBuddy] Activating extension...");
 
   // Status bar
   const statusBar = createStatusBar();
@@ -21,8 +20,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Register URI handler for browser callback
   const uriHandler: vscode.UriHandler = {
-    handleUri(uri: vscode.Uri) {
-      console.log("[JumBud] URI callback received:", uri.toString());
+    async handleUri(uri: vscode.Uri) {
+      console.log("[JumBuddy] URI callback received:", uri.toString());
 
       const params = new URLSearchParams(uri.query);
       const key = params.get("key");
@@ -30,23 +29,31 @@ export async function activate(context: vscode.ExtensionContext) {
       const assignmentId = params.get("assignment_id");
       const courseId = params.get("course_id");
       const serverUrl = params.get("server_url") ?? DEFAULT_SERVER_URL;
+      const workspace = params.get("workspace");
 
       if (!key || !utln || !assignmentId || !courseId) {
         vscode.window.showErrorMessage(
-          "JumBud: Invalid callback — missing parameters.",
+          "JumBuddy: Invalid callback — missing parameters.",
         );
         return;
       }
 
-      const workspaceRoot = getWorkspaceRoot();
+      let workspaceRoot = getWorkspaceRoot();
+
+      // If callback has a workspace path and we're not in the right folder, open it
+      if (workspace && workspaceRoot !== workspace) {
+        await vscode.commands.executeCommand("vscode.openFolder", vscode.Uri.file(workspace), false);
+        return; // Extension will re-activate in the new window with the URI
+      }
+
       if (!workspaceRoot) {
         vscode.window.showErrorMessage(
-          "JumBud: No workspace folder open.",
+          "JumBuddy: No workspace folder open.",
         );
         return;
       }
 
-      const config: JumbudConfig = {
+      const config: JumbuddyConfig = {
         utln,
         key,
         assignment_id: assignmentId,
@@ -57,42 +64,47 @@ export async function activate(context: vscode.ExtensionContext) {
 
       initializeTracking(workspaceRoot).then(() => {
         setTracking();
+        vscode.commands.executeCommand("workbench.action.focusActiveEditorGroup");
         vscode.window.showInformationMessage(
-          `JumBud: Connected as ${utln}. Tracking started.`,
+          `JumBuddy: Connected as ${utln}. Tracking started.`,
         );
       });
     },
   };
   context.subscriptions.push(vscode.window.registerUriHandler(uriHandler));
 
-  // Init command — opens browser
+  // Init command — opens browser with workspace path so callback returns here
   const initCmd = vscode.commands.registerCommand(
-    "jumbud.init",
+    "jumbuddy.init",
     async () => {
-      if (!getWorkspaceRoot()) {
+      const root = getWorkspaceRoot();
+      if (!root) {
         vscode.window.showErrorMessage(
-          "JumBud: Open a workspace folder first.",
+          "JumBuddy: Open a workspace folder first.",
         );
         return;
       }
 
-      const connectUrl = `${WEB_URL}/connect`;
+      const params = new URLSearchParams({ workspace: root });
+      const connectUrl = `${WEB_URL}/connect?${params.toString()}`;
       await vscode.env.openExternal(vscode.Uri.parse(connectUrl));
       vscode.window.showInformationMessage(
-        "JumBud: Complete setup in your browser.",
+        "JumBuddy: Complete setup in your browser.",
       );
     },
   );
   context.subscriptions.push(initCmd);
 
-  // Resume tracking if .jumbud/ already exists
-  if (jumbudExists()) {
+  // Resume tracking if .jumbuddy/ already exists
+  if (jumbuddyExists()) {
     const config = readConfig();
     if (config) {
       startTracking();
       setTracking();
-      vscode.window.showInformationMessage("JumBud: Resumed tracking.");
+      vscode.window.showInformationMessage("JumBuddy: Resumed tracking.");
     }
+  } else {
+    setUninitialized();
   }
 }
 

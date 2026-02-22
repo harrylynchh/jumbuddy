@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import { supabase } from "./api/supabase";
 import type { Session } from "@supabase/supabase-js";
-import "./app.css";
 import {
-  BrowserRouter,
   Link,
   Navigate,
   Route,
   Routes,
   useLocation,
+  useNavigate,
   useParams,
 } from "react-router-dom";
 
@@ -816,7 +815,7 @@ function Navbar({
     <aside className={`sidebar ${collapsed ? "sidebar--collapsed" : ""}`}>
       <div style={{ padding: "1rem 0.9rem 0.6rem", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem" }}>
         <div style={{ fontWeight: 800, letterSpacing: 0.5, fontSize: 30, lineHeight: 1.1 }}>
-          <span className="brand-label">JumBud</span>
+          <span className="brand-label">JumBuddy</span>
           <span className="brand-mini">JB</span>
         </div>
       </div>
@@ -885,85 +884,79 @@ function Navbar({
 }
 
 function LoginPage({ onLogin }: { onLogin: (email: string, password: string) => Promise<string | null> }) {
-  const [email, setEmail] = useState("professor@codeactivity.test");
+  const [email, setEmail] = useState("professor@jumbuddy.test");
   const [password, setPassword] = useState("testpass123");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError("");
     const nextError = await onLogin(email, password);
-    if (nextError) setError(nextError);
+    if (nextError) {
+      setError(nextError);
+    } else {
+      navigate("/", { replace: true });
+    }
     setLoading(false);
   }
 
   return (
     <div
-      className="login-root"
       style={{
-        minHeight: "100vh",
+        height: "100vh",
         display: "grid",
-        placeItems: "center",
+        gridTemplateColumns: "minmax(320px, 420px) 1fr",
         background: "var(--bg-page)",
-        padding: "1rem",
       }}
     >
-      <div
-        className="surface-card"
+      <section
         style={{
-          width: "min(940px, 100%)",
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          padding: "2.5rem 2.5rem",
           background: "var(--surface)",
-          borderRadius: 18,
-          overflow: "hidden",
-          boxShadow: "0 14px 32px color-mix(in srgb, var(--accent) 24%, transparent)",
+          borderRight: "1px solid var(--border)",
         }}
       >
-        <section style={{ padding: "2rem", background: "var(--accent-strong)", color: "white" }}>
-          <h1 style={{ marginTop: 0, fontSize: 34, lineHeight: 1.1 }}>JumBud Instructor Portal</h1>
-          <p style={{ opacity: 0.92, fontSize: 15 }}>
-            Track student learning progress, analyze assignment bottlenecks, and replay coding evolution from one dashboard.
-          </p>
-          <ul style={{ paddingLeft: 18, fontSize: 14, lineHeight: 1.5 }}>
-            <li>Course-level visibility similar to Gradescope workflows</li>
-            <li>Assignment-level struggles with symbol/function heatmaps</li>
-            <li>Student replay timeline with AI insight context</li>
-          </ul>
-        </section>
+        <div style={{ fontSize: 36, fontWeight: 800, letterSpacing: 0.5, lineHeight: 1, marginBottom: "1.5rem" }}>JumBuddy</div>
+        <form onSubmit={submit}>
+          <label style={{ display: "block", marginBottom: "0.35rem", fontWeight: 600 }}>Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={{ width: "100%", padding: "0.7rem", borderRadius: 8, border: "1px solid var(--border)", marginBottom: "0.8rem" }}
+          />
+          <label style={{ display: "block", marginBottom: "0.35rem", fontWeight: 600 }}>Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{ width: "100%", padding: "0.7rem", borderRadius: 8, border: "1px solid var(--border)", marginBottom: "1rem" }}
+          />
+          {error && <p style={{ color: "var(--danger)", marginTop: 0 }}>{error}</p>}
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={loading}
+            style={{ width: "100%", padding: "0.75rem", border: "none", borderRadius: 8, fontWeight: 700 }}
+          >
+            {loading ? "Signing In..." : "Sign In"}
+          </button>
+        </form>
+      </section>
 
-        <section style={{ padding: "2rem" }}>
-          <h2 style={{ marginTop: 0 }}>Sign In</h2>
-          <p style={{ color: "var(--text-muted)", marginTop: 0 }}>Use your instructor account to continue.</p>
-          <form onSubmit={submit}>
-            <label style={{ display: "block", marginBottom: "0.35rem", fontWeight: 600 }}>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={{ width: "100%", padding: "0.7rem", borderRadius: 8, border: "1px solid var(--border)", marginBottom: "0.8rem" }}
-            />
-            <label style={{ display: "block", marginBottom: "0.35rem", fontWeight: 600 }}>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={{ width: "100%", padding: "0.7rem", borderRadius: 8, border: "1px solid var(--border)", marginBottom: "0.8rem" }}
-            />
-            {error && <p style={{ color: "#dc2626", marginTop: 0 }}>{error}</p>}
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={loading}
-              style={{ width: "100%", padding: "0.75rem", background: "var(--accent)", color: "white", border: "none", borderRadius: 8, fontWeight: 700 }}
-            >
-              {loading ? "Signing In..." : "Sign In"}
-            </button>
-          </form>
-        </section>
-      </div>
+      <div
+        style={{
+          backgroundImage: "url(https://images.unsplash.com/photo-1534665482403-a909d0d97c67?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bWFuJTIwY29kaW5nfGVufDB8fDB8fHww)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      />
     </div>
   );
 }
@@ -1476,21 +1469,49 @@ function ReplayPage() {
 
 function GenericPage({ title, body }: { title: string; body: string }) {
   return (
-    <main style={{ maxWidth: 900, margin: "0 auto", padding: "1rem 1.1rem 2rem" }}>
-      <h1>{title}</h1>
-      <p style={{ color: "var(--text-muted)", lineHeight: 1.5 }}>{body}</p>
+    <main style={{ maxWidth: 900, margin: "0 auto", padding: "1.5rem 1.1rem 2rem" }}>
+      <div
+        style={{
+          border: "1px solid var(--border)",
+          borderRadius: 12,
+          background: "var(--surface)",
+          padding: "1.5rem 1.75rem",
+        }}
+      >
+        <h1 style={{ marginTop: 0 }}>{title}</h1>
+        <p style={{ color: "var(--text-muted)", lineHeight: 1.65, marginBottom: 0 }}>{body}</p>
+      </div>
     </main>
   );
 }
 
 function NotFoundPage() {
   return (
-    <main style={{ maxWidth: 900, margin: "0 auto", padding: "1rem 1.1rem 2rem" }}>
-      <h1>Not Found</h1>
-      <p style={{ color: "var(--text-muted)" }}>This page does not exist in the current routing setup.</p>
-      <Link to="/" style={{ color: "var(--accent)", fontWeight: 700, textDecoration: "none" }}>
-        Back to Dashboard
-      </Link>
+    <main style={{ maxWidth: 900, margin: "0 auto", padding: "1.5rem 1.1rem 2rem" }}>
+      <div
+        style={{
+          border: "1px solid var(--border)",
+          borderRadius: 12,
+          background: "var(--surface)",
+          padding: "1.5rem 1.75rem",
+        }}
+      >
+        <h1 style={{ marginTop: 0 }}>Not Found</h1>
+        <p style={{ color: "var(--text-muted)" }}>This page does not exist in the current routing setup.</p>
+        <Link
+          to="/"
+          className="btn btn-primary"
+          style={{
+            display: "inline-block",
+            padding: "0.55rem 1.1rem",
+            borderRadius: 8,
+            color: "white",
+            textDecoration: "none",
+          }}
+        >
+          Back to Dashboard
+        </Link>
+      </div>
     </main>
   );
 }
@@ -1509,60 +1530,58 @@ function AuthedApp({
   onToggleCollapsed: () => void;
 }) {
   return (
-    <BrowserRouter>
-      <div style={appShellStyle} className={`app-shell ${collapsed ? "sidebar-collapsed" : ""}`}>
-        <Navbar
-          onSignOut={onSignOut}
-          theme={theme}
-          onToggleTheme={onToggleTheme}
-          collapsed={collapsed}
-          onToggleCollapsed={onToggleCollapsed}
-        />
-        <div className="content-shell">
-          <Routes>
-            <Route path="/" element={<DashboardPage />} />
-            <Route
-              path="/faq"
-              element={
-                <GenericPage
-                  title="FAQ / How To Use"
-                  body="Use Dashboard to choose a course, click into assignments, inspect student and class stats, then open Details for per-student replay and AI-supported insight threads."
-                />
-              }
-            />
-            <Route
-              path="/about"
-              element={
-                <GenericPage
-                  title="About Our Product"
-                  body="JumBud helps instructors identify where students struggle by combining assignment analytics, replay-based development traces, and AI-assisted interpretation of learning behaviors."
-                />
-              }
-            />
-            <Route
-              path="/account"
-              element={
-                <GenericPage
-                  title="Account"
-                  body="Account settings can be connected here. Current demo includes authentication via Supabase and role-aware course navigation."
-                />
-              }
-            />
-            <Route path="/:courseId" element={<CoursePage />} />
-            <Route path="/:courseId/:assignment" element={<AssignmentPage />} />
-            <Route path="/:courseId/:assignment/:student" element={<ReplayPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
+    <div style={appShellStyle} className={`app-shell ${collapsed ? "sidebar-collapsed" : ""}`}>
+      <Navbar
+        onSignOut={onSignOut}
+        theme={theme}
+        onToggleTheme={onToggleTheme}
+        collapsed={collapsed}
+        onToggleCollapsed={onToggleCollapsed}
+      />
+      <div className="content-shell">
+        <Routes>
+          <Route path="/" element={<DashboardPage />} />
+          <Route
+            path="/faq"
+            element={
+              <GenericPage
+                title="FAQ / How To Use"
+                body="Use Dashboard to choose a course, click into assignments, inspect student and class stats, then open Details for per-student replay and AI-supported insight threads."
+              />
+            }
+          />
+          <Route
+            path="/about"
+            element={
+              <GenericPage
+                title="About Our Product"
+                body="JumBuddy helps instructors identify where students struggle by combining assignment analytics, replay-based development traces, and AI-assisted interpretation of learning behaviors."
+              />
+            }
+          />
+          <Route
+            path="/account"
+            element={
+              <GenericPage
+                title="Account"
+                body="Account settings can be connected here. Current demo includes authentication via Supabase and role-aware course navigation."
+              />
+            }
+          />
+          <Route path="/:courseId" element={<CoursePage />} />
+          <Route path="/:courseId/:assignment" element={<AssignmentPage />} />
+          <Route path="/:courseId/:assignment/:student" element={<ReplayPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </div>
-    </BrowserRouter>
+    </div>
   );
 }
 
 function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [theme, setTheme] = useState<ThemeMode>(() => {
-    const saved = localStorage.getItem("jumbud-theme");
+    const saved = localStorage.getItem("jumbuddy-theme");
     return saved === "light" ? "light" : "dark";
   });
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -1577,14 +1596,11 @@ function App() {
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("jumbud-theme", theme);
+    localStorage.setItem("jumbuddy-theme", theme);
   }, [theme]);
 
   async function handleLogin(email: string, password: string) {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (!error) {
-      window.history.replaceState(null, "", "/");
-    }
     return error?.message ?? null;
   }
 
@@ -1592,8 +1608,17 @@ function App() {
     await supabase.auth.signOut();
   }
 
+  const location = useLocation();
+
   if (!session) {
-    return <LoginPage onLogin={handleLogin} />;
+    if (location.pathname === "/login") {
+      return <LoginPage onLogin={handleLogin} />;
+    }
+    return <Navigate to="/login" replace />;
+  }
+
+  if (location.pathname === "/login") {
+    return <Navigate to="/" replace />;
   }
 
   return (

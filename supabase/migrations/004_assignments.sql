@@ -10,3 +10,5 @@ create table public.assignments (
 );
 
 create index idx_assignments_course on public.assignments(course_id);
+
+alter table public.assignments enable row level security;

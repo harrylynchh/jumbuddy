@@ -1,8 +1,8 @@
 {
-	"name": "jumbud",
-	"publisher": "jumbud",
-	"displayName": "JumBud",
-	"description": "Tracks coding activity and sends edit flushes to JumBud server",
+	"name": "jumbuddy",
+	"publisher": "jumbuddy",
+	"displayName": "JumBuddy",
+	"description": "Tracks coding activity and sends edit flushes to JumBuddy server",
 	"version": "0.2.0",
 	"engines": {
 		"vscode": "^1.85.0"
@@ -14,12 +14,12 @@
 		"onStartupFinished",
 		"onUri"
 	],
-	"main": "./out/extension.js",
+	"main": "./out/core/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "jumbud.init",
-				"title": "JumBud: Initialize Tracking"
+				"command": "jumbuddy.init",
+				"title": "JumBuddy: Initialize Tracking"
 			}
 		]
 	},

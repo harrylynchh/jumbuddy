@@ -8,3 +8,5 @@ create table public.courses (
 );
 
 create index idx_courses_professor on public.courses(professor_id);
+
+alter table public.courses enable row level security;

@@ -1,5 +1,5 @@
 -- Profiles table (extends auth.users)
--- No role column — membership is determined by students/assistants fact tables
+-- No role column — membership is determined by enrollments/teaching_assistants fact tables
 create table public.profiles (
     id uuid primary key references auth.users(id) on delete cascade,
     email text not null,
@@ -9,3 +9,5 @@ create table public.profiles (
 );
 
 create index idx_profiles_utln on public.profiles(utln);
+
+alter table public.profiles enable row level security;

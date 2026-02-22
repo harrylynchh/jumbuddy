@@ -11,11 +11,11 @@ extensions_bp = Blueprint("extensions", __name__)
 
 
 def _resolve_key(key):
-    """Lookup assignment_key → returns {user_id, assignment_id, course_id} or None."""
+    """Lookup assignment_key → returns {profile_id, assignment_id, course_id} or None."""
     sb = get_supabase()
     result = (
         sb.table("assignment_keys")
-        .select("user_id, assignment_id")
+        .select("profile_id, assignment_id")
         .eq("key", key)
         .execute()
     )
@@ -23,7 +23,7 @@ def _resolve_key(key):
         log.warning("Key lookup failed: key not found")
         return None
 
-    user_id = result.data[0]["user_id"]
+    profile_id = result.data[0]["profile_id"]
     assignment_id = result.data[0]["assignment_id"]
 
     assignment = (
@@ -34,9 +34,9 @@ def _resolve_key(key):
         .execute()
     )
 
-    log.debug("Key resolved: user_id=%s assignment_id=%s", user_id, assignment_id)
+    log.debug("Key resolved: profile_id=%s assignment_id=%s", profile_id, assignment_id)
     return {
-        "user_id": user_id,
+        "profile_id": profile_id,
         "assignment_id": assignment_id,
         "course_id": assignment.data["course_id"],
     }
@@ -46,7 +46,7 @@ def _resolve_key(key):
 @require_auth
 def connect_info():
     """Get the logged-in user's courses and assignments for the /connect page."""
-    log.info("connect-info requested by user_id=%s", g.user_id)
+    log.info("connect-info requested by profile_id=%s", g.user_id)
     sb = get_supabase()
 
     profile = sb.table("profiles").select("utln").eq("id", g.user_id).single().execute()
@@ -59,13 +59,13 @@ def connect_info():
         .execute()
     )
     student_rows = (
-        sb.table("students")
+        sb.table("enrollments")
         .select("course_id")
         .eq("profile_id", g.user_id)
         .execute()
     )
     assistant_rows = (
-        sb.table("assistants")
+        sb.table("teaching_assistants")
         .select("course_id")
         .eq("profile_id", g.user_id)
         .execute()
@@ -121,8 +121,8 @@ def generate_key():
     if not assignment_id:
         return jsonify({"error": "assignment_id required"}), 400
 
-    user_id = g.user_id
-    log.info("generate-key: user_id=%s assignment_id=%s", user_id, assignment_id)
+    profile_id = g.user_id
+    log.info("generate-key: profile_id=%s assignment_id=%s", profile_id, assignment_id)
 
     sb = get_supabase()
 
@@ -130,23 +130,23 @@ def generate_key():
     existing = (
         sb.table("assignment_keys")
         .select("key")
-        .eq("user_id", user_id)
+        .eq("profile_id", profile_id)
         .eq("assignment_id", assignment_id)
         .execute()
     )
     if existing.data:
-        log.info("generate-key: returning existing key for user_id=%s", user_id)
+        log.info("generate-key: returning existing key for profile_id=%s", profile_id)
         return jsonify({"key": existing.data[0]["key"]})
 
     # Generate new unique key
     key = f"ak_{secrets.token_hex(16)}"
     sb.table("assignment_keys").insert({
         "key": key,
-        "user_id": user_id,
+        "profile_id": profile_id,
         "assignment_id": assignment_id,
     }).execute()
 
-    log.info("generate-key: created new key for user_id=%s key=%s...", user_id, key[:12])
+    log.info("generate-key: created new key for profile_id=%s key=%s...", profile_id, key[:12])
     return jsonify({"key": key})
 
 
@@ -200,29 +200,34 @@ def create_flushes():
     if not resolved:
         return jsonify({"error": "Invalid assignment key"}), 401
 
-    user_id = resolved["user_id"]
+    profile_id = resolved["profile_id"]
     assignment_id = resolved["assignment_id"]
 
-    log.info("flushes: user_id=%s assignment_id=%s count=%d", user_id, assignment_id, len(flushes))
+    log.info("flushes: profile_id=%s assignment_id=%s count=%d", profile_id, assignment_id, len(flushes))
 
     sb = get_supabase()
 
     rows = []
     for f in flushes:
         rows.append({
-            "user_id": user_id,
+            "profile_id": profile_id,
             "assignment_id": assignment_id,
             "file_path": f["file_path"],
+            "client_flush_id": f["client_flush_id"],
+            "sequence_number": f["sequence_number"],
+            "content_hash": f["content_hash"],
             "trigger": f["trigger"],
             "start_timestamp": f["start_timestamp"],
             "end_timestamp": f["end_timestamp"],
             "diffs": f["diffs"],
+            "snapshot": f.get("snapshot"),
             "active_symbol": f.get("active_symbol"),
             "metrics": f.get("metrics", {}),
         })
 
-    result = sb.table("flushes").insert(rows).execute()
+    # Use upsert to handle duplicate client_flush_id (idempotent on retry)
+    result = sb.table("flushes").upsert(rows, on_conflict="client_flush_id").execute()
     inserted = len(result.data or [])
 
-    log.info("flushes: inserted %d rows for user_id=%s", inserted, user_id)
+    log.info("flushes: upserted %d rows for profile_id=%s", inserted, profile_id)
     return jsonify({"inserted": inserted})
