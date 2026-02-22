@@ -1,0 +1,223 @@
+JumBuddy Student Analytics — Statistics & AI Report Documentation
+=================================================================
+
+This document explains how student coding activity is analyzed, what metrics
+are computed, and how AI reports are generated.
+
+================================================================================
+1. DATA MODEL: FLUSHES
+================================================================================
+
+A "flush" is a window of editing activity captured from the VS Code extension:
+  - file_path: Which file was edited
+  - active_symbol: Function/class the cursor was in
+  - diffs: Unified diff showing changes
+  - start_timestamp / end_timestamp: Time range
+  - window_duration: How long the edit window lasted (seconds)
+  - sequence_number: Ordering guarantee for reconstruction
+
+Flushes are the raw data. All metrics derive from analyzing flush sequences.
+
+================================================================================
+2. ALGORITHMIC METRICS (No LLM — Pure Computation)
+================================================================================
+
+2.1 EDIT REGIONS
+----------------
+Each flush is parsed to extract:
+  - line_start, line_end: Which lines were touched (from diff hunks)
+  - chars_inserted, chars_deleted: Character-level change counts
+  - net_change: inserted - deleted
+  - duration_sec: Time spent on this edit
+
+2.2 LINGER SCORE (Algorithm 1: Struggle Detection)
+---------------------------------------------------
+For each (file_path, symbol) pair across all flushes:
+
+  dwell_time = sum of window_duration for all flushes touching this symbol
+  visits = number of distinct flushes (each flush = one visit)
+  churn = (chars_inserted + chars_deleted) / |net_change|
+
+  High churn means lots of rewriting (e.g., 200 chars changed but only 50 net).
+
+  dwell_norm = dwell_time / max_dwell_across_all_symbols
+  linger_score = dwell_norm × churn × visits
+
+Where students struggle:
+  - High linger score = lots of time + high churn + many revisits
+  - Ranked descending by linger_score
+
+2.3 CURRENT FOCUS (Algorithm 2: Recency-Weighted Activity)
+-----------------------------------------------------------
+What is the student working on *right now*?
+
+  For each symbol:
+    age_minutes = (latest_timestamp - symbol_end_time) / 60
+    decay = exp(-age_minutes / 30)  // 30-min decay window
+    weighted_time = sum(duration × decay)
+
+  Ranked descending by weighted_time.
+  Recent work weighs more; old work decays exponentially.
+
+2.4 CLASS-WIDE STRUGGLE (Algorithm 3: Aggregated Struggles)
+------------------------------------------------------------
+Which symbols/functions cause the most students to struggle?
+
+  1. Compute linger scores per student
+  2. Normalize symbol names (lowercase, trim)
+  3. For each symbol across all students:
+       student_count = number of students with linger_score > threshold
+       avg_linger = mean linger score among struggling students
+       struggle_index = student_count × avg_linger
+
+  Ranked descending by struggle_index.
+  Shows class-wide pain points.
+
+2.5 DISPLAYED STATS
+-------------------
+Student Stats:
+  - Time on Assignment: sum of all window_duration values
+  - Top Struggle Area: symbol with highest linger_score
+  - Current Focus: symbol with highest recency-weighted time
+  - Avg Churn Rate: mean churn across all symbols
+
+Class Stats:
+  - Students Tracked: distinct profile_id count
+  - Total Flushes: total flush count
+  - Top Struggle Symbol: symbol with highest struggle_index
+  - Struggling Students: student_count for top struggle symbol
+
+Linger Breakdown Table (per student):
+  - Symbol, Time (dwell_time), Visits, Churn
+  - Top 5 by linger_score
+
+================================================================================
+3. AI REPORT GENERATION (LLM-Based Semantic Analysis)
+================================================================================
+
+3.1 PREPROCESSING: TIMELINE CONSTRUCTION
+-----------------------------------------
+Raw flushes are transformed into a human-readable timeline:
+
+  1. Sort flushes by timestamp
+  2. Group into sessions (gap > 30 min = new session)
+  3. For each session:
+       - Show time range and duration
+       - Group flushes by (file_path, symbol)
+       - For each group:
+           * Count visits
+           * Sum time spent
+           * Parse diffs to count +lines/-lines
+           * Extract sample added/removed snippets
+           * Flag high churn (total_changed / |net| > 3)
+           * Flag many revisits (visits > 3)
+
+Output format:
+  === Session 1 ===
+  Time: 2024-01-15 10:30 to 11:15 (12m 30s)
+  Files worked on: 2
+
+    main.py → calculate():
+      Time: 450s, Visits: 4
+      Changes: +23 lines, -18 lines
+      ⚠ High churn (rewrote multiple times)
+      ⚠ Revisited 4 times (possible struggle)
+      Sample changes:
+        added: def calculate(x, y):
+        removed: return x + y
+
+This gives the LLM semantic understanding of what the student actually did.
+
+3.2 LLM PROMPT CONSTRUCTION
+----------------------------
+Prompt includes:
+  - The full preprocessed timeline (session-by-session breakdown)
+  - Algorithmic struggle summary (top 5 linger scores)
+  - Total time spent
+  - Directive to analyze:
+      * What did they work on? (specific files/functions)
+      * Where did they struggle? (high churn, revisits, time)
+      * Were they productive or spinning wheels?
+      * What should the TA focus on to help?
+
+Model: gpt-4o-mini
+Max tokens: 500
+Temperature: 0.3 (low for consistency)
+
+System prompt:
+  "You are an experienced teaching assistant analyzing student code
+   development patterns. Focus on semantic understanding of their
+   workflow and struggles."
+
+3.3 OUTPUT
+----------
+The LLM returns a 4-6 sentence actionable report:
+  - Specific about what files/functions the student worked on
+  - Identifies concrete struggle points (not just "they struggled")
+  - Assesses productivity (actual progress vs. wheel-spinning)
+  - Gives TA actionable advice
+
+Example:
+  "The student spent 18 minutes primarily working on the calculate()
+   function in main.py, making 4 separate editing passes with high
+   churn (23 additions, 18 deletions). They appear to have struggled
+   with implementing error handling, repeatedly rewriting the same
+   section. The validate_input() function was also revisited 3 times
+   but with lower churn, suggesting minor refinements. The TA should
+   review their error handling approach in calculate() as this is
+   where most time was lost."
+
+================================================================================
+4. HEATMAP VISUALIZATION
+================================================================================
+
+Heatmap rows: Students (by UTLN)
+Heatmap columns: Top 6 struggle symbols (from class analysis)
+Cell values: That student's linger_score for that symbol (scaled 0-100)
+
+Color mapping:
+  - 0-50: Green → Yellow (HSL hue 142 → 45)
+  - 50-100: Yellow → Red (HSL hue 45 → 0)
+  - Saturation/lightness increase with struggle
+
+Click a cell to see:
+  "X visited function Y N times over Tm Ts with churn rate C"
+
+================================================================================
+5. KEY DESIGN PRINCIPLES
+================================================================================
+
+✓ Algorithm-first: All metrics are explainable, deterministic computations
+✓ LLM as presentation layer: AI translates metrics + diffs into prose
+✓ Semantic understanding: LLM sees actual code changes, not just numbers
+✓ Traceable: Every stat can be drilled down to source flushes/diffs
+✓ No black boxes: TAs can verify AI claims against raw timeline data
+
+================================================================================
+6. DEBUGGING & VERIFICATION
+================================================================================
+
+Endpoints:
+  GET /api/analysis/student/<id>?assignment_id=X
+    → Returns raw linger/focus metrics (no LLM)
+
+  GET /api/analysis/report/<id>?assignment_id=X
+    → Generates AI report (with LLM)
+
+  GET /api/analysis/class/<assignment_id>
+    → Class-wide struggle topics
+
+  GET /api/analysis/secret
+    → Debug: Check if OPENAI_API_KEY is loaded
+
+To verify a linger score:
+  1. Check student's flushes for that symbol
+  2. Sum window_duration (dwell_time)
+  3. Count distinct flushes (visits)
+  4. Parse diffs to compute churn
+  5. Apply formula: (dwell_norm × churn × visits)
+
+To verify AI report accuracy:
+  1. Read the preprocessed timeline in server logs (if logged)
+  2. Check if AI claims match actual diff content
+  3. Verify time/visit counts against raw metrics

@@ -238,6 +238,24 @@ function CoursePage({ courses }: { courses: CourseWithRole[] }) {
   );
 }
 
+type StudentAnalysis = {
+  linger: { file_path: string; symbol: string; linger_score: number; dwell_time: number; churn: number; visits: number }[];
+  focus: { file_path: string; symbol: string; weighted_time: number }[];
+  total_time_sec: number;
+  file_breakdown: { file_path: string; time_sec: number }[];
+};
+
+type ClassAnalysis = {
+  struggle_topics: { symbol: string; struggle_index: number; student_count: number; avg_dwell_time: number; avg_churn: number }[];
+  student_count: number;
+  total_flushes: number;
+  student_lingers: Record<string, { file_path: string; symbol: string; linger_score: number; dwell_time: number; churn: number; visits: number }[]>;
+};
+
+type AIReport = {
+  report: string;
+};
+
 const HEATMAP_CATEGORIES = ["Time Spent", "Error Rate", "Retries", "Idle Gaps"];
 
 function seedHash(str: string): number {
@@ -260,9 +278,13 @@ function struggleColor(value: number): string {
 
 function StruggleHeatmap({
   students,
+  categories: categoriesProp,
+  values: valuesProp,
   onCellClick,
 }: {
   students: StudentEntry[];
+  categories?: string[];
+  values?: number[][];
   onCellClick: (studentName: string, category: string, value: number) => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -275,10 +297,10 @@ function StruggleHeatmap({
   const RADIUS = 6;
   const LABEL_W = 120;
   const HEADER_H = 28;
-  const categories = HEATMAP_CATEGORIES;
+  const categories = categoriesProp ?? HEATMAP_CATEGORIES;
 
-  // Generate deterministic values
-  const values: number[][] = students.map((s) =>
+  // Use provided values or generate deterministic ones
+  const values: number[][] = valuesProp ?? students.map((s) =>
     categories.map((cat) => seedHash(s.profile_id + cat) % 101)
   );
 
@@ -442,6 +464,13 @@ function StruggleHeatmap({
   );
 }
 
+function formatTime(sec: number): string {
+  if (sec < 60) return `${Math.round(sec)}s`;
+  const m = Math.floor(sec / 60);
+  const s = Math.round(sec % 60);
+  return s > 0 ? `${m}m ${s}s` : `${m}m`;
+}
+
 function AssignmentPage({ courses }: { courses: CourseWithRole[] }) {
   const { courseCode, assignmentId } = useParams();
   const courseEntry = courses.find((c) => c.course.code === courseCode);
@@ -451,11 +480,15 @@ function AssignmentPage({ courses }: { courses: CourseWithRole[] }) {
   const [loading, setLoading] = useState(true);
   const [narrative, setNarrative] = useState("Click a heatmap cell to see a per-student narrative for a specific function or symbol.");
   const [studentSearch, setStudentSearch] = useState("");
+  const [studentAnalysis, setStudentAnalysis] = useState<StudentAnalysis | null>(null);
+  const [classAnalysis, setClassAnalysis] = useState<ClassAnalysis | null>(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+  const [aiReport, setAiReport] = useState<string | null>(null);
+  const [reportLoading, setReportLoading] = useState(false);
 
   useEffect(() => {
     if (!assignmentId || !courseEntry) return;
     setLoading(true);
-    // Fetch assignment name and students in parallel
     Promise.all([
       apiFetch<Assignment[]>(`/assignments/course/${courseEntry.course.id}`)
         .then((assignments) => {
@@ -472,23 +505,72 @@ function AssignmentPage({ courses }: { courses: CourseWithRole[] }) {
     ]).finally(() => setLoading(false));
   }, [assignmentId, courseEntry?.course.id]);
 
+  // Fetch class analysis
+  useEffect(() => {
+    if (!assignmentId) return;
+    apiFetch<ClassAnalysis>(`/analysis/class/${assignmentId}`)
+      .then(setClassAnalysis)
+      .catch(() => setClassAnalysis(null));
+  }, [assignmentId]);
+
+  // Fetch student analysis when selection changes
+  useEffect(() => {
+    if (!selectedStudentId || !assignmentId) return;
+    setAnalysisLoading(true);
+    setAiReport(null); // Clear previous report
+    apiFetch<StudentAnalysis>(`/analysis/student/${selectedStudentId}?assignment_id=${assignmentId}`)
+      .then(setStudentAnalysis)
+      .catch(() => setStudentAnalysis(null))
+      .finally(() => setAnalysisLoading(false));
+  }, [selectedStudentId, assignmentId]);
+
+  async function generateAIReport() {
+    if (!selectedStudentId || !assignmentId) return;
+    setReportLoading(true);
+    try {
+      const data = await apiFetch<AIReport>(`/analysis/report/${selectedStudentId}?assignment_id=${assignmentId}`);
+      setAiReport(data.report);
+    } catch {
+      setAiReport("Failed to generate report. Please try again.");
+    } finally {
+      setReportLoading(false);
+    }
+  }
+
   if (!courseEntry) return <NotFoundPage />;
 
   const selectedStudent = students.find((s) => s.profile_id === selectedStudentId);
 
-  // Placeholder stats
-  const classStats = [
-    { label: "Class Average Score", value: "—" },
-    { label: "Average Completion Rate", value: "—" },
-    { label: "Avg Time on Assignment", value: "—" },
-    { label: "Students Needing Support", value: "—" },
-  ];
+  const topLinger = studentAnalysis?.linger?.[0];
+  const topFocus = studentAnalysis?.focus?.[0];
+  const avgChurn = studentAnalysis?.linger?.length
+    ? (studentAnalysis.linger.reduce((s, l) => s + l.churn, 0) / studentAnalysis.linger.length).toFixed(1)
+    : "—";
 
   const studentStats = [
-    { label: "Assignment Score", value: "—" },
-    { label: "Time on Assignment", value: "—" },
-    { label: "Compile Errors Resolved", value: "—" },
-    { label: "Late Submissions", value: "—" },
+    { label: "Time on Assignment", value: studentAnalysis ? formatTime(studentAnalysis.total_time_sec) : "—" },
+    { label: "Top Struggle Area", value: topLinger ? `${topLinger.symbol} (${topLinger.linger_score})` : "—" },
+    { label: "Current Focus", value: topFocus ? topFocus.symbol : "—" },
+    { label: "Avg Churn Rate", value: avgChurn },
+  ];
+
+  // Derive heatmap categories from class struggle topics
+  const heatmapSymbols = classAnalysis?.struggle_topics?.slice(0, 6).map((t) => t.symbol) ?? HEATMAP_CATEGORIES;
+
+  // Build per-student values for those symbols from student_lingers
+  const heatmapValues: number[][] = students.map((s) => {
+    const lingers = classAnalysis?.student_lingers?.[s.profile_id] ?? [];
+    return heatmapSymbols.map((sym) => {
+      const match = lingers.find((l) => l.symbol.toLowerCase() === sym.toLowerCase());
+      return match ? Math.min(Math.round(match.linger_score * 10), 100) : 0;
+    });
+  });
+
+  const classStats = [
+    { label: "Students Tracked", value: classAnalysis ? String(classAnalysis.student_count) : "—" },
+    { label: "Total Flushes", value: classAnalysis ? String(classAnalysis.total_flushes) : "—" },
+    { label: "Top Struggle Symbol", value: classAnalysis?.struggle_topics?.[0]?.symbol ?? "—" },
+    { label: "Struggling Students", value: classAnalysis?.struggle_topics?.[0] ? String(classAnalysis.struggle_topics[0].student_count) : "—" },
   ];
 
   return (
@@ -569,11 +651,54 @@ function AssignmentPage({ courses }: { courses: CourseWithRole[] }) {
                     </li>
                   ))}
                 </ul>
+                {/* Linger breakdown table */}
+                {studentAnalysis && studentAnalysis.linger.length > 0 && (
+                  <div style={{ marginTop: "0.8rem" }}>
+                    <h4 style={{ margin: "0 0 0.3rem", fontSize: 13, color: "var(--text-muted)" }}>Top Struggle Symbols</h4>
+                    <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
+                      <thead>
+                        <tr style={{ borderBottom: "1px solid var(--border-soft)" }}>
+                          <th style={{ textAlign: "left", padding: "0.25rem 0" }}>Symbol</th>
+                          <th style={{ textAlign: "right", padding: "0.25rem 0" }}>Time</th>
+                          <th style={{ textAlign: "right", padding: "0.25rem 0" }}>Visits</th>
+                          <th style={{ textAlign: "right", padding: "0.25rem 0" }}>Churn</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {studentAnalysis.linger.slice(0, 5).map((l, i) => (
+                          <tr key={i} style={{ borderBottom: "1px solid var(--border-soft)" }}>
+                            <td style={{ padding: "0.25rem 0", fontFamily: "monospace" }}>{l.symbol}</td>
+                            <td style={{ textAlign: "right", padding: "0.25rem 0" }}>{formatTime(l.dwell_time)}</td>
+                            <td style={{ textAlign: "right", padding: "0.25rem 0" }}>{l.visits}</td>
+                            <td style={{ textAlign: "right", padding: "0.25rem 0" }}>{l.churn}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
               <div style={{ border: "1px solid var(--border-soft)", borderRadius: 8, padding: "0.75rem", background: "var(--surface-muted)" }}>
-                <h3 style={{ marginTop: 0, marginBottom: "0.5rem", fontSize: 16 }}>AI Student Overview</h3>
-                <p style={{ margin: "0 0 0.45rem", lineHeight: 1.35 }}>AI-generated student overview will appear here once connected.</p>
-                <p style={{ marginBottom: 0, color: "var(--text-muted)", fontSize: 13 }}>Placeholder for model output integration.</p>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                  <h3 style={{ margin: 0, fontSize: 16 }}>AI Work Analysis</h3>
+                  <button
+                    className="btn btn-primary"
+                    onClick={generateAIReport}
+                    disabled={!selectedStudentId || reportLoading}
+                    style={{ padding: "0.35rem 0.8rem", fontSize: 13, fontWeight: 600 }}
+                  >
+                    {reportLoading ? "Generating..." : "Generate Report"}
+                  </button>
+                </div>
+                {aiReport ? (
+                  <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 6, padding: "0.6rem", marginTop: "0.5rem" }}>
+                    <p style={{ margin: 0, lineHeight: 1.5, whiteSpace: "pre-wrap", fontSize: 14 }}>{aiReport}</p>
+                  </div>
+                ) : (
+                  <p style={{ margin: 0, color: "var(--text-muted)", lineHeight: 1.35, fontSize: 13 }}>
+                    Click "Generate Report" to analyze this student's workflow, struggles, and productivity based on their actual code changes.
+                  </p>
+                )}
               </div>
             </div>
           </section>
@@ -593,20 +718,41 @@ function AssignmentPage({ courses }: { courses: CourseWithRole[] }) {
             <h3 style={{ marginTop: "0.8rem", marginBottom: "0.4rem" }}>Function/Symbol Struggle Heatmap</h3>
             <p style={{ marginTop: 0, marginBottom: "0.6rem", color: "var(--text-muted)" }}>Higher values indicate more struggle. Click a cell for details.</p>
 
-            {students.length > 0 && (
+            {students.length > 0 && classAnalysis && (
+              <div style={{ overflowX: "auto", padding: "0.25rem 0" }}>
+                <StruggleHeatmap
+                  students={students}
+                  categories={heatmapSymbols}
+                  values={heatmapValues}
+                  onCellClick={(name, category, value) => {
+                    const studentLingers = classAnalysis?.student_lingers ?? {};
+                    const sid = students.find((s) => (s.display_name ?? s.utln) === name)?.profile_id;
+                    const lingers = sid ? studentLingers[sid] : undefined;
+                    const match = lingers?.find((l) => l.symbol.toLowerCase() === category.toLowerCase());
+                    if (match) {
+                      setNarrative(`${name} visited ${match.symbol} ${match.visits} times over ${formatTime(match.dwell_time)} with churn rate ${match.churn}`);
+                    } else {
+                      setNarrative(`${name} — ${category} (score: ${value}): No significant activity detected.`);
+                    }
+                  }}
+                />
+              </div>
+            )}
+
+            {students.length > 0 && !classAnalysis && (
               <div style={{ overflowX: "auto", padding: "0.25rem 0" }}>
                 <StruggleHeatmap
                   students={students}
                   onCellClick={(name, category, value) =>
-                    setNarrative(`${name} — ${category} (score: ${value}): Detailed analysis coming soon.`)
+                    setNarrative(`${name} — ${category} (score: ${value}): Loading analysis...`)
                   }
                 />
               </div>
             )}
 
             <div style={{ marginTop: "0.8rem", border: "1px solid var(--border-soft)", borderRadius: 8, background: "var(--surface-muted)", padding: "0.75rem" }}>
-              <h4 style={{ marginTop: 0, marginBottom: "0.35rem" }}>Narrative Drilldown</h4>
-              <p style={{ margin: 0, lineHeight: 1.4 }}>{narrative}</p>
+              <h4 style={{ marginTop: 0, marginBottom: "0.35rem" }}>Cell Details</h4>
+              <p style={{ margin: 0, lineHeight: 1.4, fontSize: 13 }}>{narrative}</p>
             </div>
           </section>
         </section>

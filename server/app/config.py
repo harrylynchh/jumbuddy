@@ -20,5 +20,6 @@ def load_config():
     config["SUPABASE_ANON_KEY"] = os.environ.get("SUPABASE_ANON_KEY", "")
     config["SUPABASE_SERVICE_ROLE_KEY"] = os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
     config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY", "dev-secret")
+    config["OPENAI_API_KEY"] = os.environ.get("OPENAI_API_KEY", "")
 
     return config
