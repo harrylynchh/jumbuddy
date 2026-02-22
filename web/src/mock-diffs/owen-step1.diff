@@ -1,0 +1,9 @@
+diff --git a/src/hints.ts b/src/hints.ts
+index e111111..e222222 100644
+--- a/src/hints.ts
++++ b/src/hints.ts
+@@ -1,5 +1,6 @@
+ export function renderHints(hints: string[]) {
++  if (hints.length === 0) return "";
+   return hints.join("\n");
+ }

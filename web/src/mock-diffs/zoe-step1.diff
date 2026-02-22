@@ -1,0 +1,11 @@
+diff --git a/src/schedule.ts b/src/schedule.ts
+index d111111..d222222 100644
+--- a/src/schedule.ts
++++ b/src/schedule.ts
+@@ -1,6 +1,7 @@
+ export function buildSchedule(events: Event[]) {
+   const out: Event[] = [];
++
+   for (const e of events) {
+     out.push(e);
+   }

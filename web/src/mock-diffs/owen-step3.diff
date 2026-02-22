@@ -1,0 +1,12 @@
+diff --git a/src/hints.ts b/src/hints.ts
+index e333333..e444444 100644
+--- a/src/hints.ts
++++ b/src/hints.ts
+@@ -1,7 +1,8 @@
+ export function renderHints(hints: string[]) {
+   if (hints.length === 0) return "";
+   const cleaned = hints.filter(Boolean);
+-  return cleaned.join("\n");
++  const numbered = cleaned.map((hint, idx) => `${idx + 1}. ${hint}`);
++  return numbered.join("\n");
+ }

@@ -1,0 +1,10 @@
+diff --git a/src/copy_constructor.cpp b/src/copy_constructor.cpp
+index c111111..c222222 100644
+--- a/src/copy_constructor.cpp
++++ b/src/copy_constructor.cpp
+@@ -1 +1,5 @@
+-Widget::Widget(const Widget& other) = default;
++Widget::Widget(const Widget& other) {
++  size = other.size;
++  data = nullptr;
++}

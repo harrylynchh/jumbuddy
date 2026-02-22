@@ -1,0 +1,14 @@
+diff --git a/src/tree.ts b/src/tree.ts
+index 7777777..8888888 100644
+--- a/src/tree.ts
++++ b/src/tree.ts
+@@ -1,8 +1,10 @@
+ export function dfs(node: Node | null) {
+   if (!node) return [];
++
+   const left = dfs(node.left);
+   const right = dfs(node.right);
+ 
+   // in-order traversal: left subtree, root, right subtree
+   return [...left, node.value, ...right];
+ }

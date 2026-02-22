@@ -1,0 +1,15 @@
+diff --git a/src/loops.ts b/src/loops.ts
+index 1111111..2222222 100644
+--- a/src/loops.ts
++++ b/src/loops.ts
+@@ -1,6 +1,7 @@
+ export function countPassed(scores: number[]) {
+-  let passed = 0;
+-  for (let i = 0; i <= scores.length; i++) {
++  let passed = 0;
++  for (let i = 0; i < scores.length; i++) {
+     if (scores[i] >= 70) passed += 1;
+   }
++
+   return passed;
+ }

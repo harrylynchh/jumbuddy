@@ -1,0 +1,15 @@
+diff --git a/src/input.ts b/src/input.ts
+index 8888888..9999999 100644
+--- a/src/input.ts
++++ b/src/input.ts
+@@ -1,8 +1,9 @@
+ export function isValidName(name: string) {
+   const trimmed = name.trim();
+-  return trimmed.length > 0;
++  return trimmed.length >= 2;
+ }
+ 
+ export function formatName(name: string) {
+-  return name.trim();
++  return name.trim().replace(/\s+/g, " ");
+ }
