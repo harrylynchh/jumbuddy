@@ -9,8 +9,8 @@ and an AI overview of each student.
 
 ## Our Team
 
-**Harry Lynch**, Product Manager, Handled schema design, server architecture and
-orchestration with both frontend interfaces (vscode and web)
+**Harry Lynch** architecture, VS Code extension tracking core (tracker/flusher),
+flush-ingestion API, schema, orchestration.
 
 **Seth Lupo**, Lead Engineer, Python Server and Database
 
